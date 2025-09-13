@@ -3,8 +3,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Plane, Home, TrendingUp, Rocket } from "lucide-react";
+import { Plane, Home, Rocket } from "lucide-react";
 
 export const CaseStudiesSection = () => {
   const caseStudies = [
@@ -56,7 +55,7 @@ export const CaseStudiesSection = () => {
             Real Results from Real <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Businesses</span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Real results from real eCommerce businesses we've helped scale.
+            Real results from real eCommerce businesses we&apos;ve helped scale.
           </p>
         </motion.div>
 

@@ -117,7 +117,7 @@ export const FAQSection = () => {
             <CardContent className="p-8">
               <h3 className="text-2xl font-bold text-white mb-4">Still Have Questions?</h3>
               <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-                We're here to help! Schedule a free consultation to discuss your specific needs and how we can help you achieve your goals.
+                We&apos;re here to help! Schedule a free consultation to discuss your specific needs and how we can help you achieve your goals.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">

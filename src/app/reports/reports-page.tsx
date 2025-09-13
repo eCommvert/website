@@ -6,8 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   BarChart3, 
-  TrendingUp, 
-  Target, 
   ExternalLink, 
   Zap, 
   Users,
@@ -335,7 +333,7 @@ export const ReportsPage = () => {
                         <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
                       ))}
                     </div>
-                    <p className="text-gray-300 mb-4 leading-relaxed">"{testimonial.content}"</p>
+                    <p className="text-gray-300 mb-4 leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
                     <div>
                       <div className="font-semibold text-white">{testimonial.name}</div>
                       <div className="text-gray-400 text-sm">{testimonial.role} at {testimonial.company}</div>

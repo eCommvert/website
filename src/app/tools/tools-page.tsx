@@ -1,17 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
-  BarChart3, 
-  Settings, 
-  FileText, 
-  ExternalLink, 
   Zap, 
-  TrendingUp, 
-  Target, 
   Users,
   Shield,
   Clock,
@@ -353,7 +347,7 @@ export const ToolsPage = () => {
                         <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
                       ))}
                     </div>
-                    <p className="text-gray-300 mb-4 leading-relaxed">"{testimonial.content}"</p>
+                    <p className="text-gray-300 mb-4 leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
                     <div>
                       <div className="font-semibold text-white">{testimonial.name}</div>
                       <div className="text-gray-400 text-sm">{testimonial.role} at {testimonial.company}</div>

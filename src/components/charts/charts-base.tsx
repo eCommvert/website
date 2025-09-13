@@ -10,7 +10,11 @@ export const ChartLegendContent: React.FC<ChartLegendContentProps> = ({ classNam
 
 interface ChartTooltipContentProps {
   active?: boolean;
-  payload?: any[];
+  payload?: Array<{
+    name: string;
+    value: number | string;
+    color: string;
+  }>;
   label?: string;
 }
 

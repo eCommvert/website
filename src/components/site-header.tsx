@@ -1,13 +1,11 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { 
   Menu, 
   X,
   ArrowRight,
-  MessageCircle,
   User,
   FileText,
   Bot,

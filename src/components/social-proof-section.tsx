@@ -6,10 +6,7 @@ import {
   Star, 
   TrendingUp, 
   Users, 
-  Clock, 
-  CheckCircle,
-  Quote,
-  ArrowRight
+  Quote
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -136,7 +133,7 @@ export function SocialProofSection() {
                   <CardContent className="p-6 space-y-4">
                     <Quote className="w-8 h-8 text-primary/50" />
                     <p className="text-muted-foreground italic leading-relaxed">
-                      "{testimonial.quote}"
+                      &ldquo;{testimonial.quote}&rdquo;
                     </p>
                     <div className="space-y-1">
                       <p className="font-semibold">{testimonial.author}</p>

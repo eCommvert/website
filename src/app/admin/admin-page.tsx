@@ -14,9 +14,7 @@ import {
   Clock,
   Star,
   ArrowRight,
-  Database,
-  Key,
-  Activity
+  Database
 } from "lucide-react";
 
 export const AdminPage = () => {

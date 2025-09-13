@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -48,9 +49,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         {/* Product Image */}
         <div className="relative aspect-video overflow-hidden">
           {imageUrl ? (
-            <img
+            <Image
               src={imageUrl}
               alt={attributes.name}
+              width={400}
+              height={225}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 // Fallback to placeholder if image fails to load

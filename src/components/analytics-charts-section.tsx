@@ -3,8 +3,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { TrendingUp, Search, Zap, BarChart3, Settings, Target } from "lucide-react";
+import { TrendingUp, BarChart3, Target } from "lucide-react";
 
 export const AnalyticsChartsSection = () => {
   const charts = [

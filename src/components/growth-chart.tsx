@@ -2,7 +2,6 @@
 
 import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChartLegendContent, ChartTooltipContent } from "@/components/charts/charts-base";
-import { useBreakpoint } from "@/hooks/use-breakpoint";
 import { cx } from "@/utils/cx";
 
 const chartData = [
@@ -44,7 +43,6 @@ const chartData = [
 ];
 
 export function GrowthChart() {
-  const isDesktop = useBreakpoint("lg");
 
   const colors: Record<string, string> = {
     growth: "text-primary",

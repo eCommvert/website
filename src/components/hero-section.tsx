@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, CheckCircle, Users, TrendingUp, Circle } from "lucide-react";
+import { ArrowRight, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { GrowthChart } from "@/components/growth-chart";
 
@@ -74,7 +74,7 @@ export function HeroSection() {
               className="flex flex-col sm:flex-row gap-3 justify-center"
             >
               <Button size="default" className="!pl-10 !pr-6 !py-2.5 text-base font-medium">
-                See If We're a Fit
+                See If We&apos;re a Fit
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
               <Button variant="outline" size="default" className="px-6 py-2.5 text-base font-medium">
