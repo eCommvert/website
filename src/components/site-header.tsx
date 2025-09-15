@@ -13,7 +13,7 @@ import {
   Mountain,
   Network
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   NavigationMenu,
@@ -26,6 +26,11 @@ import {
 
 export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -44,7 +49,8 @@ export function SiteHeader() {
           </div>
 
           {/* Desktop Navigation */}
-          <NavigationMenu className="hidden md:flex">
+          {isMounted && (
+            <NavigationMenu className="hidden md:flex">
             <NavigationMenuList>
               {/* Marketing Consulting */}
               <NavigationMenuItem>
@@ -123,6 +129,7 @@ export function SiteHeader() {
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
+          )}
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center space-x-4">

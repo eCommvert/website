@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Star, 
   TrendingUp, 
@@ -9,6 +10,7 @@ import {
   Quote
 } from "lucide-react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const socialProofItems = [
   {
@@ -39,19 +41,22 @@ const testimonials = [
     quote: "Denis helped us identify optimization opportunities we never knew existed. Our ROAS improved by 40% within 2 months.",
     author: "Sarah M.",
     role: "CMO, E-commerce Brand",
-    company: "$50K/month ad spend"
+    company: "$50K/month ad spend",
+    photo: "/testimonials/sarah-m.jpg" // Add photo path here
   },
   {
     quote: "Finally found someone who bridges the gap between our strategy and execution. The strategic oversight has been invaluable.",
     author: "Mike R.",
     role: "Marketing Director",
-    company: "$25K/month ad spend"
+    company: "$25K/month ad spend",
+    photo: "/testimonials/mike-r.jpg" // Add photo path here
   },
   {
     quote: "Working with Denis is like having a senior strategist on demand. Immediate availability with proven expertise.",
     author: "Lisa K.",
     role: "CEO, DTC Brand",
-    company: "$15K/month ad spend"
+    company: "$15K/month ad spend",
+    photo: "/testimonials/lisa-k.jpg" // Add photo path here
   }
 ];
 
@@ -135,10 +140,21 @@ export function SocialProofSection() {
                     <p className="text-muted-foreground italic leading-relaxed">
                       &ldquo;{testimonial.quote}&rdquo;
                     </p>
-                    <div className="space-y-1">
-                      <p className="font-semibold">{testimonial.author}</p>
-                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                      <p className="text-xs text-primary font-medium">{testimonial.company}</p>
+                    <div className="flex items-center space-x-3 pt-2">
+                      <Avatar className="w-12 h-12">
+                        <AvatarImage 
+                          src={testimonial.photo} 
+                          alt={`${testimonial.author} photo`}
+                        />
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                          {testimonial.author.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="space-y-1">
+                        <p className="font-semibold">{testimonial.author}</p>
+                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                        <p className="text-xs text-primary font-medium">{testimonial.company}</p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

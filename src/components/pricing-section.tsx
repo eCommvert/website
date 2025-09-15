@@ -11,12 +11,12 @@ export function PricingSection() {
   return (
     <section id="pricing" className="py-20 md:py-24 lg:py-32">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-8 md:mb-12">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4"
+            className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4 px-4"
           >
             Flexible plans for growth
           </motion.h2>
@@ -24,107 +24,45 @@ export function PricingSection() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-lg md:text-xl text-muted-foreground"
+            className="text-base md:text-lg lg:text-xl text-muted-foreground px-4"
           >
             Transparent pricing designed to fit your requirements.
           </motion.p>
         </div>
 
-        <Tabs defaultValue="monthly" className="w-full">
-          <div className="flex justify-center mb-12">
-            <TabsList className="inline-flex h-10 items-center justify-center rounded-lg bg-muted/20 p-1">
+        <Tabs defaultValue="monthly" className="w-full ">
+          <div className="flex justify-center mb-8 md:mb-12">
+            <TabsList className="inline-flex h-auto items-center justify-center rounded-lg bg-muted/20 p-1 flex-wrap gap-1">
               <TabsTrigger 
                 value="monthly" 
-                className="flex items-center gap-2 px-6 py-2 text-sm font-medium rounded-md transition-all duration-200 data-[state=active]:!text-white data-[state=active]:!font-bold data-[state=active]:!border-2 data-[state=active]:!border-primary data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground [&[data-state=active]_svg]:!text-primary"
+                className="flex items-center gap-2 px-3 py-2 md:px-6 text-xs md:text-sm font-medium rounded-md transition-all duration-200 data-[state=active]:!text-white data-[state=active]:!font-bold data-[state=active]:!border-2 data-[state=active]:!border-primary data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground [&[data-state=active]_svg]:!text-primary"
               >
-                <TrendingUp className="w-4 h-4" />
-                Monthly Consulting
+                <TrendingUp className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">Monthly Consulting</span>
+                <span className="sm:hidden">Monthly</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="audit" 
-                className="flex items-center gap-2 px-6 py-2 text-sm font-medium rounded-md transition-all duration-200 data-[state=active]:!text-white data-[state=active]:!font-bold data-[state=active]:!border-2 data-[state=active]:!border-primary data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground [&[data-state=active]_svg]:!text-primary"
+                className="flex items-center gap-2 px-3 py-2 md:px-6 text-xs md:text-sm font-medium rounded-md transition-all duration-200 data-[state=active]:!text-white data-[state=active]:!font-bold data-[state=active]:!border-2 data-[state=active]:!border-primary data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground [&[data-state=active]_svg]:!text-primary"
               >
-                <Calendar className="w-4 h-4" />
-                One-time Audit
+                <Calendar className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">One-time Audit</span>
+                <span className="sm:hidden">Audit</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="done-for-you" 
-                className="flex items-center gap-2 px-6 py-2 text-sm font-medium rounded-md transition-all duration-200 data-[state=active]:!text-white data-[state=active]:!font-bold data-[state=active]:!border-2 data-[state=active]:!border-primary data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground [&[data-state=active]_svg]:!text-primary"
+                className="flex items-center gap-2 px-3 py-2 md:px-6 text-xs md:text-sm font-medium rounded-md transition-all duration-200 data-[state=active]:!text-white data-[state=active]:!font-bold data-[state=active]:!border-2 data-[state=active]:!border-primary data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground [&[data-state=active]_svg]:!text-primary"
               >
-                <Bot className="w-4 h-4" />
-                Done-for-You
+                <Bot className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">Done-for-You</span>
+                <span className="sm:hidden">Custom</span>
               </TabsTrigger>
             </TabsList>
           </div>
 
           {/* Monthly Consulting Tab */}
           <TabsContent value="monthly">
-            <div className="grid lg:grid-cols-3 gap-8">
-              {/* Slack Only */}
-              <Card className="flex flex-col">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <MessageSquare className="w-5 h-5 text-primary" />
-                    <CardTitle className="text-lg">Cancel Anytime - Slack Only</CardTitle>
-                  </div>
-                  <CardDescription className="text-sm leading-relaxed">
-                    Efficient communication through Slack. Occasional monthly meetings. Focus on execution over meetings.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex-1 flex flex-col">
-                  <div className="text-2xl font-bold mb-6">$2,990 / monthly</div>
-                  <div className="space-y-3 flex-1">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">Paid Ads Audit + Action Plan</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">Consulting & Ads Strategy Management</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">Slack Channel Only</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">No Contract - Cancel anytime</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">Fixed Retainer billed monthly</span>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex flex-col gap-3 pt-6">
-                  <Button 
-                    className="w-full bg-primary hover:bg-primary/90"
-                    onClick={() => window.open('https://calendar.app.google/UxGcM27wsoNqLHL1A', '_blank')}
-                  >
-                    Book a Call
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full" 
-                    size="sm"
-                    onClick={() => window.open('https://tally.so/r/w5je2P', '_blank')}
-                  >
-                    Form Request - eCom
-                    <ArrowRight className="w-3 h-3 ml-1" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full" 
-                    size="sm"
-                    onClick={() => window.open('https://tally.so/r/mOk2l7', '_blank')}
-                  >
-                    Form Request - Services
-                    <ArrowRight className="w-3 h-3 ml-1" />
-                  </Button>
-                </CardFooter>
-              </Card>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
               {/* With Meetings */}
               <Card className="flex flex-col">
                 <CardHeader className="pb-4">
