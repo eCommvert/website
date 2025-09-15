@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// Badge not used here
 import { 
   Bold, 
   Italic, 
@@ -14,8 +14,6 @@ import {
   ListOrdered, 
   Quote, 
   Link, 
-  Image as ImageIcon,
-  Save,
   Eye,
   Edit
 } from "lucide-react";

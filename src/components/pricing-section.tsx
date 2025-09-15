@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowRight, TrendingUp, Calendar, MessageSquare, Bot, Zap } from "lucide-react";
+import { CheckCircle, ArrowRight, TrendingUp, Calendar, Bot, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function PricingSection() {

@@ -5,7 +5,7 @@ import { RichTextEditor } from "@/components/rich-text-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// Tabs are not used in the current admin UI
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,6 @@ import {
   Users, 
   BarChart3, 
   FileText, 
-  Image, 
   ShoppingCart,
   Plus,
   Edit,
@@ -25,11 +24,9 @@ import {
   Eye,
   EyeOff,
   Search,
-  Filter,
   Download,
   RefreshCw
 } from "lucide-react";
-import { motion } from "framer-motion";
 import { LemonSqueezyIntegration } from "./lemonsqueezy-integration";
 
 // Types for our CMS data
@@ -262,22 +259,37 @@ export const AdminDashboard = () => {
     
     if (savedCaseStudies) {
       try {
-        const parsedCaseStudies = JSON.parse(savedCaseStudies);
+        type OldResults = {
+          roas: { before: number; after: number; improvement: number };
+          cpa: { before: number; after: number; improvement: number };
+          revenue: { before: number; after: number; improvement: number };
+          conversion: { before: number; after: number; improvement: number };
+        };
+        type OldCaseStudy = Omit<CaseStudy, 'results'> & { results: OldResults };
+
+        const hasOldResults = (cs: unknown): cs is OldCaseStudy => {
+          if (typeof cs !== 'object' || cs === null) return false;
+          const obj = cs as Record<string, unknown>;
+          const res = obj['results'] as Record<string, unknown> | undefined;
+          return !!res && 'roas' in res && 'cpa' in res && 'revenue' in res && 'conversion' in res;
+        };
+
+        const parsedCaseStudies = JSON.parse(savedCaseStudies) as unknown[];
         // Migrate old case study format to new format
-        const migratedCaseStudies = parsedCaseStudies.map((caseStudy: any) => {
-          if (caseStudy.results && caseStudy.results.roas) {
-            // Old format - migrate to new format
+        const migratedCaseStudies: CaseStudy[] = parsedCaseStudies.map((caseStudyUnknown) => {
+          if (hasOldResults(caseStudyUnknown)) {
+            const caseStudy = caseStudyUnknown as OldCaseStudy;
             return {
-              ...caseStudy,
+              ...(caseStudy as unknown as Omit<CaseStudy, 'results'>),
               results: {
                 metric1: { name: "ROAS", before: caseStudy.results.roas.before, after: caseStudy.results.roas.after, improvement: caseStudy.results.roas.improvement, format: "number" },
                 metric2: { name: "CPA", before: caseStudy.results.cpa.before, after: caseStudy.results.cpa.after, improvement: caseStudy.results.cpa.improvement, format: "currency" },
                 metric3: { name: "Revenue", before: caseStudy.results.revenue.before, after: caseStudy.results.revenue.after, improvement: caseStudy.results.revenue.improvement, format: "currency" },
                 metric4: { name: "Conversion", before: caseStudy.results.conversion.before, after: caseStudy.results.conversion.after, improvement: caseStudy.results.conversion.improvement, format: "percentage" }
               }
-            };
+            } as CaseStudy;
           }
-          return caseStudy;
+          return caseStudyUnknown as CaseStudy;
         });
         setCaseStudies(migratedCaseStudies);
       } catch (error) {
@@ -401,27 +413,32 @@ export const AdminDashboard = () => {
     }
   };
 
-  const updateItem = (type: 'testimonial' | 'case-study' | 'category', id: string, updates: any) => {
+  type UpdatePayload = Partial<Testimonial> | Partial<CaseStudy> | Partial<ProductCategory>;
+  const updateItem = (type: 'testimonial' | 'case-study' | 'category', id: string, updates: UpdatePayload) => {
     if (type === 'testimonial') {
       setTestimonials(prev => prev.map(item => 
         item.id === id ? { ...item, ...updates } : item
       ));
     } else if (type === 'case-study') {
       setCaseStudies(prev => prev.map(item => {
-        if (item.id === id) {
-          const updatedItem = { ...item, ...updates };
-          // Ensure results object has proper structure
-          if (updates.results) {
-            updatedItem.results = {
-              metric1: { name: "ROAS", before: 0, after: 0, improvement: 0, format: "number", points: 0, ...updatedItem.results.metric1 },
-              metric2: { name: "CPA", before: 0, after: 0, improvement: 0, format: "currency", points: 0, ...updatedItem.results.metric2 },
-              metric3: { name: "Revenue", before: 0, after: 0, improvement: 0, format: "currency", points: 0, ...updatedItem.results.metric3 },
-              metric4: { name: "Conversion", before: 0, after: 0, improvement: 0, format: "percentage", points: 0, ...updatedItem.results.metric4 }
-            };
-          }
-          return updatedItem;
+        if (item.id !== id) return item;
+
+        const updatesCS = updates as Partial<CaseStudy>;
+        let merged: CaseStudy = { ...item, ...updatesCS } as CaseStudy;
+
+        if (updatesCS.results) {
+          merged = {
+            ...merged,
+            results: {
+              metric1: { ...item.results.metric1, ...(updatesCS.results.metric1 || {}) },
+              metric2: { ...item.results.metric2, ...(updatesCS.results.metric2 || {}) },
+              metric3: { ...item.results.metric3, ...(updatesCS.results.metric3 || {}) },
+              metric4: { ...item.results.metric4, ...(updatesCS.results.metric4 || {}) }
+            }
+          };
         }
-        return item;
+
+        return merged;
       }));
     } else if (type === 'category') {
       setProductCategories(prev => prev.map(item => 
@@ -767,7 +784,7 @@ export const AdminDashboard = () => {
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          <p className="text-sm text-slate-600 italic">"{testimonial.quote}"</p>
+                          <p className="text-sm text-slate-600 italic">&ldquo;{testimonial.quote}&rdquo;</p>
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center">
                               <Users className="w-5 h-5 text-slate-500" />

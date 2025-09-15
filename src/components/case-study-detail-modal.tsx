@@ -78,7 +78,7 @@ const MetricCard = ({
   color = "green"
 }: {
   metric: { name: string; before: number; after: number; improvement: number; format: string };
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>; 
   color?: string;
 }) => {
   const formatValue = (value: number, format: string) => {

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// Select not used here
 import { 
   ShoppingCart, 
   ExternalLink, 
@@ -21,7 +21,7 @@ import {
   CheckCircle,
   Loader2
 } from "lucide-react";
-import { fetchLemonSqueezyProducts, LemonSqueezyProduct, formatPrice } from "@/lib/lemonsqueezy";
+import { LemonSqueezyProduct, formatPrice } from "@/lib/lemonsqueezy";
 
 interface LemonSqueezyIntegrationProps {
   onProductsUpdate?: (products: LemonSqueezyProduct[]) => void;

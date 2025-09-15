@@ -15,7 +15,6 @@ import {
   BarChart3
 } from "lucide-react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { CaseStudyDetailModal } from "@/components/case-study-detail-modal";
 
@@ -140,7 +139,7 @@ const MetricCard = ({
   color = "green"
 }: {
   metric: { name: string; before: number; after: number; improvement: number; format: string; points?: number };
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>; 
   color?: string;
 }) => {
   const formatValue = (value: number | null | undefined, format: string | null | undefined) => {
@@ -173,8 +172,8 @@ const MetricCard = ({
           <Badge variant="secondary" className="text-xs">
             {isPoints ? `${(metric.points ?? 0) >= 0 ? '+' : ''}${metric.points ?? 0}pp` : `${actualImprovement > 0 ? '+' : ''}${actualImprovement}%`}
           </Badge>
-        </div>
-        
+      </div>
+
         <div className="space-y-2">
           {!isPercentageOnly && !isPoints ? (
             <>
@@ -343,12 +342,12 @@ export function CaseStudiesSection() {
                             </div>
                           ))}
                       </div>
-                    </div>
+                          </div>
                     <div className="space-y-3">
                       <h4 className="font-semibold text-primary flex items-center gap-2">
                         <BarChart3 className="w-4 h-4" />
                         Solution
-                      </h4>
+                          </h4>
                       <div className="text-muted-foreground text-sm leading-relaxed">
                         {study.solution
                           .split('\n')
@@ -357,7 +356,7 @@ export function CaseStudiesSection() {
                             <div key={index} className="flex items-start gap-2 mb-2">
                               <span className="text-primary mt-1">•</span>
                               <span>{line.trim()}</span>
-                            </div>
+                        </div>
                           ))}
                       </div>
                     </div>
@@ -382,7 +381,7 @@ export function CaseStudiesSection() {
                         </div>
                       ))}
                     </div>
-                  </div>
+                    </div>
                 </CardContent>
               </Card>
             </motion.div>
