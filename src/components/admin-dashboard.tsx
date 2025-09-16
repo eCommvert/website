@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
 import { RichTextEditor } from "@/components/rich-text-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -227,6 +228,7 @@ const mockProductCategories: ProductCategory[] = [
 ];
 
 export const AdminDashboard = () => {
+  const { user } = useUser();
   const [activeTab, setActiveTab] = useState("overview");
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
@@ -314,6 +316,110 @@ export const AdminDashboard = () => {
     
     setIsLoaded(true);
   }, []);
+
+  // Helpers to talk to server API
+  const getOwnerEmail = () => user?.primaryEmailAddress?.emailAddress || "";
+  const apiBase = "/api/admin/content";
+  const fetchTable = async (table: string) => {
+    const res = await fetch(`${apiBase}?table=${table}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(await res.text());
+    const json = await res.json();
+    return json.data as any[];
+  };
+  const insertTable = async (table: string, payload: any[]) => {
+    const res = await fetch(apiBase, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-user-email': getOwnerEmail() },
+      body: JSON.stringify({ table, payload })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return (await res.json()).data as any[];
+  };
+  const clearAndInsert = async (table: string, payload: any[], key: string = 'id') => {
+    // simple approach: delete all then insert (small datasets)
+    await fetch(apiBase, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', 'x-user-email': getOwnerEmail() },
+      body: JSON.stringify({ table, id: '*', key: key })
+    }).catch(() => {});
+    return insertTable(table, payload);
+  };
+
+  // Sync: pull from Supabase
+  const pullFromServer = async () => {
+    try {
+      const [cs, cats] = await Promise.all([
+        fetchTable('case_studies'),
+        fetchTable('categories')
+      ]);
+      const mappedCS: CaseStudy[] = cs.map((row: any) => ({
+        id: row.id || crypto.randomUUID(),
+        title: row.title || '',
+        category: row.category || '',
+        industry: row.industry || '',
+        client: row.client || '',
+        duration: row.duration || '',
+        monthlySpend: row.monthly_spend || '',
+        challenge: row.challenge || '',
+        solution: row.solution || '',
+        results: row.results || mockCaseStudies[0].results,
+        image: row.image || '',
+        testimonial: row.testimonial || '',
+        author: row.author || '',
+        role: row.role || '',
+        isActive: row.is_active ?? true,
+        detailedContent: row.detailed_content || undefined,
+      }));
+      const mappedCats: ProductCategory[] = cats.map((row: any) => ({
+        id: row.id || crypto.randomUUID(),
+        name: row.name,
+        description: row.description || '',
+        slug: (row.name || '').toLowerCase().replace(/\s+/g,'-'),
+        isActive: row.is_active ?? true,
+        productCount: 0,
+      }));
+      setCaseStudies(mappedCS);
+      setProductCategories(mappedCats);
+      localStorage.setItem('admin-case-studies', JSON.stringify(mappedCS));
+      localStorage.setItem('admin-categories', JSON.stringify(mappedCats));
+    } catch (e) {
+      console.error('Pull failed', e);
+      alert('Failed to pull from server. Check console.');
+    }
+  };
+
+  // Sync: push local state to Supabase
+  const pushToServer = async () => {
+    try {
+      const csPayload = caseStudies.map(cs => ({
+        title: cs.title,
+        category: cs.category,
+        industry: cs.industry,
+        client: cs.client,
+        duration: cs.duration,
+        monthly_spend: cs.monthlySpend,
+        challenge: cs.challenge,
+        solution: cs.solution,
+        results: cs.results,
+        image: cs.image,
+        testimonial: cs.testimonial,
+        author: cs.author,
+        role: cs.role,
+        is_active: cs.isActive,
+      }));
+      const catPayload = productCategories.map(c => ({
+        name: c.name,
+        description: c.description,
+        is_active: c.isActive,
+      }));
+      await clearAndInsert('categories', catPayload);
+      await clearAndInsert('case_studies', csPayload);
+      alert('Saved to server.');
+    } catch (e) {
+      console.error('Push failed', e);
+      alert('Failed to save to server. Check console.');
+    }
+  };
 
   // Save data to localStorage whenever it changes
   useEffect(() => {
@@ -486,11 +592,11 @@ export const AdminDashboard = () => {
               <p className="text-slate-600">Manage your website content and products</p>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={pullFromServer}>
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Sync Data
               </Button>
-              <Button size="sm">
+              <Button size="sm" onClick={pushToServer}>
                 <Save className="w-4 h-4 mr-2" />
                 Save All Changes
               </Button>
