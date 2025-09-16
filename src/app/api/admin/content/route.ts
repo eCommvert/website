@@ -50,8 +50,12 @@ export async function DELETE(req: NextRequest) {
   const { table, id, key = 'id' } = await req.json();
   if (!table || !id) return NextResponse.json({ error: 'Missing table or id' }, { status: 400 });
   const supabase = getServerSupabase();
+  // Support special clear-all case when id === '*'
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as unknown as any).from(table).delete().eq(key, id).select('*');
+  const query = (supabase as unknown as any).from(table).delete();
+  // If id === '*', delete all rows (using a non-null filter on key)
+  const del = id === '*' ? query.not(key, 'is', null) : query.eq(key, id);
+  const { data, error } = await del.select('*');
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data });
 }
