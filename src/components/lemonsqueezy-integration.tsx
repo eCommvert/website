@@ -148,9 +148,11 @@ export const LemonSqueezyIntegration: React.FC<LemonSqueezyIntegrationProps> = (
     });
   };
 
-  const handleAssignFilters = (productId: string, key: 'platform' | 'dataBackend' | 'pricing', value: string) => {
+  type FilterKey = 'platform' | 'dataBackend' | 'pricing';
+  type FilterEntry = { platform?: string[]; dataBackend?: string; pricing?: string };
+  const handleAssignFilters = (productId: string, key: FilterKey, value: string) => {
     setProductFiltersMap(prev => {
-      let newEntry = { ...(prev[productId] || {}) } as any;
+      const newEntry: FilterEntry = { ...(prev[productId] || {}) };
       if (key === 'platform') {
         const existing: string[] = Array.isArray(newEntry.platform) ? newEntry.platform : [];
         // toggle selection in multi-select style
@@ -443,7 +445,7 @@ export const LemonSqueezyIntegration: React.FC<LemonSqueezyIntegrationProps> = (
                     </Select>
                   </div>
                   <div className="min-w-[170px]">
-                    <Select onValueChange={(v) => bulkSetStatus(v as any)}>
+                    <Select onValueChange={(v) => bulkSetStatus(v as 'published' | 'draft' | 'archived')}>
                       <SelectTrigger>
                         <SelectValue placeholder="Bulk set status" />
                       </SelectTrigger>

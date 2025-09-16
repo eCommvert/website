@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     // Fetch all pages
     let currentPage = Number(page) || 1;
     const size = Number(perPage) || 50;
-    const aggregated: any[] = [];
+    const aggregated: unknown[] = [];
     let lastPage = currentPage;
 
     while (true) {

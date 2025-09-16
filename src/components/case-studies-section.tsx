@@ -213,9 +213,10 @@ export function CaseStudiesSection() {
     
     if (savedCaseStudies) {
       try {
-        const parsedCaseStudies = JSON.parse(savedCaseStudies);
+        const parsedCaseStudies = JSON.parse(savedCaseStudies) as unknown[];
         // Migrate old case study format to new format
-        const migratedCaseStudies = parsedCaseStudies.map((caseStudy: any) => {
+        const migratedCaseStudies = parsedCaseStudies.map((caseStudyItem) => {
+          const caseStudy = caseStudyItem as Partial<CaseStudy> & { results?: any };
           if (caseStudy.results && caseStudy.results.roas) {
             // Old format - migrate to new format
             return {
@@ -228,11 +229,15 @@ export function CaseStudiesSection() {
               }
             };
           }
-          return caseStudy;
+          return caseStudy as CaseStudy;
         });
         
-        // Filter only active case studies
-        const activeCaseStudies = migratedCaseStudies.filter((caseStudy: CaseStudy) => caseStudy.isActive);
+        // Guard: ensure items conform to CaseStudy
+        const isCaseStudy = (item: unknown): item is CaseStudy => {
+          const i = item as Partial<CaseStudy>;
+          return typeof i?.id === 'string' && typeof i?.title === 'string' && typeof i?.isActive === 'boolean' && !!i.results;
+        };
+        const activeCaseStudies = migratedCaseStudies.filter(isCaseStudy).filter((cs) => cs.isActive);
         setCaseStudies(activeCaseStudies.length > 0 ? activeCaseStudies : defaultCaseStudies);
       } catch (error) {
         console.error('Error parsing case studies:', error);
@@ -284,7 +289,7 @@ export function CaseStudiesSection() {
             Real Client Success Stories
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            See how we've helped e-commerce brands achieve remarkable growth through strategic Google Ads optimization and data-driven decision making.
+            See how we&rsquo;ve helped e-commerce brands achieve remarkable growth through strategic Google Ads optimization and data-driven decision making.
           </p>
         </motion.div>
 

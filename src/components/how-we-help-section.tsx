@@ -119,7 +119,7 @@ export function HowWeHelpSection() {
                   <div className="space-y-3 mb-6">
                     <h4 className="text-base font-semibold flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-primary" />
-                      What's included:
+                      What&rsquo;s included:
                     </h4>
                     <div className="grid md:grid-cols-2 gap-2">
                       <div className="flex items-center gap-2 text-sm">
