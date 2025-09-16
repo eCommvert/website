@@ -321,11 +321,29 @@ export const AdminDashboard = () => {
   const getOwnerEmail = () => user?.primaryEmailAddress?.emailAddress || "";
   const apiBase = "/api/admin/content";
   type CategoryRow = { id: string; name: string; description?: string; is_active: boolean; created_at: string };
+  type ResultsPayload = {
+    metric1: { name: string; before: number; after: number; improvement: number; format: string; points?: number };
+    metric2: { name: string; before: number; after: number; improvement: number; format: string; points?: number };
+    metric3: { name: string; before: number; after: number; improvement: number; format: string; points?: number };
+    metric4: { name: string; before: number; after: number; improvement: number; format: string; points?: number };
+  };
+  type DetailedContentPayload = {
+    heroImage?: string;
+    executiveSummary?: string;
+    background?: string;
+    challenges?: string;
+    approach?: string;
+    implementation?: string;
+    results?: string;
+    lessonsLearned?: string;
+    images?: Array<{ url: string; caption?: string; alt?: string }>;
+    additionalMetrics?: Array<{ name: string; value: string; description?: string }>;
+  };
   type CaseStudyRow = {
     id: string;
     title: string; category: string; industry?: string; client?: string; duration?: string; monthly_spend?: string;
-    challenge?: string; solution?: string; results?: any; image?: string; testimonial?: string; author?: string; role?: string;
-    is_active: boolean; created_at: string; detailed_content?: any;
+    challenge?: string; solution?: string; results?: ResultsPayload; image?: string; testimonial?: string; author?: string; role?: string;
+    is_active: boolean; created_at: string; detailed_content?: DetailedContentPayload;
   };
   const fetchTable = async (table: 'categories' | 'case_studies') => {
     const res = await fetch(`${apiBase}?table=${table}`, { cache: 'no-store' });
@@ -375,7 +393,7 @@ export const AdminDashboard = () => {
         author: row.author || '',
         role: row.role || '',
         isActive: row.is_active ?? true,
-        detailedContent: (row as any).detailed_content || undefined,
+        detailedContent: row.detailed_content || undefined,
       }));
       const mappedCats: ProductCategory[] = (cats as CategoryRow[]).map((row) => ({
         id: row.id || crypto.randomUUID(),
