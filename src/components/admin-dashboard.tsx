@@ -626,6 +626,52 @@ export const AdminDashboard = () => {
                 <Save className="w-4 h-4 mr-2" />
                 Save All Changes
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    const lsCaseStudies = localStorage.getItem('admin-case-studies');
+                    const lsCategories = localStorage.getItem('admin-categories');
+                    const csArr = lsCaseStudies ? (JSON.parse(lsCaseStudies) as CaseStudy[]) : [];
+                    const catArr = lsCategories ? (JSON.parse(lsCategories) as ProductCategory[]) : [];
+                    if (csArr.length === 0 && catArr.length === 0) {
+                      alert('No local data found to import.');
+                      return;
+                    }
+                    const csPayload = csArr.map(cs => ({
+                      title: cs.title,
+                      category: cs.category,
+                      industry: cs.industry,
+                      client: cs.client,
+                      duration: cs.duration,
+                      monthly_spend: cs.monthlySpend,
+                      challenge: cs.challenge,
+                      solution: cs.solution,
+                      results: cs.results,
+                      image: cs.image,
+                      testimonial: cs.testimonial,
+                      author: cs.author,
+                      role: cs.role,
+                      is_active: cs.isActive,
+                    }));
+                    const catPayload = catArr.map(c => ({
+                      name: c.name,
+                      description: c.description,
+                      is_active: c.isActive,
+                    }));
+                    await insertTable('categories', catPayload, 'upsert');
+                    await insertTable('case_studies', csPayload, 'upsert');
+                    alert('Imported local browser data to server.');
+                  } catch (e) {
+                    console.error('Import failed', e);
+                    alert('Import failed. Check console.');
+                  }
+                }}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Import from this browser
+              </Button>
             </div>
           </div>
         </div>
