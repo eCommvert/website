@@ -74,12 +74,10 @@ interface CaseStudyDetailModalProps {
 
 const MetricCard = ({ 
   metric,
-  icon: Icon, 
-  color = "green"
+  icon: Icon 
 }: {
   metric: { name: string; before: number; after: number; improvement: number; format: string };
-  icon: React.ComponentType<{ className?: string }>; 
-  color?: string;
+  icon: React.ComponentType<{ className?: string }>;
 }) => {
   const formatValue = (value: number, format: string) => {
     switch (format) {
@@ -264,16 +262,15 @@ export const CaseStudyDetailModal = ({ caseStudy, isOpen, onClose }: CaseStudyDe
             <h4 className="font-semibold text-lg">Key Results</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { metric: caseStudy.results?.metric1, icon: TrendingUp, color: "green" },
-                { metric: caseStudy.results?.metric2, icon: DollarSign, color: "blue" },
-                { metric: caseStudy.results?.metric3, icon: ShoppingCart, color: "purple" },
-                { metric: caseStudy.results?.metric4, icon: Users, color: "orange" }
-              ].filter(({ metric }) => metric && metric.name && metric.name.trim() !== "").map(({ metric, icon, color }, index) => (
+                { metric: caseStudy.results?.metric1, icon: TrendingUp },
+                { metric: caseStudy.results?.metric2, icon: DollarSign },
+                { metric: caseStudy.results?.metric3, icon: ShoppingCart },
+                { metric: caseStudy.results?.metric4, icon: Users }
+              ].filter(({ metric }) => metric && metric.name && metric.name.trim() !== "").map(({ metric, icon }, index) => (
                 <MetricCard
                   key={index}
                   metric={metric!}
                   icon={icon}
-                  color={color}
                 />
               ))}
             </div>

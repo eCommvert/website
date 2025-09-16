@@ -20,7 +20,7 @@ import {
   Loader2
 } from "lucide-react";
 import { LemonSqueezyProduct, formatPrice } from "@/lib/lemonsqueezy";
-import { FILTER_FACETS, ProductFiltersMap, hasRequiredFacets } from "@/lib/product-filters";
+import { FILTER_FACETS, ProductFiltersMap } from "@/lib/product-filters";
 
 interface LemonSqueezyIntegrationProps {
   onProductsUpdate?: (products: LemonSqueezyProduct[]) => void;

@@ -62,6 +62,14 @@ interface CaseStudy {
   };
 }
 
+// Legacy results shape used in older saved data
+type LegacyResults = {
+  roas: { before: number; after: number; improvement: number };
+  cpa: { before: number; after: number; improvement: number };
+  revenue: { before: number; after: number; improvement: number };
+  conversion: { before: number; after: number; improvement: number };
+};
+
 // Default case studies (fallback)
 const defaultCaseStudies: CaseStudy[] = [
   {
@@ -213,7 +221,7 @@ export function CaseStudiesSection() {
         const parsedCaseStudies = JSON.parse(savedCaseStudies) as unknown[];
         // Migrate old case study format to new format
         const migratedCaseStudies = parsedCaseStudies.map((caseStudyItem) => {
-          const caseStudy = caseStudyItem as Partial<CaseStudy> & { results?: any };
+          const caseStudy = caseStudyItem as Partial<CaseStudy> & { results?: LegacyResults };
           if (caseStudy.results && caseStudy.results.roas) {
             // Old format - migrate to new format
             return {
@@ -369,11 +377,11 @@ export function CaseStudiesSection() {
                     <h4 className="font-semibold text-lg">Key Results</h4>
                     <div className="flex flex-wrap gap-4 justify-center">
                       {[
-                        { metric: study.results?.metric1, icon: TrendingUp, color: "green" },
-                        { metric: study.results?.metric2, icon: DollarSign, color: "blue" },
-                        { metric: study.results?.metric3, icon: ShoppingCart, color: "purple" },
-                        { metric: study.results?.metric4, icon: Users, color: "orange" }
-                      ].filter(({ metric }) => metric && metric.name && metric.name.trim() !== "").map(({ metric, icon, color }, index) => (
+                        { metric: study.results?.metric1, icon: TrendingUp },
+                        { metric: study.results?.metric2, icon: DollarSign },
+                        { metric: study.results?.metric3, icon: ShoppingCart },
+                        { metric: study.results?.metric4, icon: Users }
+                      ].filter(({ metric }) => metric && metric.name && metric.name.trim() !== "").map(({ metric, icon }, index) => (
                         <div key={index} className="w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(25%-0.75rem)] max-w-[340px]">
                           <MetricCard
                             metric={metric!}
