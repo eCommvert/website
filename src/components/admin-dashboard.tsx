@@ -320,22 +320,29 @@ export const AdminDashboard = () => {
   // Helpers to talk to server API
   const getOwnerEmail = () => user?.primaryEmailAddress?.emailAddress || "";
   const apiBase = "/api/admin/content";
-  const fetchTable = async (table: string) => {
+  type CategoryRow = { id: string; name: string; description?: string; is_active: boolean; created_at: string };
+  type CaseStudyRow = {
+    id: string;
+    title: string; category: string; industry?: string; client?: string; duration?: string; monthly_spend?: string;
+    challenge?: string; solution?: string; results?: any; image?: string; testimonial?: string; author?: string; role?: string;
+    is_active: boolean; created_at: string; detailed_content?: any;
+  };
+  const fetchTable = async (table: 'categories' | 'case_studies') => {
     const res = await fetch(`${apiBase}?table=${table}`, { cache: 'no-store' });
     if (!res.ok) throw new Error(await res.text());
     const json = await res.json();
-    return json.data as any[];
+    return json.data as (CategoryRow[] | CaseStudyRow[]);
   };
-  const insertTable = async (table: string, payload: any[]) => {
+  const insertTable = async (table: 'categories' | 'case_studies', payload: unknown[]) => {
     const res = await fetch(apiBase, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-user-email': getOwnerEmail() },
       body: JSON.stringify({ table, payload })
     });
     if (!res.ok) throw new Error(await res.text());
-    return (await res.json()).data as any[];
+    return (await res.json()).data as unknown[];
   };
-  const clearAndInsert = async (table: string, payload: any[], key: string = 'id') => {
+  const clearAndInsert = async (table: 'categories' | 'case_studies', payload: unknown[], key: string = 'id') => {
     // simple approach: delete all then insert (small datasets)
     await fetch(apiBase, {
       method: 'DELETE',
@@ -352,7 +359,7 @@ export const AdminDashboard = () => {
         fetchTable('case_studies'),
         fetchTable('categories')
       ]);
-      const mappedCS: CaseStudy[] = cs.map((row: any) => ({
+      const mappedCS: CaseStudy[] = (cs as CaseStudyRow[]).map((row) => ({
         id: row.id || crypto.randomUUID(),
         title: row.title || '',
         category: row.category || '',
@@ -368,9 +375,9 @@ export const AdminDashboard = () => {
         author: row.author || '',
         role: row.role || '',
         isActive: row.is_active ?? true,
-        detailedContent: row.detailed_content || undefined,
+        detailedContent: (row as any).detailed_content || undefined,
       }));
-      const mappedCats: ProductCategory[] = cats.map((row: any) => ({
+      const mappedCats: ProductCategory[] = (cats as CategoryRow[]).map((row) => ({
         id: row.id || crypto.randomUUID(),
         name: row.name,
         description: row.description || '',
