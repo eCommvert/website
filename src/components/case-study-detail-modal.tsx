@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,9 +15,9 @@ import {
   ShoppingCart,
   BarChart3,
   Clock,
-  ArrowUpRight,
-  Calendar,
-  MapPin,
+  // ArrowUpRight,
+  // Calendar,
+  // MapPin,
   Building
 } from "lucide-react";
 import { motion } from "framer-motion";

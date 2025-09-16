@@ -8,7 +8,6 @@ import {
   TrendingUp, 
   DollarSign, 
   Target, 
-  Clock,
   ArrowUpRight,
   Users,
   ShoppingCart,
@@ -135,12 +134,10 @@ const defaultCaseStudies: CaseStudy[] = [
 
 const MetricCard = ({ 
   metric,
-  icon: Icon, 
-  color = "green"
+  icon: Icon
 }: {
   metric: { name: string; before: number; after: number; improvement: number; format: string; points?: number };
   icon: React.ComponentType<{ className?: string }>; 
-  color?: string;
 }) => {
   const formatValue = (value: number | null | undefined, format: string | null | undefined) => {
     const safe = typeof value === 'number' && !Number.isNaN(value) ? value : 0;
@@ -381,7 +378,6 @@ export function CaseStudiesSection() {
                           <MetricCard
                             metric={metric!}
                             icon={icon}
-                            color={color}
                           />
                         </div>
                       ))}

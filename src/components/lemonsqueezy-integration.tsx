@@ -12,9 +12,6 @@ import {
   ShoppingCart, 
   ExternalLink, 
   RefreshCw, 
-  DollarSign, 
-  Users, 
-  TrendingUp,
   Eye,
   EyeOff,
   Settings,
@@ -281,15 +278,15 @@ export const LemonSqueezyIntegration: React.FC<LemonSqueezyIntegrationProps> = (
     }
   };
 
-  const getRevenueBadge = (revenue: number) => {
-    if (revenue > 10000) {
-      return <Badge variant="default" className="bg-green-100 text-green-800">High Revenue</Badge>;
-    } else if (revenue > 1000) {
-      return <Badge variant="secondary">Medium Revenue</Badge>;
-    } else {
-      return <Badge variant="outline">Low Revenue</Badge>;
-    }
-  };
+  // const getRevenueBadge = (revenue: number) => {
+  //   if (revenue > 10000) {
+  //     return <Badge variant="default" className="bg-green-100 text-green-800">High Revenue</Badge>;
+  //   } else if (revenue > 1000) {
+  //     return <Badge variant="secondary">Medium Revenue</Badge>;
+  //   } else {
+  //     return <Badge variant="outline">Low Revenue</Badge>;
+  //   }
+  // };
 
   return (
     <div className="space-y-6">

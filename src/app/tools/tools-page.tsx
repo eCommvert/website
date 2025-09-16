@@ -14,7 +14,7 @@ import {
   Loader2
 } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
-import { SearchFilters } from "@/components/search-filters";
+// import { SearchFilters } from "@/components/search-filters";
 import { FILTER_FACETS } from "@/lib/product-filters";
 import { LemonSqueezyProduct, fetchLemonSqueezyProducts } from "@/lib/lemonsqueezy";
 

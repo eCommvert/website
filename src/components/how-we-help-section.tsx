@@ -12,10 +12,8 @@ import {
   CheckCircle, 
   Clock, 
   Target,
-  Users,
   BarChart3,
   Zap,
-  Shield,
   Lightbulb,
   Settings
 } from "lucide-react";
