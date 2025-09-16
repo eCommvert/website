@@ -23,11 +23,14 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const email = req.headers.get('x-user-email'); // provided from client via Clerk session
   if (!isOwner(email)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const { table, payload } = await req.json();
+  const { table, payload, mode } = await req.json();
   if (!table || !payload) return NextResponse.json({ error: 'Missing table or payload' }, { status: 400 });
   const supabase = getServerSupabase();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as unknown as any).from(table).insert(payload).select('*');
+  const fromTbl = (supabase as unknown as any).from(table);
+  // upsert avoids wipes and merges by primary key when provided
+  const query = mode === 'upsert' ? fromTbl.upsert(payload) : fromTbl.insert(payload);
+  const { data, error } = await query.select('*');
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data });
 }

@@ -351,11 +351,11 @@ export const AdminDashboard = () => {
     const json = await res.json();
     return json.data as (CategoryRow[] | CaseStudyRow[]);
   };
-  const insertTable = async (table: 'categories' | 'case_studies', payload: unknown[]) => {
+  const insertTable = async (table: 'categories' | 'case_studies', payload: unknown[], mode: 'insert' | 'upsert' = 'insert') => {
     const res = await fetch(apiBase, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-user-email': getOwnerEmail() },
-      body: JSON.stringify({ table, payload })
+      body: JSON.stringify({ table, payload, mode })
     });
     if (!res.ok) throw new Error(await res.text());
     return (await res.json()).data as unknown[];
@@ -367,7 +367,7 @@ export const AdminDashboard = () => {
       headers: { 'Content-Type': 'application/json', 'x-user-email': getOwnerEmail() },
       body: JSON.stringify({ table, id: '*', key: key })
     }).catch(() => {});
-    return insertTable(table, payload);
+    return insertTable(table, payload, 'insert');
   };
 
   // Sync: pull from Supabase
@@ -437,8 +437,9 @@ export const AdminDashboard = () => {
         description: c.description,
         is_active: c.isActive,
       }));
-      await clearAndInsert('categories', catPayload);
-      await clearAndInsert('case_studies', csPayload);
+      // Use upsert to avoid accidental wipes if records already exist
+      await insertTable('categories', catPayload, 'upsert');
+      await insertTable('case_studies', csPayload, 'upsert');
       alert('Saved to server.');
     } catch (e) {
       console.error('Push failed', e);
