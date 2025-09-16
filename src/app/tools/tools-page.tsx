@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
 import { SearchFilters } from "@/components/search-filters";
+import { FILTER_FACETS } from "@/lib/product-filters";
 import { LemonSqueezyProduct, fetchLemonSqueezyProducts } from "@/lib/lemonsqueezy";
 
 export const ToolsPage = () => {
@@ -24,7 +25,10 @@ export const ToolsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPriceFilter, setSelectedPriceFilter] = useState("all");
   const [selectedPlatformFilter, setSelectedPlatformFilter] = useState("all");
-  const [selectedBackendFilter, setSelectedBackendFilter] = useState("all");
+  const [selectedDataBackendFilter, setSelectedDataBackendFilter] = useState("all");
+  const [categories, setCategories] = useState<Array<{ id: string; name: string; description?: string; isActive: boolean }>>([]);
+  const [productCategoryMap, setProductCategoryMap] = useState<Record<string, string>>({});
+  const [productFiltersMap, setProductFiltersMap] = useState<Record<string, { platform?: string[]; dataBackend?: string; pricing?: string }>>({});
 
   // Fetch products from LemonSqueezy
   useEffect(() => {
@@ -46,8 +50,10 @@ export const ToolsPage = () => {
           });
         }
         
-        setProducts(fetchedProducts);
-        setFilteredProducts(fetchedProducts);
+        // Sort by updated_at desc
+        const sorted = [...fetchedProducts].sort((a,b) => new Date(b.attributes.updated_at).getTime() - new Date(a.attributes.updated_at).getTime());
+        setProducts(sorted);
+        setFilteredProducts(sorted);
       } catch (error) {
         console.error("Error loading products:", error);
         // Fallback to sample data if API fails
@@ -59,6 +65,37 @@ export const ToolsPage = () => {
     };
 
     loadProducts();
+    // Load categories and mapping from localStorage (managed in Admin)
+    try {
+      const savedCategories = localStorage.getItem('admin-categories');
+      if (savedCategories) {
+        const parsed = JSON.parse(savedCategories) as Array<{ id: string; name: string; description?: string; isActive: boolean }>;
+        setCategories(parsed.filter(c => c.isActive));
+      }
+      const savedMap = localStorage.getItem('lemonsqueezy-product-category-map');
+      const savedFiltersMap = localStorage.getItem('lemonsqueezy-product-filters-map');
+      if (savedMap) {
+        setProductCategoryMap(JSON.parse(savedMap));
+      }
+      if (savedFiltersMap) {
+        setProductFiltersMap(JSON.parse(savedFiltersMap));
+      }
+    } catch {}
+
+    // Initialize filters from URL or localStorage
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const ls = localStorage.getItem('tools-filters');
+      const initial = ls ? JSON.parse(ls) : {};
+      const q = params.get('q') ?? initial.q ?? "";
+      const platform = params.get('platform') ?? initial.platform ?? 'all';
+      const dataBackend = params.get('dataBackend') ?? initial.dataBackend ?? 'all';
+      const price = params.get('price') ?? initial.price ?? 'all';
+      setSearchQuery(q);
+      setSelectedPlatformFilter(platform);
+      setSelectedDataBackendFilter(dataBackend);
+      setSelectedPriceFilter(price);
+    } catch {}
   }, []);
 
   // Filter products based on search and filters
@@ -77,24 +114,46 @@ export const ToolsPage = () => {
     if (selectedPriceFilter !== "all") {
       if (selectedPriceFilter === "free") {
         filtered = filtered.filter(product => product.attributes.price === 0);
-      } else if (selectedPriceFilter === "premium") {
+      } else if (selectedPriceFilter === "paid") {
         filtered = filtered.filter(product => product.attributes.price > 0);
       }
     }
 
-    // Platform filter (you can customize this based on your product tags/attributes)
+    // Platform filter (from admin-assigned filters; supports multiple)
     if (selectedPlatformFilter !== "all") {
-      // This is a placeholder - you'll need to implement based on your product structure
-      // You might want to add tags or custom fields to your LemonSqueezy products
+      filtered = filtered.filter(product => {
+        const arr = productFiltersMap[product.id]?.platform || [];
+        return Array.isArray(arr) && arr.includes(selectedPlatformFilter);
+      });
     }
 
-    // Backend filter (you can customize this based on your product tags/attributes)
-    if (selectedBackendFilter !== "all") {
-      // This is a placeholder - you'll need to implement based on your product structure
+    // Data backend filter (from admin-assigned filters)
+    if (selectedDataBackendFilter !== "all") {
+      filtered = filtered.filter(product => {
+        const tag = productFiltersMap[product.id]?.dataBackend || 'all';
+        return tag === selectedDataBackendFilter;
+      });
     }
 
     setFilteredProducts(filtered);
-  }, [products, searchQuery, selectedPriceFilter, selectedPlatformFilter, selectedBackendFilter]);
+  }, [products, searchQuery, selectedPriceFilter, selectedPlatformFilter, selectedDataBackendFilter, productFiltersMap]);
+
+  // Persist filters in URL and localStorage (debounced)
+  useEffect(() => {
+    const id = setTimeout(() => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (searchQuery) params.set('q', searchQuery); else params.delete('q');
+        if (selectedPlatformFilter && selectedPlatformFilter !== 'all') params.set('platform', selectedPlatformFilter); else params.delete('platform');
+        if (selectedDataBackendFilter && selectedDataBackendFilter !== 'all') params.set('dataBackend', selectedDataBackendFilter); else params.delete('dataBackend');
+        if (selectedPriceFilter && selectedPriceFilter !== 'all') params.set('price', selectedPriceFilter); else params.delete('price');
+        const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}${window.location.hash}`;
+        window.history.replaceState(null, '', newUrl);
+        localStorage.setItem('tools-filters', JSON.stringify({ q: searchQuery, platform: selectedPlatformFilter, dataBackend: selectedDataBackendFilter, price: selectedPriceFilter }));
+      } catch {}
+    }, 250);
+    return () => clearTimeout(id);
+  }, [searchQuery, selectedPlatformFilter, selectedDataBackendFilter, selectedPriceFilter]);
 
   const features = [
     {
@@ -143,12 +202,26 @@ export const ToolsPage = () => {
     },
   ];
 
+  const grouped: Record<string, LemonSqueezyProduct[]> = React.useMemo(() => {
+    const groups: Record<string, LemonSqueezyProduct[]> = {};
+    const activeCategoryIds = new Set(categories.map(c => c.id));
+    filteredProducts.forEach(p => {
+      const catId = productCategoryMap[p.id];
+      const groupKey = catId && activeCategoryIds.has(catId) ? catId : 'uncategorized';
+      if (!groups[groupKey]) groups[groupKey] = [];
+      groups[groupKey].push(p);
+    });
+    return groups;
+  }, [filteredProducts, productCategoryMap, categories]);
+
+  const getCategoryById = (id: string) => categories.find(c => c.id === id);
+
   return (
-    <main className="min-h-screen bg-slate-900">
+    <main className="min-h-screen bg-background text-foreground">
       {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-b from-slate-900 via-purple-900/20 to-slate-900 relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-b from-background via-primary/10 to-background relative overflow-hidden">
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-500/5 via-transparent to-purple-500/5"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 via-transparent to-primary/5"></div>
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -159,52 +232,33 @@ export const ToolsPage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <Badge className="mb-4 bg-purple-500/20 text-purple-300 border-purple-500/30">
-              Digital Tools
+            <Badge className="mb-4 bg-primary/15 text-primary border-primary/30">
+              Automation & Reporting
             </Badge>
-            <h1 className="text-5xl sm:text-6xl font-bold text-white mb-6">
-              Professional <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Marketing Tools</span>
+            <h1 className="text-5xl sm:text-6xl font-bold mb-6">
+              Automate your Google Ads and Meta Ads with workflows and reports
             </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Transform your marketing operations with our suite of professional tools, dashboards, and automation workflows.
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+              Ready‑to‑use automations, dashboards, and utilities to cut busywork and scale performance.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                Get Started
+            <div className="flex justify-center">
+              <Button
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={() => {
+                  const el = document.getElementById('products');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                View all tools
                 <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-              <Button variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10">
-                View Demo
               </Button>
             </div>
           </motion.div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
-            {[
-              { value: "500+", label: "Active Users" },
-              { value: "99.9%", label: "Uptime" },
-              { value: "24/7", label: "Support" },
-              { value: "€2.7M", label: "Saved for Clients" },
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="text-center"
-              >
-                <div className="text-3xl font-bold text-purple-400 mb-2">{stat.value}</div>
-                <div className="text-gray-400">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 
       {/* Products Section */}
-      <section className="py-20 bg-slate-900">
+      <section id="products" className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -213,44 +267,162 @@ export const ToolsPage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
-              Our <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Products</span>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+              Our <span className="bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent">Products</span>
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Choose from our professional suite of marketing tools designed to scale your business.
             </p>
           </motion.div>
 
-          {/* Search and Filters */}
-          <div className="mb-12">
-            <SearchFilters
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              selectedPriceFilter={selectedPriceFilter}
-              onPriceFilterChange={setSelectedPriceFilter}
-              selectedPlatformFilter={selectedPlatformFilter}
-              onPlatformFilterChange={setSelectedPlatformFilter}
-              selectedBackendFilter={selectedBackendFilter}
-              onBackendFilterChange={setSelectedBackendFilter}
-            />
+          {/* Layout: sticky filters left (desktop), products right */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+            {/* Sidebar Filters */}
+            <aside className="md:col-span-3">
+              <div className="md:sticky md:top-24 space-y-4">
+                <div>
+                  <label className="block text-sm text-muted-foreground mb-2">Search</label>
+                  <input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search tools..."
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-muted-foreground mb-2">Platform</label>
+                  <select
+                    value={selectedPlatformFilter}
+                    onChange={(e) => setSelectedPlatformFilter(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2"
+                  >
+                    {FILTER_FACETS.platform.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm text-muted-foreground mb-2">Data backend</label>
+                  <select
+                    value={selectedDataBackendFilter}
+                    onChange={(e) => setSelectedDataBackendFilter(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2"
+                  >
+                    {FILTER_FACETS.dataBackend.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm text-muted-foreground mb-2">Price</label>
+                  <select
+                    value={selectedPriceFilter}
+                    onChange={(e) => setSelectedPriceFilter(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2"
+                  >
+                    {FILTER_FACETS.pricing.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedPriceFilter("all");
+                    setSelectedPlatformFilter("all");
+                    setSelectedDataBackendFilter("all");
+                  }}
+                >
+                  Clear filters
+                </Button>
+              </div>
+            </aside>
+
+            {/* Products Column */}
+            <div className="md:col-span-9">
+              {/* Products Grid */}
+              {loading ? (
+                <div className="flex justify-center items-center py-20">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <span className="ml-3 text-muted-foreground">Loading products...</span>
+                </div>
+              ) : filteredProducts.length > 0 ? (
+                <div className="space-y-12 mb-16">
+                  {[
+                    ...categories.map(c => c.id),
+                    'uncategorized',
+                  ].map((catId) => {
+                    const items = grouped[catId] || [];
+                    if (items.length === 0) return null;
+                    const cat = getCategoryById(catId);
+                    const title = cat ? cat.name : 'Uncategorized';
+                    const desc = cat?.description || (cat ? '' : 'Items not yet assigned to a category');
+                    return (
+                      <div key={catId}>
+                        <div className="mb-6">
+                          <h3 className="text-2xl sm:text-3xl font-bold text-white">{title}</h3>
+                          {desc ? <p className="text-gray-300 mt-2">{desc}</p> : null}
+                        </div>
+                        <div className="space-y-6">
+                          {items.map((product, index) => (
+                            <ProductCard key={product.id} product={product} index={index} />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-20">
+                  <div className="text-muted-foreground text-lg mb-4">
+                    {searchQuery || selectedPriceFilter !== "all" || selectedPlatformFilter !== "all" || selectedDataBackendFilter !== "all"
+                      ? "No products match your filters"
+                      : "No products available"}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Products Grid */}
           {loading ? (
             <div className="flex justify-center items-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
-              <span className="ml-3 text-gray-300">Loading products...</span>
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <span className="ml-3 text-muted-foreground">Loading products...</span>
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-              {filteredProducts.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
-              ))}
+            <div className="space-y-12 mb-16">
+              {[
+                // Render active categories in order, then uncategorized if any
+                ...categories.map(c => c.id),
+                'uncategorized',
+              ].map((catId) => {
+                const items = grouped[catId] || [];
+                if (items.length === 0) return null;
+                const cat = getCategoryById(catId);
+                const title = cat ? cat.name : 'Uncategorized';
+                const desc = cat?.description || (cat ? '' : 'Items not yet assigned to a category');
+                return (
+                  <div key={catId}>
+                    <div className="mb-6">
+                      <h3 className="text-2xl sm:text-3xl font-bold text-white">{title}</h3>
+                      {desc ? <p className="text-gray-300 mt-2">{desc}</p> : null}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {items.map((product, index) => (
+                        <ProductCard key={product.id} product={product} index={index} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-20">
-              <div className="text-gray-400 text-lg mb-4">
-                {searchQuery || selectedPriceFilter !== "all" || selectedPlatformFilter !== "all" || selectedBackendFilter !== "all"
+              <div className="text-muted-foreground text-lg mb-4">
+                {searchQuery || selectedPriceFilter !== "all" || selectedPlatformFilter !== "all" || selectedDataBackendFilter !== "all"
                   ? "No products match your filters"
                   : "No products available"}
               </div>
@@ -260,9 +432,9 @@ export const ToolsPage = () => {
                   setSearchQuery("");
                   setSelectedPriceFilter("all");
                   setSelectedPlatformFilter("all");
-                  setSelectedBackendFilter("all");
+                  setSelectedDataBackendFilter("all");
                 }}
-                className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+                className="border-border hover:bg-accent hover:text-accent-foreground"
               >
                 Clear Filters
               </Button>
@@ -272,7 +444,7 @@ export const ToolsPage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gradient-to-b from-slate-900 via-purple-900/20 to-slate-900">
+      <section className="py-20 bg-gradient-to-b from-background via-primary/10 to-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -281,10 +453,10 @@ export const ToolsPage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
-              Why Choose Our <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Tools</span>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+              Why Choose Our <span className="bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent">Tools</span>
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Built by marketing professionals, for marketing professionals.
             </p>
           </motion.div>
@@ -298,13 +470,13 @@ export const ToolsPage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="bg-slate-800/50 border-slate-700/50 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-300 text-center">
+                <Card className="bg-card border-border backdrop-blur-sm hover:bg-accent/10 transition-all duration-300 text-center">
                   <CardContent className="p-6">
-                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <feature.icon className="w-6 h-6 text-white" />
+                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                      <feature.icon className="w-6 h-6 text-primary-foreground" />
                     </div>
-                    <h3 className="text-purple-400 font-semibold text-lg mb-3">{feature.title}</h3>
-                    <p className="text-gray-300 text-sm leading-relaxed">{feature.description}</p>
+                    <h3 className="text-primary font-semibold text-lg mb-3">{feature.title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -314,7 +486,7 @@ export const ToolsPage = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-slate-900">
+      <section className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -323,10 +495,10 @@ export const ToolsPage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
-              What Our <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Clients Say</span>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+              What Our <span className="bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent">Clients Say</span>
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Join hundreds of satisfied customers who have transformed their marketing operations.
             </p>
           </motion.div>
@@ -340,17 +512,17 @@ export const ToolsPage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="bg-slate-800/50 border-slate-700/50 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-300">
+                <Card className="bg-card border-border backdrop-blur-sm hover:bg-accent/10 transition-all duration-300">
                   <CardContent className="p-6">
                     <div className="flex items-center mb-4">
                       {[...Array(testimonial.rating)].map((_, i) => (
                         <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
                       ))}
                     </div>
-                    <p className="text-gray-300 mb-4 leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
+                    <p className="text-muted-foreground mb-4 leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
                     <div>
-                      <div className="font-semibold text-white">{testimonial.name}</div>
-                      <div className="text-gray-400 text-sm">{testimonial.role} at {testimonial.company}</div>
+                      <div className="font-semibold">{testimonial.name}</div>
+                      <div className="text-muted-foreground text-sm">{testimonial.role} at {testimonial.company}</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -361,7 +533,7 @@ export const ToolsPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-b from-slate-900 via-purple-900/20 to-slate-900">
+      <section className="py-20 bg-gradient-to-b from-background via-primary/10 to-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -370,18 +542,18 @@ export const ToolsPage = () => {
             viewport={{ once: true }}
             className="text-center"
           >
-            <Card className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border-purple-500/30 backdrop-blur-sm">
+            <Card className="bg-card border-border backdrop-blur-sm">
               <CardContent className="p-8">
-                <h3 className="text-3xl font-bold text-white mb-4">Ready to Transform Your Marketing?</h3>
-                <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+                <h3 className="text-3xl font-bold mb-4">Ready to Transform Your Marketing?</h3>
+                <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
                   Join 500+ marketing professionals who have already upgraded their operations with our tools.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
                     Start Free Trial
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
-                  <Button variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10">
+                  <Button variant="outline" className="border-border hover:bg-accent hover:text-accent-foreground">
                     Schedule Demo
                   </Button>
                 </div>

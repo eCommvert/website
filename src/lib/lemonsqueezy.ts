@@ -6,6 +6,7 @@ export interface LemonSqueezyProduct {
     description: string;
     price: number;
     price_formatted: string;
+    buy_now_url?: string;
     has_discount: boolean;
     discount_price: number;
     discount_price_formatted: string;
@@ -53,20 +54,25 @@ export interface LemonSqueezyResponse {
   };
 }
 
-export async function fetchLemonSqueezyProducts(storeId: string): Promise<LemonSqueezyProduct[]> {
+export async function fetchLemonSqueezyProducts(storeId: string, page: number = 1, perPage: number = 50, all: boolean = true): Promise<LemonSqueezyProduct[]> {
   try {
-    const response = await fetch(
-      `https://api.lemonsqueezy.com/v1/products?filter[store_id]=${storeId}&include=store`,
-      {
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_LEMONSQUEEZY_API_KEY}`,
-        },
+    // Try to forward Authorization from client (if saved via admin). Server will fallback to env var.
+    let authHeader: Record<string, string> = { };
+    try {
+      if (typeof window !== 'undefined') {
+        const savedKey = localStorage.getItem('lemonsqueezy-api-key');
+        if (savedKey) authHeader = { Authorization: `Bearer ${savedKey}` };
       }
-    );
+    } catch {}
+
+    const response = await fetch(`/api/lemonsqueezy/products?storeId=${encodeURIComponent(storeId)}&page=${page}&perPage=${perPage}&all=${all}`, {
+      headers: { 'Accept': 'application/json', ...authHeader },
+      cache: 'no-store',
+    });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const body = await response.text().catch(() => '');
+      throw new Error(`HTTP error! status: ${response.status}${body ? ` - ${body}` : ''}`);
     }
 
     const data: LemonSqueezyResponse = await response.json();
@@ -85,8 +91,29 @@ export function formatPrice(price: number): string {
 }
 
 export function truncateDescription(description: string, maxLength: number = 120): string {
-  if (description.length <= maxLength) {
-    return description;
+  const cleaned = cleanRichText(description);
+  if (cleaned.length <= maxLength) {
+    return cleaned;
   }
-  return description.substring(0, maxLength).trim() + '...';
+  return cleaned.substring(0, maxLength).trim() + '...';
+}
+
+// Basic rich-text cleaner: strips HTML tags and common markdown characters
+export function cleanRichText(input: string): string {
+  if (!input) return '';
+  try {
+    const withoutHtml = input
+      .replace(/<[^>]*>/g, ' ') // strip HTML tags
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&amp;/gi, '&')
+      .replace(/&lt;/gi, '<')
+      .replace(/&gt;/gi, '>');
+    const withoutMd = withoutHtml
+      .replace(/[#*_`~>/\\]/g, '') // remove basic markdown symbols
+      .replace(/\s{2,}/g, ' ') // collapse whitespace
+      .trim();
+    return withoutMd;
+  } catch {
+    return input;
+  }
 }

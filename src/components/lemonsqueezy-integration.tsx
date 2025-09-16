@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 // Select not used here
 import { 
   ShoppingCart, 
@@ -22,6 +23,7 @@ import {
   Loader2
 } from "lucide-react";
 import { LemonSqueezyProduct, formatPrice } from "@/lib/lemonsqueezy";
+import { FILTER_FACETS, ProductFiltersMap, hasRequiredFacets } from "@/lib/product-filters";
 
 interface LemonSqueezyIntegrationProps {
   onProductsUpdate?: (products: LemonSqueezyProduct[]) => void;
@@ -37,18 +39,48 @@ export const LemonSqueezyIntegration: React.FC<LemonSqueezyIntegrationProps> = (
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [categories, setCategories] = useState<Array<{ id: string; name: string; isActive: boolean }>>([]);
+  const [productCategoryMap, setProductCategoryMap] = useState<Record<string, string>>({});
+  const [productFiltersMap, setProductFiltersMap] = useState<ProductFiltersMap>({});
+
+  // UI state for compact table management
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"name" | "price" | "sales" | "revenue" | "created">("name");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [selectedIds, setSelectedIds] = useState<Record<string, boolean>>({});
 
   // Load saved settings from localStorage
   useEffect(() => {
     const savedApiKey = localStorage.getItem('lemonsqueezy-api-key');
     const savedStoreId = localStorage.getItem('lemonsqueezy-store-id');
     const savedProducts = localStorage.getItem('lemonsqueezy-products');
+    const savedCategories = localStorage.getItem('admin-categories');
+    const savedMap = localStorage.getItem('lemonsqueezy-product-category-map');
+    const savedFiltersMap = localStorage.getItem('lemonsqueezy-product-filters-map');
     
     if (savedApiKey) setApiKey(savedApiKey);
     if (savedStoreId) setStoreId(savedStoreId);
     if (savedProducts) {
       setProducts(JSON.parse(savedProducts));
       setIsConnected(true);
+    }
+    if (savedCategories) {
+      try {
+        const parsed = JSON.parse(savedCategories) as Array<{ id: string; name: string; isActive: boolean }>;
+        setCategories(parsed);
+      } catch {}
+    }
+    if (savedMap) {
+      try {
+        setProductCategoryMap(JSON.parse(savedMap));
+      } catch {}
+    }
+    if (savedFiltersMap) {
+      try {
+        setProductFiltersMap(JSON.parse(savedFiltersMap));
+      } catch {}
     }
   }, []);
 
@@ -103,12 +135,135 @@ export const LemonSqueezyIntegration: React.FC<LemonSqueezyIntegrationProps> = (
     }
   };
 
+  const handleAssignCategory = (productId: string, categoryId: string) => {
+    setProductCategoryMap(prev => {
+      const updated = { ...prev } as Record<string, string>;
+      if (categoryId === 'uncategorized') {
+        delete updated[productId];
+      } else {
+        updated[productId] = categoryId;
+      }
+      localStorage.setItem('lemonsqueezy-product-category-map', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleAssignFilters = (productId: string, key: 'platform' | 'dataBackend' | 'pricing', value: string) => {
+    setProductFiltersMap(prev => {
+      let newEntry = { ...(prev[productId] || {}) } as any;
+      if (key === 'platform') {
+        const existing: string[] = Array.isArray(newEntry.platform) ? newEntry.platform : [];
+        // toggle selection in multi-select style
+        newEntry.platform = existing.includes(value) ? existing.filter(v => v !== value) : [...existing, value];
+      } else {
+        newEntry[key] = value;
+      }
+      const updated = { ...prev, [productId]: newEntry };
+      localStorage.setItem('lemonsqueezy-product-filters-map', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const toggleProductVisibility = (productId: string) => {
     setProducts(prev => prev.map(product => 
       product.id === productId 
         ? { ...product, attributes: { ...product.attributes, status: product.attributes.status === 'published' ? 'draft' : 'published' } }
         : product
     ));
+  };
+
+  const toggleSelectAll = (ids: string[], checked: boolean) => {
+    setSelectedIds(prev => {
+      const next: Record<string, boolean> = { ...prev };
+      ids.forEach(id => next[id] = checked);
+      return next;
+    });
+  };
+
+  const toggleSelectOne = (id: string, checked: boolean) => {
+    setSelectedIds(prev => ({ ...prev, [id]: checked }));
+  };
+
+  const bulkAssignCategory = (categoryId: string) => {
+    const ids = Object.keys(selectedIds).filter(id => selectedIds[id]);
+    if (ids.length === 0) return;
+    setProductCategoryMap(prev => {
+      const updated = { ...prev } as Record<string, string>;
+      ids.forEach(id => {
+        if (categoryId === 'uncategorized') {
+          delete updated[id];
+        } else {
+          updated[id] = categoryId;
+        }
+      });
+      localStorage.setItem('lemonsqueezy-product-category-map', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const bulkSetStatus = (status: 'published' | 'draft' | 'archived') => {
+    const ids = Object.keys(selectedIds).filter(id => selectedIds[id]);
+    if (ids.length === 0) return;
+    setProducts(prev => prev.map(p => ids.includes(p.id) ? { ...p, attributes: { ...p.attributes, status } } : p));
+  };
+
+  const getCategoryLabel = (productId: string) => {
+    const id = productCategoryMap[productId];
+    if (!id) return 'Uncategorized';
+    const cat = categories.find(c => c.id === id);
+    return cat ? cat.name : 'Uncategorized';
+  };
+
+  const visibleProducts = React.useMemo(() => {
+    let list = [...products];
+    // search
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      list = list.filter(p =>
+        p.attributes.name.toLowerCase().includes(q) ||
+        (p.attributes.description || '').toLowerCase().includes(q)
+      );
+    }
+    // status filter
+    if (filterStatus !== 'all') {
+      list = list.filter(p => p.attributes.status === filterStatus);
+    }
+    // category filter
+    if (filterCategory !== 'all') {
+      if (filterCategory === 'uncategorized') {
+        list = list.filter(p => !productCategoryMap[p.id]);
+      } else {
+        list = list.filter(p => productCategoryMap[p.id] === filterCategory);
+      }
+    }
+    // sort
+    list.sort((a, b) => {
+      const dir = sortDir === 'asc' ? 1 : -1;
+      switch (sortBy) {
+        case 'name':
+          return a.attributes.name.localeCompare(b.attributes.name) * dir;
+        case 'price':
+          return ((a.attributes.price || 0) - (b.attributes.price || 0)) * dir;
+        case 'sales':
+          return ((a.attributes.sales_count || 0) - (b.attributes.sales_count || 0)) * dir;
+        case 'revenue':
+          return ((a.attributes.total_revenue || 0) - (b.attributes.total_revenue || 0)) * dir;
+        case 'created':
+          return (new Date(a.attributes.created_at).getTime() - new Date(b.attributes.created_at).getTime()) * dir;
+        default:
+          return 0;
+      }
+    });
+    return list;
+  }, [products, searchTerm, filterStatus, filterCategory, sortBy, sortDir, productCategoryMap]);
+
+  const toggleSort = (key: typeof sortBy) => {
+    if (sortBy === key) {
+      setSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(key);
+      setSortDir('asc');
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -211,7 +366,7 @@ export const LemonSqueezyIntegration: React.FC<LemonSqueezyIntegrationProps> = (
         </CardContent>
       </Card>
 
-      {/* Products Management */}
+      {/* Products Management - compact table with filters/sorting/bulk actions */}
       {products.length > 0 && (
         <Card>
           <CardHeader>
@@ -230,75 +385,193 @@ export const LemonSqueezyIntegration: React.FC<LemonSqueezyIntegrationProps> = (
               </div>
             </CardTitle>
             <CardDescription>
-              Manage your LemonSqueezy products and their visibility
+              Manage your LemonSqueezy products with filters, sorting, and bulk actions
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {products.map((product) => (
-                <div key={product.id} className="border rounded-lg p-4 hover:bg-slate-50 transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-lg">{product.attributes.name}</h3>
-                        {getStatusBadge(product.attributes.status)}
-                        {getRevenueBadge(product.attributes.total_revenue)}
-                      </div>
-                      
-                      <p className="text-sm text-slate-600 mb-3 line-clamp-2">
-                        {product.attributes.description}
-                      </p>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-green-600" />
-                          <span className="text-slate-600">Price:</span>
-                          <span className="font-medium">{product.attributes.price_formatted}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-blue-600" />
-                          <span className="text-slate-600">Sales:</span>
-                          <span className="font-medium">{product.attributes.sales_count}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <TrendingUp className="w-4 h-4 text-purple-600" />
-                          <span className="text-slate-600">Revenue:</span>
-                          <span className="font-medium">{formatPrice(product.attributes.total_revenue)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-600">Created:</span>
-                          <span className="font-medium">
-                            {new Date(product.attributes.created_at).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 ml-4">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleProductVisibility(product.id)}
-                      >
-                        {product.attributes.status === 'published' ? (
-                          <EyeOff className="w-4 h-4" />
-                        ) : (
-                          <Eye className="w-4 h-4" />
-                        )}
-                      </Button>
-                      <Button variant="ghost" size="sm" asChild>
-                        <a 
-                          href={product.attributes.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                      </Button>
-                    </div>
+            {/* Filters */}
+            <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between mb-3">
+              <div className="flex gap-3 items-center">
+                <Input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-[220px]"
+                />
+                <div className="min-w-[170px]">
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All statuses</SelectItem>
+                      <SelectItem value="published">Published</SelectItem>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="archived">Archived</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="min-w-[200px]">
+                  <Select value={filterCategory} onValueChange={setFilterCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All categories</SelectItem>
+                      <SelectItem value="uncategorized">Uncategorized</SelectItem>
+                      {categories.filter(c => c.isActive).map(cat => (
+                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              {/* Bulk actions when selection present */}
+              {Object.values(selectedIds).some(Boolean) && (
+                <div className="flex gap-2 items-center">
+                  <div className="min-w-[200px]">
+                    <Select onValueChange={bulkAssignCategory}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Bulk assign category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="uncategorized">Uncategorized</SelectItem>
+                        {categories.filter(c => c.isActive).map(cat => (
+                          <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="min-w-[170px]">
+                    <Select onValueChange={(v) => bulkSetStatus(v as any)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Bulk set status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="published">Published</SelectItem>
+                        <SelectItem value="draft">Draft</SelectItem>
+                        <SelectItem value="archived">Archived</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-              ))}
+              )}
+            </div>
+
+            {/* Table */}
+            <div className="overflow-x-auto border rounded-md">
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-600">
+                    <th className="px-3 py-2 w-10">
+                      <input
+                        aria-label="select-all"
+                        type="checkbox"
+                        className="h-4 w-4"
+                        onChange={(e) => toggleSelectAll(visibleProducts.map(p => p.id), e.currentTarget.checked)}
+                        checked={visibleProducts.length > 0 && visibleProducts.every(p => selectedIds[p.id])}
+                      />
+                    </th>
+                    <th className="px-3 py-2 text-left cursor-pointer" onClick={() => toggleSort('name')}>Name</th>
+                    <th className="px-3 py-2 text-left">Status</th>
+                    <th className="px-3 py-2 text-left cursor-pointer" onClick={() => toggleSort('price')}>Price</th>
+                    <th className="px-3 py-2 text-left cursor-pointer" onClick={() => toggleSort('sales')}>Sales</th>
+                    <th className="px-3 py-2 text-left cursor-pointer" onClick={() => toggleSort('revenue')}>Revenue</th>
+                    <th className="px-3 py-2 text-left cursor-pointer" onClick={() => toggleSort('created')}>Created</th>
+                    <th className="px-3 py-2 text-left">Category</th>
+                    <th className="px-3 py-2 text-left">Platform</th>
+                    <th className="px-3 py-2 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleProducts.map((product) => {
+                    const catLabel = getCategoryLabel(product.id);
+                    const selected = !!selectedIds[product.id];
+                    const platform = (productFiltersMap[product.id]?.platform || []) as string[];
+                    return (
+                      <tr key={product.id} className="border-t hover:bg-slate-50">
+                        <td className="px-3 py-2 align-top">
+                          <input
+                            aria-label={`select-${product.id}`}
+                            type="checkbox"
+                            className="h-4 w-4"
+                            checked={selected}
+                            onChange={(e) => toggleSelectOne(product.id, e.currentTarget.checked)}
+                          />
+                        </td>
+                        <td className="px-3 py-2 align-top">
+                          <div className="font-medium leading-tight">{product.attributes.name}</div>
+                          <div className="text-slate-500 line-clamp-1 max-w-[340px]">{product.attributes.description}</div>
+                        </td>
+                        <td className="px-3 py-2 align-top">{getStatusBadge(product.attributes.status)}</td>
+                        <td className="px-3 py-2 align-top">{product.attributes.price_formatted}</td>
+                        <td className="px-3 py-2 align-top">{product.attributes.sales_count}</td>
+                        <td className="px-3 py-2 align-top">{formatPrice(product.attributes.total_revenue)}</td>
+                        <td className="px-3 py-2 align-top">{new Date(product.attributes.created_at).toLocaleDateString()}</td>
+                        <td className="px-3 py-2 align-top">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">{catLabel}</Badge>
+                            <div className="min-w-[160px]">
+                              <Select
+                                value={productCategoryMap[product.id] ?? 'uncategorized'}
+                                onValueChange={(val) => handleAssignCategory(product.id, val)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="uncategorized">Uncategorized</SelectItem>
+                                  {categories.filter(c => c.isActive).map(cat => (
+                                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-2 align-top">
+                          <div className="flex flex-wrap gap-1">
+                            {FILTER_FACETS.platform.map(opt => {
+                              const active = platform.includes(opt.value);
+                              return (
+                                <Button key={opt.value} type="button" size="sm" variant={active ? 'default' : 'outline'} onClick={() => handleAssignFilters(product.id, 'platform', opt.value)}>
+                                  {opt.label}
+                                </Button>
+                              );
+                            })}
+                          </div>
+                        </td>
+                        <td className="px-3 py-2 align-top text-right">
+                          <div className="flex gap-1 justify-end">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              title={product.attributes.status === 'published' ? 'Hide (draft)' : 'Publish'}
+                              onClick={() => toggleProductVisibility(product.id)}
+                            >
+                              {product.attributes.status === 'published' ? (
+                                <EyeOff className="w-4 h-4" />
+                              ) : (
+                                <Eye className="w-4 h-4" />
+                              )}
+                            </Button>
+                            <Button variant="ghost" size="sm" asChild title="Open product">
+                              <a href={product.attributes.url} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {visibleProducts.length === 0 && (
+                    <tr>
+                      <td className="px-3 py-8 text-center text-slate-500" colSpan={10}>No products match your filters.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>
