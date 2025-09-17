@@ -403,15 +403,25 @@ export const AdminDashboard = () => {
         isActive: row.is_active ?? true,
         productCount: 0,
       }));
-      setCaseStudies(mappedCS);
-      setProductCategories(mappedCats);
-      localStorage.setItem('admin-case-studies', JSON.stringify(mappedCS));
-      localStorage.setItem('admin-categories', JSON.stringify(mappedCats));
+      // Only adopt server data if it contains items; otherwise keep local
+      if ((mappedCS?.length || 0) > 0) {
+        setCaseStudies(mappedCS);
+        localStorage.setItem('admin-case-studies', JSON.stringify(mappedCS));
+      }
+      if ((mappedCats?.length || 0) > 0) {
+        setProductCategories(mappedCats);
+        localStorage.setItem('admin-categories', JSON.stringify(mappedCats));
+      }
     } catch (e) {
       console.error('Pull failed', e);
       alert('Failed to pull from server. Check console.');
     }
   };
+
+  // Server-first load (non-destructive): fetch once on mount
+  useEffect(() => {
+    void pullFromServer();
+  }, []);
 
   // Sync: push local state to Supabase
   const pushToServer = async () => {
