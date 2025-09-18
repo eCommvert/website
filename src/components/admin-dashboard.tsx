@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
 import { RichTextEditor } from "@/components/rich-text-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -369,18 +369,10 @@ export const AdminDashboard = () => {
     if (!res.ok) throw new Error(await res.text());
     return (await res.json()).data as unknown[];
   };
-  const clearAndInsert = async (table: 'categories' | 'case_studies', payload: unknown[], key: string = 'id') => {
-    // simple approach: delete all then insert (small datasets)
-    await fetch(apiBase, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json', 'x-user-email': getOwnerEmail() },
-      body: JSON.stringify({ table, id: '*', key: key })
-    }).catch(() => {});
-    return insertTable(table, payload, 'insert');
-  };
+  // Removed unused clearAndInsert helper to satisfy linter
 
   // Sync: pull from Supabase
-  const pullFromServer = async () => {
+  const pullFromServer = useCallback(async () => {
     try {
       const [cs, cats] = await Promise.all([
         fetchTable('case_studies'),
@@ -425,12 +417,12 @@ export const AdminDashboard = () => {
       console.error('Pull failed', e);
       alert('Failed to pull from server. Check console.');
     }
-  };
+  }, []);
 
   // Server-first load (non-destructive): fetch once on mount
   useEffect(() => {
     void pullFromServer();
-  }, []);
+  }, [pullFromServer]);
 
   // Sync: push local state to Supabase
   const pushToServer = async () => {

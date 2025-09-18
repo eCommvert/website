@@ -30,12 +30,11 @@ export async function POST(req: NextRequest) {
   const fromTbl = (supabase as unknown as any).from(table);
   // upsert avoids wipes and merges by primary key when provided
   // Ensure upsert uses primary key conflict (id)
-  const isArray = Array.isArray(payload);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   const query = mode === 'upsert'
     // onConflict requires explicit column name to dedupe based on id
     ? fromTbl.upsert(payload, { onConflict: 'id' })
-    : fromTbl.insert(payload as any[] | Record<string, unknown>);
+    : fromTbl.insert(payload as unknown);
   const { data, error } = await query.select('*');
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data });
