@@ -360,6 +360,15 @@ export const AdminDashboard = () => {
     if (!res.ok) throw new Error(await res.text());
     return (await res.json()).data as unknown[];
   };
+  const deleteRows = async (table: 'categories' | 'case_studies', ids: string[] | '*', key: string = 'id') => {
+    const res = await fetch(apiBase, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', 'x-user-email': getOwnerEmail() },
+      body: JSON.stringify(ids === '*' ? { table, id: '*', key } : { table, ids, key })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return (await res.json()).data as unknown[];
+  };
   const clearAndInsert = async (table: 'categories' | 'case_studies', payload: unknown[], key: string = 'id') => {
     // simple approach: delete all then insert (small datasets)
     await fetch(apiBase, {
@@ -427,6 +436,7 @@ export const AdminDashboard = () => {
   const pushToServer = async () => {
     try {
       const csPayload = caseStudies.map(cs => ({
+        id: cs.id,
         title: cs.title,
         category: cs.category,
         industry: cs.industry,
@@ -443,6 +453,7 @@ export const AdminDashboard = () => {
         is_active: cs.isActive,
       }));
       const catPayload = productCategories.map(c => ({
+        id: c.id,
         name: c.name,
         description: c.description,
         is_active: c.isActive,
@@ -489,20 +500,22 @@ export const AdminDashboard = () => {
     }
   };
 
-  const deleteItem = (type: 'testimonial' | 'case-study' | 'category' | 'blog', id: string) => {
+  const deleteItem = async (type: 'testimonial' | 'case-study' | 'category' | 'blog', id: string) => {
     if (type === 'testimonial') {
       setTestimonials(prev => prev.filter(item => item.id !== id));
     } else if (type === 'case-study') {
       setCaseStudies(prev => prev.filter(item => item.id !== id));
+      try { await deleteRows('case_studies', [id]); } catch (e) { console.error('Server delete failed', e); }
     } else if (type === 'category') {
       setProductCategories(prev => prev.filter(item => item.id !== id));
+      try { await deleteRows('categories', [id]); } catch (e) { console.error('Server delete failed', e); }
     } else if (type === 'blog') {
       setBlogPosts(prev => prev.filter(item => item.id !== id));
     }
   };
 
   const addNewItem = (type: 'testimonial' | 'case-study' | 'category') => {
-    const newId = Date.now().toString();
+    const newId = (typeof crypto !== 'undefined' && 'randomUUID' in crypto) ? crypto.randomUUID() : `${Date.now()}`;
     
     if (type === 'testimonial') {
       const newTestimonial: Testimonial = {
@@ -635,6 +648,50 @@ export const AdminDashboard = () => {
               <Button size="sm" onClick={pushToServer}>
                 <Save className="w-4 h-4 mr-2" />
                 Save All Changes
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const confirmed = confirm('This will REPLACE the server data with your current local state for Case Studies and Categories. Proceed?');
+                  if (!confirmed) return;
+                  try {
+                    const csPayload = caseStudies.map(cs => ({
+                      id: cs.id,
+                      title: cs.title,
+                      category: cs.category,
+                      industry: cs.industry,
+                      client: cs.client,
+                      duration: cs.duration,
+                      monthly_spend: cs.monthlySpend,
+                      challenge: cs.challenge,
+                      solution: cs.solution,
+                      results: cs.results,
+                      image: cs.image,
+                      testimonial: cs.testimonial,
+                      author: cs.author,
+                      role: cs.role,
+                      is_active: cs.isActive,
+                    }));
+                    const catPayload = productCategories.map(c => ({
+                      id: c.id,
+                      name: c.name,
+                      description: c.description,
+                      is_active: c.isActive,
+                    }));
+                    await deleteRows('case_studies', '*');
+                    await deleteRows('categories', '*');
+                    await insertTable('categories', catPayload, 'upsert');
+                    await insertTable('case_studies', csPayload, 'upsert');
+                    alert('Server replaced with local state.');
+                  } catch (e) {
+                    console.error('Replace server failed', e);
+                    alert('Failed to replace server. Check console.');
+                  }
+                }}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Replace server with local
               </Button>
               <Button
                 variant="outline"

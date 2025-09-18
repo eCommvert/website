@@ -29,7 +29,13 @@ export async function POST(req: NextRequest) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fromTbl = (supabase as unknown as any).from(table);
   // upsert avoids wipes and merges by primary key when provided
-  const query = mode === 'upsert' ? fromTbl.upsert(payload) : fromTbl.insert(payload);
+  // Ensure upsert uses primary key conflict (id)
+  const isArray = Array.isArray(payload);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const query = mode === 'upsert'
+    // onConflict requires explicit column name to dedupe based on id
+    ? fromTbl.upsert(payload, { onConflict: 'id' })
+    : fromTbl.insert(payload as any[] | Record<string, unknown>);
   const { data, error } = await query.select('*');
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data });
@@ -50,14 +56,21 @@ export async function PUT(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const email = req.headers.get('x-user-email');
   if (!isOwner(email)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const { table, id, key = 'id' } = await req.json();
-  if (!table || !id) return NextResponse.json({ error: 'Missing table or id' }, { status: 400 });
+  const { table, id, ids, key = 'id' } = await req.json();
+  if (!table || (!id && !ids)) return NextResponse.json({ error: 'Missing table or id(s)' }, { status: 400 });
   const supabase = getServerSupabase();
   // Support special clear-all case when id === '*'
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const query = (supabase as unknown as any).from(table).delete();
   // If id === '*', delete all rows (using a non-null filter on key)
-  const del = id === '*' ? query.not(key, 'is', null) : query.eq(key, id);
+  let del;
+  if (id === '*') {
+    del = query.not(key, 'is', null);
+  } else if (Array.isArray(ids) && ids.length > 0) {
+    del = query.in(key, ids);
+  } else {
+    del = query.eq(key, id);
+  }
   const { data, error } = await del.select('*');
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data });
