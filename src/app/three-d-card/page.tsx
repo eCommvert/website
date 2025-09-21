@@ -54,7 +54,7 @@ function Product3DCard({ product }: { product: LemonSqueezyProduct }) {
         </CardItem>
         <CardItem translateZ="100" className="w-full mt-4">
           {img ? (
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={img}
               height={1000}
