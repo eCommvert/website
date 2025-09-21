@@ -18,7 +18,7 @@ export async function GET() {
     }
 
     // Transform the data to match the frontend interface
-    const transformedData = data?.map((item: any) => ({
+    const transformedData = data?.map((item: Record<string, unknown>) => ({
       id: item.id,
       title: item.title,
       category: item.category,

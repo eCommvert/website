@@ -417,7 +417,7 @@ export const AdminDashboard = () => {
       console.error('Pull failed', e);
       alert('Failed to pull from server. Check console.');
     }
-  }, []);
+  }, [fetchTable]);
 
   // Server-first load (non-destructive): fetch once on mount
   useEffect(() => {

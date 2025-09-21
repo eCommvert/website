@@ -46,15 +46,6 @@ export function HowWeHelpSection() {
     { category: 'Conversion Tracking', current: 6, potential: 9 }
   ];
 
-  // Chart data for Monthly Consulting - Performance Growth
-  const consultingData = [
-    { month: 'Month 1', without: 100, with: 100 },
-    { month: 'Month 2', without: 105, with: 120 },
-    { month: 'Month 3', without: 108, with: 115 },
-    { month: 'Month 4', without: 110, with: 137 },
-    { month: 'Month 5', without: 112, with: 130 },
-    { month: 'Month 6', without: 115, with: 160 }
-  ];
 
   const handleScrollToPricing = () => {
     const pricingSection = document.getElementById('pricing');

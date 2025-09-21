@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 
 interface PerformanceGraphProps {
   className?: string;
@@ -271,7 +270,7 @@ export function AnimatedPerformanceGraph({ className = "" }: PerformanceGraphPro
     };
 
     draw();
-  }, [animationProgress, pulsingDot]);
+  }, [animationProgress, pulsingDot, currentPerformance, months, withConsulting]);
 
   return (
     <div className={`relative w-full h-full ${className}`}>
