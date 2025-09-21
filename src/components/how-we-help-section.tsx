@@ -18,7 +18,8 @@ import {
   Settings
 } from "lucide-react";
 import { useRef } from "react";
-import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
+import { AnimatedPerformanceGraph } from "@/components/animated-performance-graph";
 
 export function HowWeHelpSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -171,18 +172,19 @@ export function HowWeHelpSection() {
                 </div>
 
                 {/* Visual Side - Radar Chart */}
-                <div className="relative bg-gradient-to-br from-primary/10 to-primary/5 p-6 md:p-8 lg:p-10 flex items-center justify-center">
+                <div className="relative p-6 md:p-8 lg:p-10 flex items-center justify-center">
                   <div className="w-full h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <RadarChart data={auditData}>
-                        <PolarGrid stroke="#e2e8f0" strokeOpacity={0.3} />
+                        <PolarGrid stroke="#e2e8f0" strokeOpacity={0.05} />
                         <PolarAngleAxis 
                           dataKey="category" 
                           tick={{ fontSize: 12, fill: '#ffffff' }}
                         />
                         <PolarRadiusAxis 
                           domain={[0, 10]} 
-                          tick={{ fontSize: 10, fill: '#ffffff' }}
+                          tick={false}
+                          axisLine={false}
                         />
                         <Radar
                           name="Current Performance"
@@ -228,50 +230,9 @@ export function HowWeHelpSection() {
           >
             <Card className="overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5 hover:border-primary/40 transition-all duration-500">
               <div className="grid lg:grid-cols-2 gap-0">
-                {/* Visual Side - Line Chart */}
-                <div className="relative bg-gradient-to-br from-primary/10 to-primary/5 p-6 md:p-8 lg:p-10 flex items-center justify-center order-2 lg:order-1">
-                  <div className="w-full h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={consultingData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.3} />
-                        <XAxis 
-                          dataKey="month" 
-                          tick={{ fontSize: 12, fill: '#ffffff' }}
-                        />
-                        <YAxis 
-                          tick={{ fontSize: 12, fill: '#ffffff' }}
-                          domain={[90, 175]}
-                        />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)', 
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            borderRadius: '8px',
-                            color: '#ffffff',
-                            fontSize: '12px'
-                          }}
-                          labelStyle={{ color: '#ffffff' }}
-                        />
-                        <Legend />
-                        <Line 
-                          type="monotone" 
-                          dataKey="without" 
-                          stroke="#ef4444" 
-                          strokeWidth={2}
-                          strokeDasharray="5 5"
-                          strokeOpacity={0.8}
-                          name="Current Performance"
-                        />
-                        <Line 
-                          type="monotone" 
-                          dataKey="with" 
-                          stroke="#8b5cf6" 
-                          strokeWidth={3}
-                          name="With Consulting"
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
+                {/* Visual Side - Animated Performance Graph */}
+                <div className="relative bg-gradient-to-br from-primary/10 to-primary/5 p-6 md:p-8 lg:p-10 flex items-center justify-center order-2 lg:order-1 min-h-full">
+                  <AnimatedPerformanceGraph className="w-full h-full" />
                 </div>
 
                 {/* Content Side */}

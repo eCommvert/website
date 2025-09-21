@@ -70,7 +70,7 @@ type LegacyResults = {
   conversion: { before: number; after: number; improvement: number };
 };
 
-// Default case studies (fallback)
+// Default case studies (fallback) - using original data with testimonials
 const defaultCaseStudies: CaseStudy[] = [
   {
     id: "1",
@@ -89,9 +89,9 @@ const defaultCaseStudies: CaseStudy[] = [
       metric4: { name: "Conversion", before: 1.8, after: 3.2, improvement: 0, format: "percentage" }
     },
     image: "/case-studies/fashion-brand.jpg",
-    testimonial: "",
-    author: "",
-    role: "",
+    testimonial: "Denis transformed our ad performance completely. We went from barely breaking even to profitable growth in just 3 months.",
+    author: "Sarah Chen",
+    role: "CMO, StyleForward Co.",
     isActive: true
   },
   {
@@ -111,9 +111,9 @@ const defaultCaseStudies: CaseStudy[] = [
       metric4: { name: "Conversion", before: 2.1, after: 3.8, improvement: 0, format: "percentage" }
     },
     image: "/case-studies/home-garden.jpg",
-    testimonial: "",
-    author: "",
-    role: "",
+    testimonial: "The seasonal optimization strategy was a game-changer. We now maximize ROI during peak seasons and minimize waste during slower periods.",
+    author: "Mike Rodriguez",
+    role: "Marketing Director, GreenSpace Living",
     isActive: true
   },
   {
@@ -133,13 +133,14 @@ const defaultCaseStudies: CaseStudy[] = [
       metric4: { name: "Conversion", before: 1.6, after: 2.9, improvement: 0, format: "percentage" }
     },
     image: "/case-studies/tech-accessories.jpg",
-    testimonial: "",
-    author: "",
-    role: "",
+    testimonial: "Denis helped us stand out in a crowded market. Our conversion rates doubled and we're now profitable at scale.",
+    author: "Lisa Park",
+    role: "CEO, TechFlow Solutions",
     isActive: true
   }
 ];
 
+// Redesigned minimal metric card component
 const MetricCard = ({ 
   metric,
   icon: Icon
@@ -165,92 +166,134 @@ const MetricCard = ({
   const actualImprovement = calculateImprovement(metric.before, metric.after);
   const isPercentageOnly = metric.format === "percentage-only";
   const isPoints = metric.format === "percentage-points";
+  const isImprovement = actualImprovement > 0;
+  const improvementValue = isPoints ? (metric.points ?? 0) : actualImprovement;
 
   return (
-    <Card className="h-full">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <Icon className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-muted-foreground">{metric.name}</span>
-          </div>
-          <Badge variant="secondary" className="text-xs">
-            {isPoints ? `${(metric.points ?? 0) >= 0 ? '+' : ''}${metric.points ?? 0}pp` : `${actualImprovement > 0 ? '+' : ''}${actualImprovement}%`}
-          </Badge>
+    <div className="bg-muted/30 rounded-lg p-4 border border-border/50 hover:border-border transition-colors">
+      <div className="flex items-center gap-2 mb-3">
+        <Icon className="w-4 h-4 text-muted-foreground" />
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{metric.name}</span>
       </div>
 
-        <div className="space-y-2">
-          {!isPercentageOnly && !isPoints ? (
-            <>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Before</span>
-                <span className="font-medium">{formatValue(metric.before, metric.format)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">After</span>
-                <span className="font-semibold text-primary">{formatValue(metric.after, metric.format)}</span>
-              </div>
-            </>
-          ) : (
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">
-                {isPoints ? `${(metric.points ?? 0) >= 0 ? '+' : ''}${metric.points ?? 0}pp` : `${actualImprovement > 0 ? '+' : ''}${actualImprovement}%`}
-              </div>
-              <div className="text-xs text-muted-foreground">Improvement</div>
+      <div className="space-y-3">
+        {!isPercentageOnly && !isPoints ? (
+          <>
+            <div className="flex justify-between items-baseline">
+              <span className="text-xs text-muted-foreground">Before</span>
+              <span className="text-sm font-medium text-foreground">{formatValue(metric.before, metric.format)}</span>
             </div>
-          )}
-          <Progress value={Math.min(Math.abs(isPoints ? (metric.points ?? 0) : actualImprovement), 100)} className="h-2" />
+            <div className="flex justify-between items-baseline">
+              <span className="text-xs text-muted-foreground">After</span>
+              <span className="text-lg font-bold text-foreground">{formatValue(metric.after, metric.format)}</span>
+            </div>
+          </>
+        ) : (
+          <div className="text-center">
+            <div className="text-2xl font-bold text-foreground">
+              {isPoints ? `${improvementValue >= 0 ? '+' : ''}${improvementValue}pp` : `${improvementValue > 0 ? '+' : ''}${improvementValue}%`}
+            </div>
+            <div className="text-xs text-muted-foreground">Improvement</div>
+          </div>
+        )}
+        
+        {/* Subtle improvement indicator */}
+        <div className="flex justify-end">
+          <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+            isImprovement 
+              ? 'bg-green-500/10 text-green-600 border border-green-500/20' 
+              : 'bg-red-500/10 text-red-600 border border-red-500/20'
+          }`}>
+            {isPoints ? `${improvementValue >= 0 ? '+' : ''}${improvementValue}pp` : `${improvementValue > 0 ? '+' : ''}${improvementValue}%`}
+          </span>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
 export function CaseStudiesSection() {
-  const [caseStudies, setCaseStudies] = useState<CaseStudy[]>(defaultCaseStudies);
+  const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedCaseStudy, setSelectedCaseStudy] = useState<CaseStudy | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Load case studies from localStorage
+  // Load case studies from API (production) or localStorage (development)
   useEffect(() => {
-    const savedCaseStudies = localStorage.getItem('admin-case-studies');
-    
-    if (savedCaseStudies) {
+    const loadCaseStudies = async () => {
       try {
-        const parsedCaseStudies = JSON.parse(savedCaseStudies) as unknown[];
-        // Migrate old case study format to new format
-        const migratedCaseStudies = parsedCaseStudies.map((caseStudyItem) => {
-          const caseStudy = caseStudyItem as Partial<CaseStudy> & { results?: LegacyResults };
-          if (caseStudy.results && caseStudy.results.roas) {
-            // Old format - migrate to new format
-            return {
-              ...caseStudy,
-              results: {
-                metric1: { name: "ROAS", before: caseStudy.results.roas.before, after: caseStudy.results.roas.after, improvement: caseStudy.results.roas.improvement, format: "number" },
-                metric2: { name: "CPA", before: caseStudy.results.cpa.before, after: caseStudy.results.cpa.after, improvement: caseStudy.results.cpa.improvement, format: "currency" },
-                metric3: { name: "Revenue", before: caseStudy.results.revenue.before, after: caseStudy.results.revenue.after, improvement: caseStudy.results.revenue.improvement, format: "currency" },
-                metric4: { name: "Conversion", before: caseStudy.results.conversion.before, after: caseStudy.results.conversion.after, improvement: caseStudy.results.conversion.improvement, format: "percentage" }
-              }
-            };
+        // Try to fetch from API first (production)
+        const response = await fetch('/api/case-studies');
+        if (response.ok) {
+          const result = await response.json();
+          if (result.data && result.data.length > 0) {
+            setCaseStudies(result.data);
+            console.log(`Loaded ${result.data.length} case studies from API`);
+            setIsLoaded(true);
+            return;
           }
-          return caseStudy as CaseStudy;
-        });
+        }
         
-        // Guard: ensure items conform to CaseStudy
-        const isCaseStudy = (item: unknown): item is CaseStudy => {
-          const i = item as Partial<CaseStudy>;
-          return typeof i?.id === 'string' && typeof i?.title === 'string' && typeof i?.isActive === 'boolean' && !!i.results;
-        };
-        const activeCaseStudies = migratedCaseStudies.filter(isCaseStudy).filter((cs) => cs.isActive);
-        setCaseStudies(activeCaseStudies.length > 0 ? activeCaseStudies : defaultCaseStudies);
+        // Fallback to localStorage (development/admin)
+        const savedCaseStudies = localStorage.getItem('admin-case-studies');
+        
+        if (savedCaseStudies) {
+          try {
+            const parsedCaseStudies = JSON.parse(savedCaseStudies) as unknown[];
+            
+            // Migrate old case study format to new format
+            const migratedCaseStudies = parsedCaseStudies.map((caseStudyItem) => {
+              const caseStudy = caseStudyItem as Partial<CaseStudy> & { results?: LegacyResults };
+              if (caseStudy.results && caseStudy.results.roas) {
+                // Old format - migrate to new format
+                return {
+                  ...caseStudy,
+                  results: {
+                    metric1: { name: "ROAS", before: caseStudy.results.roas.before, after: caseStudy.results.roas.after, improvement: caseStudy.results.roas.improvement, format: "number" },
+                    metric2: { name: "CPA", before: caseStudy.results.cpa.before, after: caseStudy.results.cpa.after, improvement: caseStudy.results.cpa.improvement, format: "currency" },
+                    metric3: { name: "Revenue", before: caseStudy.results.revenue.before, after: caseStudy.results.revenue.after, improvement: caseStudy.results.revenue.improvement, format: "currency" },
+                    metric4: { name: "Conversion", before: caseStudy.results.conversion.before, after: caseStudy.results.conversion.after, improvement: caseStudy.results.conversion.improvement, format: "percentage" }
+                  }
+                };
+              }
+              return caseStudy as CaseStudy;
+            });
+            
+            // Guard: ensure items conform to CaseStudy
+            const isCaseStudy = (item: unknown): item is CaseStudy => {
+              const i = item as Partial<CaseStudy>;
+              return typeof i?.id === 'string' && typeof i?.title === 'string' && typeof i?.isActive === 'boolean' && !!i.results;
+            };
+            
+            // Filter for active case studies only
+            const activeCaseStudies = migratedCaseStudies.filter(isCaseStudy).filter((cs) => cs.isActive);
+            
+            if (activeCaseStudies.length > 0) {
+              setCaseStudies(activeCaseStudies);
+              console.log(`Loaded ${activeCaseStudies.length} active case studies from localStorage`);
+            } else {
+              console.log('No active case studies found in localStorage, using default data');
+              setCaseStudies(defaultCaseStudies);
+            }
+          } catch (error) {
+            console.error('Error parsing case studies from localStorage:', error);
+            console.log('Falling back to default case studies');
+            setCaseStudies(defaultCaseStudies);
+          }
+        } else {
+          console.log('No case studies found, using default data');
+          setCaseStudies(defaultCaseStudies);
+        }
       } catch (error) {
-        console.error('Error parsing case studies:', error);
+        console.error('Error loading case studies:', error);
+        console.log('Falling back to default case studies');
         setCaseStudies(defaultCaseStudies);
       }
-    }
-    
-    setIsLoaded(true);
+      
+      setIsLoaded(true);
+    };
+
+    loadCaseStudies();
   }, []);
 
   const handleViewDetails = (caseStudy: CaseStudy) => {
@@ -300,7 +343,18 @@ export function CaseStudiesSection() {
 
         {/* Case Studies */}
         <div className="space-y-12">
-          {caseStudies.map((study: CaseStudy, index: number) => (
+          {!isLoaded ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading case studies...</p>
+            </div>
+          ) : caseStudies.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground mb-4">No case studies available at the moment.</p>
+              <p className="text-sm text-muted-foreground">Check back later or contact us for more information.</p>
+            </div>
+          ) : (
+            caseStudies.map((study: CaseStudy, index: number) => (
             <motion.div
               key={study.id}
               initial={{ opacity: 0, y: 20 }}
@@ -308,93 +362,91 @@ export function CaseStudiesSection() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className="overflow-hidden">
-                <CardHeader className="pb-4">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="space-y-2">
+              <Card className="overflow-hidden border-border/50 hover:border-border transition-colors">
+                <CardContent className="p-0">
+                  <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-0">
+                    {/* Left Section - Story (40%) */}
+                    <div className="p-8 space-y-6">
+                      {/* Tags */}
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary">{study.category}</Badge>
-                        <Badge variant="outline">{study.industry}</Badge>
+                        <Badge variant="outline" className="text-xs px-2 py-1 bg-muted/30 border-border/50 text-muted-foreground">
+                          {study.category}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs px-2 py-1 bg-muted/30 border-border/50 text-muted-foreground">
+                          {study.industry}
+                        </Badge>
                       </div>
-                      <CardTitle className="text-2xl">{study.title}</CardTitle>
-                      <CardDescription className="text-base">
-                        {study.client} • {study.duration} • {study.monthlySpend}/month ad spend
-                      </CardDescription>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-fit"
-                      onClick={() => handleViewDetails(study)}
-                    >
-                      View Details
-                      <ArrowUpRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
-                </CardHeader>
 
-                <CardContent className="space-y-8">
-                  {/* Challenge & Solution */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-destructive flex items-center gap-2">
-                        <Target className="w-4 h-4" />
-                        Challenge
-                      </h4>
-                      <div className="text-muted-foreground text-sm leading-relaxed">
-                        {study.challenge
-                          .split('\n')
-                          .filter(line => line.trim() !== '')
-                          .map((line, index) => (
-                            <div key={index} className="flex items-start gap-2 mb-2">
-                              <span className="text-destructive mt-1">•</span>
-                              <span>{line.trim()}</span>
-                            </div>
-                          ))}
+                      {/* Client Name */}
+                      <div>
+                        <h3 className="text-xl font-bold text-foreground mb-2">{study.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {study.client} • {study.duration} • {study.monthlySpend}/month ad spend
+                        </p>
                       </div>
-                          </div>
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-primary flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4" />
-                        Solution
-                          </h4>
-                      <div className="text-muted-foreground text-sm leading-relaxed">
-                        {study.solution
-                          .split('\n')
-                          .filter(line => line.trim() !== '')
-                          .map((line, index) => (
-                            <div key={index} className="flex items-start gap-2 mb-2">
-                              <span className="text-primary mt-1">•</span>
-                              <span>{line.trim()}</span>
-                        </div>
+
+                      {/* Challenge */}
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Challenge
+                        </h4>
+                        <p className="text-sm text-foreground leading-relaxed">
+                          {study.challenge.split('\n')[0].trim()}
+                        </p>
+                      </div>
+
+                      {/* Solution */}
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Solution
+                        </h4>
+                        <p className="text-sm text-foreground leading-relaxed">
+                          {study.solution.split('\n')[0].trim()}
+                        </p>
+                      </div>
+
+                      {/* CTA Button */}
+                      <div className="pt-4">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => handleViewDetails(study)}
+                        >
+                          View Details
+                          <ArrowUpRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Right Section - Metrics (60%) */}
+                    <div className="p-8 bg-muted/20 border-l border-border/50">
+                      <div className="space-y-4">
+                        <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                          Key Results
+                        </h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          {[
+                            { metric: study.results?.metric1, icon: TrendingUp },
+                            { metric: study.results?.metric2, icon: DollarSign },
+                            { metric: study.results?.metric3, icon: ShoppingCart },
+                            { metric: study.results?.metric4, icon: Users }
+                          ].filter(({ metric }) => metric && metric.name && metric.name.trim() !== "").map(({ metric, icon }, index) => (
+                            <MetricCard
+                              key={index}
+                              metric={metric!}
+                              icon={icon}
+                            />
                           ))}
+                        </div>
                       </div>
                     </div>
                   </div>
-
-                  {/* Metrics Grid */}
-                  <div className="space-y-4">
-                    <h4 className="font-semibold text-lg">Key Results</h4>
-                    <div className="flex flex-wrap gap-4 justify-center">
-                      {[
-                        { metric: study.results?.metric1, icon: TrendingUp },
-                        { metric: study.results?.metric2, icon: DollarSign },
-                        { metric: study.results?.metric3, icon: ShoppingCart },
-                        { metric: study.results?.metric4, icon: Users }
-                      ].filter(({ metric }) => metric && metric.name && metric.name.trim() !== "").map(({ metric, icon }, index) => (
-                        <div key={index} className="w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(25%-0.75rem)] max-w-[340px]">
-                          <MetricCard
-                            metric={metric!}
-                            icon={icon}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                    </div>
                 </CardContent>
               </Card>
             </motion.div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* CTA Section */}

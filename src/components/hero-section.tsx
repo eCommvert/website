@@ -4,19 +4,41 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { GrowthChart } from "@/components/growth-chart";
+import { Particles } from "@/components/ui/particles";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export function HeroSection() {
+  const { resolvedTheme } = useTheme();
+  const [particleColor, setParticleColor] = useState("#ffffff");
+
+  useEffect(() => {
+    setParticleColor(resolvedTheme === "dark" ? "#ffffff" : "#000000");
+  }, [resolvedTheme]);
+
   return (
-    <section className="relative overflow-hidden bg-background py-8 md:py-12 lg:py-16">
+    <section className="relative overflow-hidden bg-background min-h-screen flex items-center">
       {/* Background Elements */}
-      <div className="absolute inset-0 -z-10">
+      <div className="absolute inset-0 -z-20">
         <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 lg:px-8">
-        <div className="space-y-8">
+      {/* Particles Effect */}
+      <div className="absolute inset-0 z-0">
+        <Particles
+          className="absolute inset-0"
+          quantity={100}
+          staticity={50}
+          ease={50}
+          color={particleColor}
+          size={0.4}
+          refresh
+        />
+      </div>
+
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10 h-full flex items-start justify-center -mt-16 md:-mt-20 lg:-mt-24">
+        <div className="space-y-10 w-full max-w-5xl">
           {/* Content Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -56,11 +78,11 @@ export function HeroSection() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="space-y-4"
             >
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight">
                 Scale Your Advertising{" "}
                 <span className="text-primary">Without Hiring</span> a Full-Time Marketing Manager
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+              <p className="text-base md:text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-4xl">
                 On-demand Google & Meta consulting for agencies, in-house teams and e-commerce businesses.
               </p>
             </motion.div>
@@ -73,11 +95,11 @@ export function HeroSection() {
               transition={{ duration: 0.6, delay: 0.5 }}
               className="flex flex-col sm:flex-row gap-3 justify-center"
             >
-              <Button size="default" className="!pl-10 !pr-6 !py-2.5 text-base font-medium">
+              <Button size="default" className="!pl-10 !pr-6 !py-3 text-base font-medium">
                 See If We&apos;re a Fit
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
-              <Button variant="outline" size="default" className="px-6 py-2.5 text-base font-medium">
+              <Button variant="outline" size="default" className="px-6 py-3 text-base font-medium">
                 Get Free Strategic Assessment
               </Button>
             </motion.div>
@@ -87,7 +109,7 @@ export function HeroSection() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="pt-3"
+              className="pt-4"
             >
               <p className="text-sm text-muted-foreground mb-3 text-center">Trusted by e-commerce brands spending $10K+/month</p>
               <div className="flex items-center justify-center gap-8 opacity-60">
@@ -107,15 +129,6 @@ export function HeroSection() {
             </motion.div>
           </motion.div>
 
-          {/* Chart Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="w-full"
-          >
-            <GrowthChart />
-          </motion.div>
         </div>
       </div>
     </section>

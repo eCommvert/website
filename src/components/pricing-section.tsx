@@ -50,11 +50,11 @@ export function PricingSection() {
                 <span className="sm:hidden">Audit</span>
               </TabsTrigger>
               <TabsTrigger 
-                value="done-for-you" 
+                value="Automate Marketing Tasks" 
                 className="flex items-center gap-2 px-3 py-2 md:px-6 text-xs md:text-sm font-medium rounded-md transition-all duration-200 data-[state=active]:!text-white data-[state=active]:!font-bold data-[state=active]:!border-2 data-[state=active]:!border-primary data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground [&[data-state=active]_svg]:!text-primary"
               >
                 <Bot className="w-3 h-3 md:w-4 md:h-4" />
-                <span className="hidden sm:inline">Done-for-You</span>
+                <span className="hidden sm:inline">Automate Marketing Tasks</span>
                 <span className="sm:hidden">Custom</span>
               </TabsTrigger>
             </TabsList>
@@ -260,14 +260,14 @@ export function PricingSection() {
             </div>
           </TabsContent>
 
-          {/* Done-for-You Tab */}
-          <TabsContent value="done-for-you">
+          {/* Automate Marketing Tasks Tab */}
+          <TabsContent value="Automate Marketing Tasks">
             <div className="max-w-md mx-auto">
               <Card>
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <Zap className="w-5 h-5 text-primary" />
-                    <CardTitle>Done-for-You Optimization</CardTitle>
+                    <CardTitle>Automate Marketing Tasks</CardTitle>
                   </div>
                   <CardDescription>
                     Custom automation solutions built specifically for your business needs.
