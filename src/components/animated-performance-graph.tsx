@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 
 interface PerformanceGraphProps {
   className?: string;
@@ -12,9 +12,10 @@ export function AnimatedPerformanceGraph({ className = "" }: PerformanceGraphPro
   const [pulsingDot, setPulsingDot] = useState(0);
 
   // Performance data
-  const currentPerformance = [95, 100, 105, 108, 110, 115];
-  const withConsulting = [105, 118, 115, 140, 130, 170];
-  const months = ["Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6"];
+  // Data for the performance graph - memoized to prevent re-creation on every render
+  const currentPerformance = useMemo(() => [95, 100, 105, 108, 110, 115], []);
+  const withConsulting = useMemo(() => [105, 118, 115, 140, 130, 170], []);
+  const months = useMemo(() => ["Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6"], []);
 
   useEffect(() => {
     const canvas = canvasRef.current;

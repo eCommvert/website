@@ -128,14 +128,6 @@ export const Particles: React.FC<ParticlesProps> = ({
     };
   }, [color]);
 
-  useEffect(() => {
-    onMouseMove();
-  }, [mousePosition.x, mousePosition.y, onMouseMove]);
-
-  useEffect(() => {
-    initCanvas();
-  }, [refresh, initCanvas]);
-
   const initCanvas = () => {
     resizeCanvas();
     drawParticles();
@@ -154,6 +146,14 @@ export const Particles: React.FC<ParticlesProps> = ({
       }
     }
   };
+
+  useEffect(() => {
+    onMouseMove();
+  }, [mousePosition.x, mousePosition.y, onMouseMove]);
+
+  useEffect(() => {
+    initCanvas();
+  }, [refresh, initCanvas]);
 
   const resizeCanvas = () => {
     if (canvasContainerRef.current && canvasRef.current && context.current) {

@@ -345,12 +345,12 @@ export const AdminDashboard = () => {
     challenge?: string; solution?: string; results?: ResultsPayload; image?: string; testimonial?: string; author?: string; role?: string;
     is_active: boolean; created_at: string; detailed_content?: DetailedContentPayload;
   };
-  const fetchTable = async (table: 'categories' | 'case_studies') => {
+  const fetchTable = useCallback(async (table: 'categories' | 'case_studies') => {
     const res = await fetch(`${apiBase}?table=${table}`, { cache: 'no-store' });
     if (!res.ok) throw new Error(await res.text());
     const json = await res.json();
     return json.data as (CategoryRow[] | CaseStudyRow[]);
-  };
+  }, [apiBase]);
   const insertTable = async (table: 'categories' | 'case_studies', payload: unknown[], mode: 'insert' | 'upsert' = 'insert') => {
     const res = await fetch(apiBase, {
       method: 'POST',
