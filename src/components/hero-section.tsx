@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Particles } from "@/components/ui/particles";
 import { useTheme } from "next-themes";
@@ -128,18 +128,20 @@ export function HeroSection() {
               className="pt-4"
             >
               <p className="text-sm text-muted-foreground mb-3 text-center">Trusted by e-commerce brands spending $10K+/month</p>
-              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-6">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <span className="inline-block w-3 h-3 rounded-sm bg-primary"></span>
-                  <span className="opacity-90">Strategic Audits</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <span className="inline-block w-3 h-3 rounded-sm bg-primary"></span>
-                  <span className="opacity-90">Monthly Consulting</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <span className="inline-block w-3 h-3 rounded-sm bg-primary"></span>
-                  <span className="opacity-90">Digital Products</span>
+              <div className="mx-auto w-full max-w-3xl rounded-xl border border-white/10 bg-muted/10 px-4 py-3">
+                <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+                  <div className="flex items-center gap-2 text-sm sm:text-base font-medium">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    <span className="opacity-90">Strategic Audits</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm sm:text-base font-medium">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    <span className="opacity-90">Monthly Consulting</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm sm:text-base font-medium">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    <span className="opacity-90">Digital Products</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
