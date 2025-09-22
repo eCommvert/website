@@ -37,7 +37,7 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10 h-full flex items-start justify-center -mt-10 sm:-mt-14 md:-mt-20 lg:-mt-24">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10 h-full flex items-start justify-center -mt-16 sm:-mt-20 md:-mt-24 lg:-mt-28">
         <div className="space-y-10 w-full max-w-5xl">
           {/* Content Section */}
           <motion.div
@@ -129,16 +129,16 @@ export function HeroSection() {
             >
               <p className="text-sm text-muted-foreground mb-3 text-center">Trusted by e-commerce brands spending $10K+/month</p>
               <div className="mx-auto w-full max-w-3xl rounded-xl border border-white/10 bg-muted/10 px-4 py-3">
-                <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-                  <div className="flex items-center gap-2 text-sm sm:text-base font-medium">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
+                  <div className="flex items-center gap-2 text-base font-medium">
                     <CheckCircle className="w-4 h-4 text-primary" />
                     <span className="opacity-90">Strategic Audits</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm sm:text-base font-medium">
+                  <div className="flex items-center gap-2 text-base font-medium">
                     <CheckCircle className="w-4 h-4 text-primary" />
                     <span className="opacity-90">Monthly Consulting</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm sm:text-base font-medium">
+                  <div className="flex items-center gap-2 text-base font-medium">
                     <CheckCircle className="w-4 h-4 text-primary" />
                     <span className="opacity-90">Digital Products</span>
                   </div>
