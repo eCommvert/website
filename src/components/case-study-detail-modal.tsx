@@ -146,7 +146,7 @@ export const CaseStudyDetailModal = ({ caseStudy, isOpen, onClose }: CaseStudyDe
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] md:w-[92vw] lg:w-[88vw] xl:w-[1200px] max-w-none max-h-[92vh] overflow-y-auto">
+      <DialogContent className="w-[96vw] md:w-[94vw] lg:w-[92vw] max-w-none max-h-[92vh] overflow-y-auto">
         <DialogHeader className="space-y-4">
           <div className="flex items-start justify-between">
             <div className="space-y-2">

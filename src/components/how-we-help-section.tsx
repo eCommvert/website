@@ -82,7 +82,7 @@ export function HowWeHelpSection() {
             style={{ y: y1, opacity: opacity1 }}
             className="relative"
           >
-            <div id="audits" className="grid lg:grid-cols-[45%_55%] gap-8 md:gap-16 items-center scroll-mt-24">
+            <div id="audits" className="grid lg:grid-cols-[45%_55%] gap-8 md:gap-16 items-center scroll-mt-24 border border-white/10 md:border-transparent rounded-2xl p-4 md:p-0">
               {/* Content Side */}
               <div className="space-y-8">
                 <div className="flex items-center gap-3">
@@ -189,7 +189,7 @@ export function HowWeHelpSection() {
             style={{ y: y2, opacity: opacity2 }}
             className="relative"
           >
-            <div id="consulting" className="grid lg:grid-cols-[55%_45%] gap-8 md:gap-16 items-center scroll-mt-24">
+            <div id="consulting" className="grid lg:grid-cols-[55%_45%] gap-8 md:gap-16 items-center scroll-mt-24 border border-white/10 md:border-transparent rounded-2xl p-4 md:p-0">
               {/* Visual Side - Simplified Performance Graph */}
               <div className="relative order-2 lg:order-1">
                 <div className="bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 rounded-2xl p-6 md:p-8 backdrop-blur-sm border border-white/10 md:border-transparent">
@@ -265,7 +265,7 @@ export function HowWeHelpSection() {
             style={{ y: y3, opacity: opacity3 }}
             className="relative"
           >
-            <div id="products" className="grid lg:grid-cols-[45%_55%] gap-8 md:gap-16 items-center scroll-mt-24">
+            <div id="products" className="grid lg:grid-cols-[45%_55%] gap-8 md:gap-16 items-center scroll-mt-24 border border-white/10 md:border-transparent rounded-2xl p-4 md:p-0">
               {/* Content Side */}
               <div className="space-y-8">
                 <div className="flex items-center gap-3">

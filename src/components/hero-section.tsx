@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, CheckCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Particles } from "@/components/ui/particles";
 import { useTheme } from "next-themes";
@@ -95,55 +95,32 @@ export function HeroSection() {
               transition={{ duration: 0.6, delay: 0.5 }}
               className="flex flex-col sm:flex-row gap-3 justify-center"
             >
-              <Button size="default" className="!pl-10 !pr-6 !py-3 text-base font-medium">
-                See If We&apos;re a Fit
+              <Button
+                size="default"
+                className="!pl-10 !pr-6 !py-3 text-base font-medium"
+                onClick={() => {
+                  const el = document.getElementById('audits');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                How We Can Help
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
-              <Button variant="outline" size="default" className="px-6 py-3 text-base font-medium">
-                Get Free Strategic Assessment
+              <Button
+                variant="outline"
+                size="default"
+                className="px-6 py-3 text-base font-medium"
+                onClick={() => {
+                  const el = document.getElementById('pricing');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                View Pricing
               </Button>
             </motion.div>
 
-          {/* Primary Services Quick Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
-          >
-            <Button
-              variant="outline"
-              className="h-12 px-6 text-sm md:text-base rounded-xl border-border/60 hover:border-primary/60 hover:bg-primary/10"
-              onClick={() => {
-                const el = document.getElementById('audits');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Strategic Audits
-            </Button>
-            <Button
-              variant="outline"
-              className="h-12 px-6 text-sm md:text-base rounded-xl border-border/60 hover:border-primary/60 hover:bg-primary/10"
-              onClick={() => {
-                const el = document.getElementById('consulting');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Monthly Consulting
-            </Button>
-            <Button
-              variant="outline"
-              className="h-12 px-6 text-sm md:text-base rounded-xl border-border/60 hover:border-primary/60 hover:bg-primary/10"
-              onClick={() => {
-                const el = document.getElementById('products');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              DIY Marketing Automation
-            </Button>
-          </motion.div>
 
-            {/* Trust Indicators */}
+            {/* Trust Indicators + Services */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -151,18 +128,18 @@ export function HeroSection() {
               className="pt-4"
             >
               <p className="text-sm text-muted-foreground mb-3 text-center">Trusted by e-commerce brands spending $10K+/month</p>
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 opacity-60">
-                <div className="flex items-center gap-1.5 text-xs font-medium">
-                  <CheckCircle className="w-3 h-3 text-primary" />
-                  Strategic Audits
+              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-6">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <span className="inline-block w-3 h-3 rounded-sm bg-primary"></span>
+                  <span className="opacity-90">Strategic Audits</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs font-medium">
-                  <CheckCircle className="w-3 h-3 text-primary" />
-                  Monthly Consulting
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <span className="inline-block w-3 h-3 rounded-sm bg-primary"></span>
+                  <span className="opacity-90">Monthly Consulting</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs font-medium">
-                  <CheckCircle className="w-3 h-3 text-primary" />
-                  Digital Products
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <span className="inline-block w-3 h-3 rounded-sm bg-primary"></span>
+                  <span className="opacity-90">Digital Products</span>
                 </div>
               </div>
             </motion.div>

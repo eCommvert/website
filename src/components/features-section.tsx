@@ -14,48 +14,28 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
+// Consolidated "Why work with us" benefits
 const features = [
   {
-    icon: Target,
-    title: "Senior Strategic Guidance",
-    description: "Direct access to 9+ years scaling experience. Strategic oversight that bridges CMO vision and agency execution.",
-    badge: "Primary",
-    color: "text-primary"
-  },
-  {
-    icon: Clock,
-    title: "Start Optimizing Within Days",
-    description: "No 2-3 month hiring process. Immediate availability with proven expertise and no training required.",
-    badge: "Speed",
-    color: "text-green-600"
-  },
-  {
     icon: Users,
-    title: "Cancel Anytime",
-    description: "Flexible monthly agreements with no long-term commitments. Pay for one month and cancel the upcoming month if needed.",
-    badge: "Flexible",
+    title: "Limited Client Load",
+    description: "We work with a handful of partners at a time. Senior attention on every account — no junior handoffs.",
+    badge: "Focus",
     color: "text-blue-600"
   },
   {
     icon: Shield,
-    title: "No Hiring Risk",
-    description: "Success fee models available. Focus on results, not hours worked. No hiring overhead or training costs.",
-    badge: "Risk-Free",
+    title: "No Hiring Risk — Cancel Anytime",
+    description: "Start fast without long contracts. Stay month-to-month and pause when you no longer need us.",
+    badge: "Flexible",
     color: "text-purple-600"
   },
   {
-    icon: BarChart3,
-    title: "Diversify Beyond Top Products",
-    description: "Advanced portfolio management for 1,000+ SKU catalogs. Optimize beyond the 10% driving 80% of revenue.",
-    badge: "Advanced",
-    color: "text-orange-600"
-  },
-  {
-    icon: Settings,
-    title: "Tailored Strategic Roadmaps",
-    description: "Custom strategies based on your specific challenges. Hypothesis-driven optimization approach.",
-    badge: "Custom",
-    color: "text-pink-600"
+    icon: Target,
+    title: "Aligned on Outcomes",
+    description: "Success fee options available. We tie incentives to results — not hours logged.",
+    badge: "Aligned",
+    color: "text-primary"
   }
 ];
 
@@ -71,16 +51,9 @@ export function FeaturesSection() {
           viewport={{ once: true }}
           className="text-center space-y-4 mb-16"
         >
-          <Badge variant="secondary" className="px-4 py-2">
-            Why Choose eCommvert
-          </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold">
-            Strategic Benefits That Drive Results
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Get senior-level expertise with immediate availability and no hiring overhead. 
-            Focus on results, not hours worked.
-          </p>
+                 <Badge variant="secondary" className="px-4 py-2">Why work with us</Badge>
+                 <h2 className="text-3xl md:text-4xl font-bold">Built for speed, seniority and flexibility</h2>
+                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Partner directly with senior expertise, start quickly, and keep full flexibility with month-to-month engagement and outcome-aligned models.</p>
         </motion.div>
 
         {/* Features Grid */}

@@ -446,39 +446,7 @@ export function CaseStudiesSection() {
           )}
         </div>
 
-        {/* CTA Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          viewport={{ once: true }}
-          className="mt-16 text-center"
-        >
-          <Card className="bg-primary/5 border-primary/20">
-            <CardContent className="p-8">
-              <h3 className="text-2xl font-bold mb-4">
-                Ready to Achieve Similar Results?
-              </h3>
-              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                Join the growing list of e-commerce brands that have transformed their Google Ads performance with strategic optimization and data-driven insights.
-              </p>
-              <div className="flex justify-center">
-                <Button 
-                  size="lg" 
-                  className="w-full sm:w-auto"
-                  onClick={() => {
-                    const pricingSection = document.getElementById('pricing');
-                    if (pricingSection) {
-                      pricingSection.scrollIntoView({ behavior: 'smooth' });
-                    }
-                  }}
-                >
-                  Start Your Success Story
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        {/* CTA Section removed as requested */}
       </div>
 
       {/* Case Study Detail Modal */}
