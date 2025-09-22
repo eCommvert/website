@@ -141,7 +141,7 @@ export function HowWeHelpSection() {
 
               {/* Visual Side - Softened Radar Chart */}
               <div className="relative">
-                <div className="bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                <div className="bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 rounded-2xl p-6 md:p-8 backdrop-blur-sm border border-white/10 md:border-transparent">
                   <div className="w-full h-64 md:h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <RadarChart data={auditData}>
@@ -192,7 +192,7 @@ export function HowWeHelpSection() {
             <div id="consulting" className="grid lg:grid-cols-[55%_45%] gap-8 md:gap-16 items-center scroll-mt-24">
               {/* Visual Side - Simplified Performance Graph */}
               <div className="relative order-2 lg:order-1">
-                <div className="bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                <div className="bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 rounded-2xl p-6 md:p-8 backdrop-blur-sm border border-white/10 md:border-transparent">
                   <h4 className="text-sm font-medium text-zinc-300 mb-6 text-center">
                     What your growth curve looks like with vs. without strategy
                   </h4>
@@ -324,7 +324,7 @@ export function HowWeHelpSection() {
 
               {/* Visual Side - Floating Tool Cards */}
               <div className="relative">
-                <div className="bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                <div className="bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 rounded-2xl p-6 md:p-8 backdrop-blur-sm border border-white/10 md:border-transparent">
                   <p className="text-sm font-medium text-zinc-300 mb-6 text-center">
                     Explore plug-and-play tools to cut hours of manual work
                   </p>

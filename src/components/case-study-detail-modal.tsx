@@ -146,7 +146,7 @@ export const CaseStudyDetailModal = ({ caseStudy, isOpen, onClose }: CaseStudyDe
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] md:w-[92vw] lg:w-[88vw] xl:w-[1200px] max-w-none max-h-[92vh] overflow-y-auto">
         <DialogHeader className="space-y-4">
           <div className="flex items-start justify-between">
             <div className="space-y-2">
@@ -170,7 +170,7 @@ export const CaseStudyDetailModal = ({ caseStudy, isOpen, onClose }: CaseStudyDe
                 </div>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close case study">
               <X className="w-4 h-4" />
             </Button>
           </div>
