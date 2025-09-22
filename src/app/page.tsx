@@ -5,7 +5,6 @@ import { FeaturesSection } from "@/components/features-section";
 import { SocialProofSection } from "@/components/social-proof-section";
 import { CaseStudiesSection } from "@/components/case-studies-section";
 import { PricingSection } from "@/components/pricing-section";
-import { CTASection } from "@/components/cta-section";
 import { SiteFooter } from "@/components/site-footer";
 
 export default function Home() {
@@ -18,7 +17,6 @@ export default function Home() {
       <SocialProofSection />
       <CaseStudiesSection />
       <PricingSection />
-      <CTASection />
       <SiteFooter />
     </main>
   );

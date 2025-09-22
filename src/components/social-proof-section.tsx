@@ -2,12 +2,10 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Star, 
   TrendingUp, 
-  Users, 
-  Quote
+  Users
 } from "lucide-react";
 import { motion } from "framer-motion";
 // import Image from "next/image";
@@ -36,29 +34,6 @@ const socialProofItems = [
   }
 ];
 
-const testimonials = [
-  {
-    quote: "Denis helped us identify optimization opportunities we never knew existed. Our ROAS improved by 40% within 2 months.",
-    author: "Sarah M.",
-    role: "CMO, E-commerce Brand",
-    company: "$50K/month ad spend",
-    photo: "/testimonials/sarah-m.jpg" // Add photo path here
-  },
-  {
-    quote: "Finally found someone who bridges the gap between our strategy and execution. The strategic oversight has been invaluable.",
-    author: "Mike R.",
-    role: "Marketing Director",
-    company: "$25K/month ad spend",
-    photo: "/testimonials/mike-r.jpg" // Add photo path here
-  },
-  {
-    quote: "Working with Denis is like having a senior strategist on demand. Immediate availability with proven expertise.",
-    author: "Lisa K.",
-    role: "CEO, DTC Brand",
-    company: "$15K/month ad spend",
-    photo: "/testimonials/lisa-k.jpg" // Add photo path here
-  }
-];
 
 export function SocialProofSection() {
   return (
@@ -108,90 +83,7 @@ export function SocialProofSection() {
           ))}
         </div>
 
-        {/* Testimonials */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="space-y-8"
-        >
-          <div className="text-center space-y-4">
-            <Badge variant="outline" className="px-4 py-2">
-              Client Success Stories
-            </Badge>
-            <h3 className="text-2xl md:text-3xl font-bold">
-              What Our Clients Say
-            </h3>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={testimonial.author}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card className="h-full hover:shadow-lg transition-all duration-300">
-                  <CardContent className="p-6 space-y-4">
-                    <Quote className="w-8 h-8 text-primary/50" />
-                    <p className="text-muted-foreground italic leading-relaxed">
-                      &ldquo;{testimonial.quote}&rdquo;
-                    </p>
-                    <div className="flex items-center space-x-3 pt-2">
-                      <Avatar className="w-12 h-12">
-                        <AvatarImage 
-                          src={testimonial.photo} 
-                          alt={`${testimonial.author} photo`}
-                        />
-                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                          {testimonial.author.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="space-y-1">
-                        <p className="font-semibold">{testimonial.author}</p>
-                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                        <p className="text-xs text-primary font-medium">{testimonial.company}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Bottom Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          viewport={{ once: true }}
-          className="mt-16"
-        >
-          <div className="bg-muted/50 rounded-xl p-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              <div>
-                <div className="text-3xl font-bold text-primary mb-2">50+</div>
-                <div className="text-sm text-muted-foreground">E-commerce Brands Helped</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary mb-2">20%+</div>
-                <div className="text-sm text-muted-foreground">Average Efficiency Improvement</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary mb-2">9+</div>
-                <div className="text-sm text-muted-foreground">Years Scaling Experience</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary mb-2">100%</div>
-                <div className="text-sm text-muted-foreground">Client Satisfaction Rate</div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </section>
   );

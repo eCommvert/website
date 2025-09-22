@@ -32,7 +32,7 @@ export function PricingSection() {
 
         <Tabs defaultValue="monthly" className="w-full ">
           <div className="flex justify-center mb-8 md:mb-12">
-            <TabsList className="inline-flex h-auto items-center justify-center rounded-lg bg-muted/20 p-1 flex-wrap gap-1">
+            <TabsList className="inline-flex h-auto items-center justify-center rounded-lg bg-muted/20 p-1 flex-wrap gap-1 max-w-full">
               <TabsTrigger 
                 value="monthly" 
                 className="flex items-center gap-2 px-3 py-2 md:px-6 text-xs md:text-sm font-medium rounded-md transition-all duration-200 data-[state=active]:!text-white data-[state=active]:!font-bold data-[state=active]:!border-2 data-[state=active]:!border-primary data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground [&[data-state=active]_svg]:!text-primary"
@@ -62,7 +62,7 @@ export function PricingSection() {
 
           {/* Monthly Consulting Tab */}
           <TabsContent value="monthly">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 max-w-4xl mx-auto">
               {/* With Meetings */}
               <Card className="flex flex-col">
                 <CardHeader className="pb-4">

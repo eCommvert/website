@@ -31,9 +31,9 @@ const features = [
   },
   {
     icon: Users,
-    title: "Full Attention & Focus",
-    description: "Quality over quantity approach. Work directly with senior strategist, not junior team members.",
-    badge: "Personal",
+    title: "Cancel Anytime",
+    description: "Flexible monthly agreements with no long-term commitments. Pay for one month and cancel the upcoming month if needed.",
+    badge: "Flexible",
     color: "text-blue-600"
   },
   {

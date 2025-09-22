@@ -363,7 +363,7 @@ export function CaseStudiesSection() {
                 <CardContent className="p-0">
                   <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-0">
                     {/* Left Section - Story (40%) */}
-                    <div className="p-8 space-y-6">
+                    <div className="p-6 md:p-8 space-y-6">
                       {/* Tags */}
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-xs px-2 py-1 bg-muted/30 border-border/50 text-muted-foreground">
@@ -417,7 +417,7 @@ export function CaseStudiesSection() {
                     </div>
 
                     {/* Right Section - Metrics (60%) */}
-                    <div className="p-8 bg-muted/20 border-l border-border/50">
+                    <div className="p-6 md:p-8 bg-muted/20 border-t lg:border-t-0 lg:border-l border-border/50">
                       <div className="space-y-4">
                         <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                           Key Results
@@ -462,12 +462,18 @@ export function CaseStudiesSection() {
               <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
                 Join the growing list of e-commerce brands that have transformed their Google Ads performance with strategic optimization and data-driven insights.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="w-full sm:w-auto">
+              <div className="flex justify-center">
+                <Button 
+                  size="lg" 
+                  className="w-full sm:w-auto"
+                  onClick={() => {
+                    const pricingSection = document.getElementById('pricing');
+                    if (pricingSection) {
+                      pricingSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
                   Start Your Success Story
-                </Button>
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  View All Case Studies
                 </Button>
               </div>
             </CardContent>

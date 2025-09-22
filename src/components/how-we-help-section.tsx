@@ -1,21 +1,19 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { 
   FileText, 
   TrendingUp, 
   Bot, 
   ArrowRight, 
   CheckCircle, 
-  Clock, 
-  Target,
-  BarChart3,
   Zap,
-  Lightbulb,
-  Settings
+  BarChart3,
+  Settings,
+  Target,
+  MessageSquare,
+  Clock
 } from "lucide-react";
 import { useRef } from "react";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
@@ -55,15 +53,15 @@ export function HowWeHelpSection() {
   };
 
   return (
-    <section ref={containerRef} className="py-20 md:py-32 bg-gradient-to-b from-background to-muted/20">
+    <section ref={containerRef} className="py-24 md:py-32 bg-background">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-12 md:mb-16">
+        <div className="text-center mb-20">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4"
+            className="text-3xl md:text-4xl font-bold mb-6 text-white"
           >
             How we help you scale
           </motion.h2>
@@ -71,106 +69,86 @@ export function HowWeHelpSection() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto"
+            className="text-lg text-zinc-300 max-w-2xl mx-auto"
           >
             Three strategic approaches to get expert oversight without hiring a full-time marketing manager
           </motion.p>
         </div>
 
-        {/* Stacked Cards */}
-        <div className="space-y-6 md:space-y-8">
-          {/* Strategic Audits Card */}
+        {/* Service Sections */}
+        <div className="space-y-24">
+          {/* Strategic Audits Section */}
           <motion.div
             style={{ y: y1, opacity: opacity1 }}
             className="relative"
           >
-            <Card className="overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5 hover:border-primary/40 transition-all duration-500">
-              <div className="grid lg:grid-cols-2 gap-0">
-                {/* Content Side */}
-                <div className="p-6 md:p-8 lg:p-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <FileText className="w-6 h-6 text-primary" />
-                    </div>
-                    <Badge variant="secondary" className="text-sm font-medium">
-                      Best Value
-                    </Badge>
+            <div id="audits" className="grid lg:grid-cols-[45%_55%] gap-8 md:gap-16 items-center scroll-mt-24">
+              {/* Content Side */}
+              <div className="space-y-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-purple-500/10">
+                    <FileText className="w-5 h-5 text-purple-400" />
                   </div>
-                  
-                  <h3 className="text-xl md:text-2xl font-bold mb-3">
+                  <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider bg-zinc-800/50 px-3 py-1 rounded-full">
+                    Best Value
+                  </span>
+                </div>
+                
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-4 text-white">
                     Strategic Audits
                   </h3>
                   
-                  <p className="text-base text-muted-foreground mb-6 leading-relaxed">
+                  <p className="text-zinc-300 mb-8 leading-relaxed">
                     Comprehensive analysis of your Google Ads, Meta Ads & GA4 setup with actionable recommendations for immediate improvement.
                   </p>
 
-                  {/* What's Included */}
-                  <div className="space-y-3 mb-6">
-                    <h4 className="text-base font-semibold flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-primary" />
-                      What&rsquo;s included:
-                    </h4>
-                    <div className="grid md:grid-cols-2 gap-2">
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Google Ads & Meta Ads analysis
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        GA4 & conversion tracking audit
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Product-level performance insights
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Campaign optimization roadmap
-                      </div>
+                  {/* Unified Benefits List */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <CheckCircle className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Google Ads & Meta Ads analysis
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <CheckCircle className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      GA4 & conversion tracking audit
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <CheckCircle className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Product-level performance insights
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <CheckCircle className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Campaign optimization roadmap
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <CheckCircle className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      1-2 weeks delivery with Q&A session
                     </div>
                   </div>
-
-                  {/* Timeline & Process */}
-                  <div className="space-y-3 mb-6">
-                    <h4 className="text-base font-semibold flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-primary" />
-                      Timeline & Process:
-                    </h4>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-primary" />
-                        1-2 weeks delivery
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-primary" />
-                        Interactive Q&A session
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-primary" />
-                        Custom scope based on your needs
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button 
-                    onClick={handleScrollToPricing}
-                    className="w-full md:w-auto bg-primary hover:bg-primary/90"
-                  >
-                    View Pricing
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
                 </div>
 
-                {/* Visual Side - Radar Chart */}
-                <div className="relative p-6 md:p-8 lg:p-10 flex items-center justify-center">
-                  <div className="w-full h-80">
+                <Button 
+                  onClick={handleScrollToPricing}
+                  variant="outline"
+                  size="sm"
+                  className="border-purple-400/30 text-purple-400 hover:bg-purple-400/10 hover:border-purple-400/50"
+                >
+                  View Pricing
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+
+              {/* Visual Side - Softened Radar Chart */}
+              <div className="relative">
+                <div className="bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                  <div className="w-full h-64 md:h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <RadarChart data={auditData}>
-                        <PolarGrid stroke="#e2e8f0" strokeOpacity={0.05} />
+                        <PolarGrid stroke="#ffffff" strokeOpacity={0.1} />
                         <PolarAngleAxis 
                           dataKey="category" 
-                          tick={{ fontSize: 12, fill: '#ffffff' }}
+                          tick={{ fontSize: 10, fill: '#a1a1aa' }}
                         />
                         <PolarRadiusAxis 
                           domain={[0, 10]} 
@@ -184,241 +162,204 @@ export function HowWeHelpSection() {
                           fill="#ef4444"
                           fillOpacity={0.1}
                           strokeWidth={2}
-                          strokeOpacity={0.8}
+                          strokeOpacity={0.6}
                         />
                         <Radar
                           name="Optimization Potential"
                           dataKey="potential"
                           stroke="#8b5cf6"
                           fill="#8b5cf6"
-                          fillOpacity={0.2}
+                          fillOpacity={0.15}
                           strokeWidth={2}
+                          strokeOpacity={0.8}
                         />
                       </RadarChart>
                     </ResponsiveContainer>
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <div className="flex justify-center gap-4 text-xs">
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                          <span className="text-muted-foreground">Current</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                          <span className="text-muted-foreground">Potential</span>
-                        </div>
-                      </div>
-                    </div>
                   </div>
+                  <p className="text-xs text-zinc-400 text-center mt-4">
+                    Your current vs potential performance across key areas
+                  </p>
                 </div>
               </div>
-            </Card>
+            </div>
           </motion.div>
 
-          {/* Monthly Consulting Card */}
+          {/* Monthly Consulting Section */}
           <motion.div
             style={{ y: y2, opacity: opacity2 }}
             className="relative"
           >
-            <Card className="overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5 hover:border-primary/40 transition-all duration-500">
-              <div className="grid lg:grid-cols-2 gap-0">
-                {/* Visual Side - Animated Performance Graph */}
-                <div className="relative bg-gradient-to-br from-primary/10 to-primary/5 p-6 md:p-8 lg:p-10 flex items-center justify-center order-2 lg:order-1 min-h-full">
-                  <AnimatedPerformanceGraph className="w-full h-full" />
-                </div>
-
-                {/* Content Side */}
-                <div className="p-6 md:p-8 lg:p-10 order-1 lg:order-2">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <TrendingUp className="w-6 h-6 text-primary" />
-                    </div>
-                    <Badge variant="secondary" className="text-sm font-medium">
-                      Biggest Value
-                    </Badge>
+            <div id="consulting" className="grid lg:grid-cols-[55%_45%] gap-8 md:gap-16 items-center scroll-mt-24">
+              {/* Visual Side - Simplified Performance Graph */}
+              <div className="relative order-2 lg:order-1">
+                <div className="bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                  <h4 className="text-sm font-medium text-zinc-300 mb-6 text-center">
+                    What your growth curve looks like with vs. without strategy
+                  </h4>
+                  <div className="w-full h-56 md:h-64">
+                    <AnimatedPerformanceGraph className="w-full h-full" />
                   </div>
-                  
-                  <h3 className="text-xl md:text-2xl font-bold mb-3">
+                </div>
+              </div>
+
+              {/* Content Side */}
+              <div className="space-y-8 order-1 lg:order-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-purple-500/10">
+                    <TrendingUp className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider bg-zinc-800/50 px-3 py-1 rounded-full">
+                    Biggest Value
+                  </span>
+                </div>
+                
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-4 text-white">
                     Monthly Consulting
                   </h3>
                   
-                  <p className="text-base text-muted-foreground mb-6 leading-relaxed">
+                  <p className="text-zinc-300 mb-8 leading-relaxed">
                     Ongoing strategic oversight and optimization with flexible communication options. Scale your advertising without the overhead of a full-time hire.
                   </p>
 
-                  {/* Service Models */}
-                  <div className="space-y-3 mb-6">
-                    <h4 className="text-base font-semibold flex items-center gap-2">
-                      <Target className="w-4 h-4 text-primary" />
-                      Service Models:
-                    </h4>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-primary" />
-                        <strong>Pay for Results:</strong> Performance-based pricing with success fees
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-primary" />
-                        <strong>With Meetings:</strong> Weekly calls + Slack channel
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-primary" />
-                        <strong>Slack Only:</strong> Efficient communication, occasional meetings
-                      </div>
+                  {/* Unified Benefits List */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <Target className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Performance-based model
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <MessageSquare className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Weekly calls + Slack
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <Clock className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Async-only option
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <CheckCircle className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Strategic campaign oversight
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <CheckCircle className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Performance optimization
                     </div>
                   </div>
-
-                  {/* What You Get */}
-                  <div className="space-y-3 mb-6">
-                    <h4 className="text-base font-semibold flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-primary" />
-                      What you get:
-                    </h4>
-                    <div className="grid md:grid-cols-2 gap-2">
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Strategic campaign oversight
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Performance optimization
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Budget allocation guidance
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Competitive analysis
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button 
-                    onClick={handleScrollToPricing}
-                    className="w-full md:w-auto bg-primary hover:bg-primary/90"
-                  >
-                    View Pricing
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
                 </div>
+
+                <Button 
+                  onClick={handleScrollToPricing}
+                  variant="outline"
+                  size="sm"
+                  className="border-purple-400/30 text-purple-400 hover:bg-purple-400/10 hover:border-purple-400/50"
+                >
+                  View Pricing
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
               </div>
-            </Card>
+            </div>
           </motion.div>
 
-          {/* Digital Products Card */}
+          {/* Digital Products Section */}
           <motion.div
             style={{ y: y3, opacity: opacity3 }}
             className="relative"
           >
-            <Card className="overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5 hover:border-primary/40 transition-all duration-500">
-              <div className="grid lg:grid-cols-2 gap-0">
-                {/* Content Side */}
-                <div className="p-6 md:p-8 lg:p-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Bot className="w-6 h-6 text-primary" />
-                    </div>
-                    <Badge variant="secondary" className="text-sm font-medium">
-                      Automation Focus
-                    </Badge>
+            <div id="products" className="grid lg:grid-cols-[45%_55%] gap-8 md:gap-16 items-center scroll-mt-24">
+              {/* Content Side */}
+              <div className="space-y-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-purple-500/10">
+                    <Bot className="w-5 h-5 text-purple-400" />
                   </div>
-                  
-                  <h3 className="text-xl md:text-2xl font-bold mb-3">
+                  <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider bg-zinc-800/50 px-3 py-1 rounded-full">
+                    Automation Focus
+                  </span>
+                </div>
+                
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-4 text-white">
                     Digital Products
                   </h3>
                   
-                  <p className="text-base text-muted-foreground mb-6 leading-relaxed">
+                  <p className="text-zinc-300 mb-8 leading-relaxed">
                     Ready-to-use automation tools and dashboards to streamline your marketing operations and reduce manual work.
                   </p>
 
-                  {/* Product Categories */}
-                  <div className="space-y-3 mb-6">
-                    <h4 className="text-base font-semibold flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-primary" />
-                      Product Categories:
-                    </h4>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-primary" />
-                        <strong>Automation Tools:</strong> Make.com & n8n workflows
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-primary" />
-                        <strong>Dashboards:</strong> Looker & GA4 reporting
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-2 h-2 rounded-full bg-primary" />
-                        <strong>Optimization Scripts:</strong> Campaign management tools
-                      </div>
+                  {/* Unified Benefits List */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <Zap className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Make.com & n8n workflows
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <BarChart3 className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Looker & GA4 reporting dashboards
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <Settings className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Campaign management scripts
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <CheckCircle className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Reduce manual work
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-zinc-300">
+                      <CheckCircle className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      Scale operations efficiently
                     </div>
                   </div>
-
-                  {/* Benefits */}
-                  <div className="space-y-3 mb-6">
-                    <h4 className="text-base font-semibold flex items-center gap-2">
-                      <Lightbulb className="w-4 h-4 text-primary" />
-                      Benefits:
-                    </h4>
-                    <div className="grid md:grid-cols-2 gap-2">
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Reduce manual work
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Improve efficiency
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Scale operations
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        Cost-effective solutions
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button 
-                    onClick={() => window.open('/tools', '_blank')}
-                    className="w-full md:w-auto bg-primary hover:bg-primary/90"
-                  >
-                    Explore Tools
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
                 </div>
 
-                {/* Visual Side - Simple Automation Icons */}
-                <div className="relative bg-gradient-to-br from-primary/10 to-primary/5 p-6 md:p-8 lg:p-10 flex items-center justify-center">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="p-4 rounded-xl bg-primary/20">
-                        <Zap className="w-8 h-8 text-primary" />
+                <Button 
+                  onClick={() => window.open('/tools', '_blank')}
+                  variant="outline"
+                  size="sm"
+                  className="border-purple-400/30 text-purple-400 hover:bg-purple-400/10 hover:border-purple-400/50"
+                >
+                  Explore Tools
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+
+              {/* Visual Side - Floating Tool Cards */}
+              <div className="relative">
+                <div className="bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                  <p className="text-sm font-medium text-zinc-300 mb-6 text-center">
+                    Explore plug-and-play tools to cut hours of manual work
+                  </p>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4 p-4 rounded-lg bg-zinc-800/30 hover:bg-zinc-800/50 transition-colors">
+                      <div className="p-2 rounded-lg bg-purple-500/20">
+                        <Zap className="w-5 h-5 text-purple-400" />
                       </div>
-                      <span className="text-sm font-medium text-center">Automation</span>
+                      <div>
+                        <div className="text-sm font-medium text-white">Automation Tools</div>
+                        <div className="text-xs text-zinc-400">Workflow automation</div>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="p-4 rounded-xl bg-primary/20">
-                        <BarChart3 className="w-8 h-8 text-primary" />
+                    <div className="flex items-center gap-4 p-4 rounded-lg bg-zinc-800/30 hover:bg-zinc-800/50 transition-colors">
+                      <div className="p-2 rounded-lg bg-purple-500/20">
+                        <BarChart3 className="w-5 h-5 text-purple-400" />
                       </div>
-                      <span className="text-sm font-medium text-center">Dashboards</span>
+                      <div>
+                        <div className="text-sm font-medium text-white">Dashboards</div>
+                        <div className="text-xs text-zinc-400">Real-time reporting</div>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="p-4 rounded-xl bg-primary/20">
-                        <Settings className="w-8 h-8 text-primary" />
+                    <div className="flex items-center gap-4 p-4 rounded-lg bg-zinc-800/30 hover:bg-zinc-800/50 transition-colors">
+                      <div className="p-2 rounded-lg bg-purple-500/20">
+                        <Settings className="w-5 h-5 text-purple-400" />
                       </div>
-                      <span className="text-sm font-medium text-center">Scripts</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="p-4 rounded-xl bg-primary/20">
-                        <Bot className="w-8 h-8 text-primary" />
+                      <div>
+                        <div className="text-sm font-medium text-white">Optimization Scripts</div>
+                        <div className="text-xs text-zinc-400">Campaign management</div>
                       </div>
-                      <span className="text-sm font-medium text-center">Tools</span>
                     </div>
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
           </motion.div>
         </div>
       </div>

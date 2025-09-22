@@ -37,7 +37,7 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10 h-full flex items-start justify-center -mt-16 md:-mt-20 lg:-mt-24">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10 h-full flex items-start justify-center -mt-10 sm:-mt-14 md:-mt-20 lg:-mt-24">
         <div className="space-y-10 w-full max-w-5xl">
           {/* Content Section */}
           <motion.div
@@ -104,6 +104,45 @@ export function HeroSection() {
               </Button>
             </motion.div>
 
+          {/* Primary Services Quick Links */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4"
+          >
+            <Button
+              variant="outline"
+              className="h-12 px-6 text-sm md:text-base rounded-xl border-border/60 hover:border-primary/60 hover:bg-primary/10"
+              onClick={() => {
+                const el = document.getElementById('audits');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Strategic Audits
+            </Button>
+            <Button
+              variant="outline"
+              className="h-12 px-6 text-sm md:text-base rounded-xl border-border/60 hover:border-primary/60 hover:bg-primary/10"
+              onClick={() => {
+                const el = document.getElementById('consulting');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Monthly Consulting
+            </Button>
+            <Button
+              variant="outline"
+              className="h-12 px-6 text-sm md:text-base rounded-xl border-border/60 hover:border-primary/60 hover:bg-primary/10"
+              onClick={() => {
+                const el = document.getElementById('products');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              DIY Marketing Automation
+            </Button>
+          </motion.div>
+
             {/* Trust Indicators */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -112,7 +151,7 @@ export function HeroSection() {
               className="pt-4"
             >
               <p className="text-sm text-muted-foreground mb-3 text-center">Trusted by e-commerce brands spending $10K+/month</p>
-              <div className="flex items-center justify-center gap-8 opacity-60">
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 opacity-60">
                 <div className="flex items-center gap-1.5 text-xs font-medium">
                   <CheckCircle className="w-3 h-3 text-primary" />
                   Strategic Audits
