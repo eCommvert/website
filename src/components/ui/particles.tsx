@@ -167,19 +167,24 @@ export default function Particles({
       circle.x += circle.dx + vx;
       circle.y += circle.dy + vy;
 
-      // Mouse interaction: gentle push away within radius
+      // Mouse interaction: smooth attraction within radius
       if (mouse.current.ready) {
         const mx = mouse.current.x;
         const my = mouse.current.y;
         const dxm = circle.x - mx;
         const dym = circle.y - my;
         const distSq = dxm * dxm + dym * dym;
-        const radius = 140; // px
+        const radius = 260; // px, larger interaction field
         if (distSq > 0 && distSq < radius * radius) {
           const dist = Math.sqrt(distSq) || 1;
-          const force = ((radius - dist) / radius) * (circle.magnetism || 1) * (staticity / 100) * 0.8;
-          circle.x += (dxm / dist) * force;
-          circle.y += (dym / dist) * force;
+          // Attraction strength scales as distance closes; clamp per-frame displacement
+          const base = (circle.magnetism || 1) * (staticity / 100);
+          const force = ((radius - dist) / radius) * base * 1.4; // slightly stronger than before
+          const stepX = (dxm / dist) * force;
+          const stepY = (dym / dist) * force;
+          // Move toward cursor (subtract the vector from circle to mouse)
+          circle.x -= Math.max(-3, Math.min(3, stepX));
+          circle.y -= Math.max(-3, Math.min(3, stepY));
         }
       }
 
