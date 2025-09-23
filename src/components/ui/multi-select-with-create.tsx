@@ -182,7 +182,7 @@ export function MultiSelectWithCreate({
                 onClick={handleCreateNew}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Create "{searchTerm}"
+                Create &quot;{searchTerm}&quot;
               </div>
             )}
             

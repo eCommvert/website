@@ -56,6 +56,7 @@ export default async function BlogPage() {
                   <CardHeader>
                     {post.featured_image && (
                       <div className="aspect-video bg-muted rounded-lg mb-4 overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
                           src={post.featured_image} 
                           alt={post.title}
