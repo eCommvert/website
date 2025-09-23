@@ -116,6 +116,28 @@ interface BlogPost {
   tags: string[];
   published: boolean;
   publishedAt?: string;
+  author_id?: string;
+  is_published?: boolean;
+  published_at?: string;
+  featured_image?: string;
+  seo_title?: string;
+  seo_description?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface BlogCategory {
+  id: string;
+  name: string;
+  slug: string;
+  created_at?: string;
+}
+
+interface BlogTag {
+  id: string;
+  name: string;
+  slug: string;
+  created_at?: string;
 }
 
 // Mock data - in a real app, this would come from an API
@@ -247,6 +269,8 @@ export const AdminDashboard = () => {
   const [products, setProducts] = useState<LemonSqueezyProduct[]>([]);
   const [productExtras, setProductExtras] = useState<Record<string, ProductExtra>>({});
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
+  const [blogTags, setBlogTags] = useState<BlogTag[]>([]);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
@@ -379,6 +403,39 @@ export const AdminDashboard = () => {
       setPagesError((e as Error).message);
     } finally {
       setPagesLoading(false);
+    }
+  };
+
+  const loadBlogPosts = async () => {
+    try {
+      const res = await fetch("/api/blog/posts");
+      if (!res.ok) throw new Error("Failed to load blog posts");
+      const json = await res.json();
+      setBlogPosts(json.posts || []);
+    } catch (e) {
+      console.error("Error loading blog posts:", e);
+    }
+  };
+
+  const loadBlogCategories = async () => {
+    try {
+      const res = await fetch("/api/blog/categories");
+      if (!res.ok) throw new Error("Failed to load blog categories");
+      const json = await res.json();
+      setBlogCategories(json.categories || []);
+    } catch (e) {
+      console.error("Error loading blog categories:", e);
+    }
+  };
+
+  const loadBlogTags = async () => {
+    try {
+      const res = await fetch("/api/blog/tags");
+      if (!res.ok) throw new Error("Failed to load blog tags");
+      const json = await res.json();
+      setBlogTags(json.tags || []);
+    } catch (e) {
+      console.error("Error loading blog tags:", e);
     }
   };
   type CategoryRow = { id: string; name: string; description?: string; is_active: boolean; created_at: string };
@@ -985,6 +1042,29 @@ export const AdminDashboard = () => {
             >
               <FileText className="w-4 h-4 mr-2" />
               Pages
+            </Button>
+            <Button
+              variant={activeTab === "blog" ? "default" : "ghost"}
+              className={`w-full justify-start font-medium ${
+                activeTab === "blog" 
+                  ? "bg-primary text-white hover:bg-primary/90" 
+                  : "text-slate-300 hover:text-white hover:bg-slate-800"
+              }`}
+              onClick={() => {
+                setActiveTab("blog");
+                if (blogPosts.length === 0) {
+                  loadBlogPosts();
+                }
+                if (blogCategories.length === 0) {
+                  loadBlogCategories();
+                }
+                if (blogTags.length === 0) {
+                  loadBlogTags();
+                }
+              }}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Blog
             </Button>
           </nav>
         </div>
@@ -2292,6 +2372,240 @@ export const AdminDashboard = () => {
                     </Button>
                   </CardContent>
                 </Card>
+              </div>
+            </div>
+          )}
+
+          {/* Blog Tab */}
+          {activeTab === "blog" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">Blog Management</h2>
+                  <p className="text-slate-600">Manage blog posts, categories, and tags</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={() => {
+                    const newPost: BlogPost = {
+                      id: (crypto as { randomUUID: () => string }).randomUUID(),
+                      title: "New Blog Post",
+                      slug: "new-blog-post",
+                      content: "Write your blog post content here...",
+                      excerpt: "",
+                      tags: [],
+                      published: false,
+                      is_published: false,
+                      created_at: new Date().toISOString()
+                    };
+                    setBlogPosts(prev => [newPost, ...prev]);
+                    setEditingItem(newPost.id);
+                  }}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Post
+                  </Button>
+                  <Button variant="outline" onClick={loadBlogPosts}>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Refresh
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Blog Posts */}
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Blog Posts</CardTitle>
+                      <CardDescription>Manage your blog content</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {blogPosts.length === 0 ? (
+                          <p className="text-slate-500 text-center py-8">No blog posts yet. Create your first post!</p>
+                        ) : (
+                          blogPosts.map((post) => (
+                            <div key={post.id} className="flex items-center justify-between p-4 border rounded-lg">
+                              <div className="flex-1">
+                                {editingItem === post.id ? (
+                                  <div className="space-y-3">
+                                    <Input
+                                      value={post.title}
+                                      onChange={(e) => {
+                                        const newTitle = e.target.value;
+                                        setBlogPosts(prev => prev.map(p => 
+                                          p.id === post.id ? { ...p, title: newTitle, slug: newTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') } : p
+                                        ));
+                                      }}
+                                      placeholder="Post title"
+                                      className="font-medium"
+                                    />
+                                    <Textarea
+                                      value={post.excerpt || ''}
+                                      onChange={(e) => {
+                                        setBlogPosts(prev => prev.map(p => 
+                                          p.id === post.id ? { ...p, excerpt: e.target.value } : p
+                                        ));
+                                      }}
+                                      placeholder="Post excerpt"
+                                      rows={2}
+                                    />
+                                    <div className="flex gap-2">
+                                      <Button size="sm" onClick={async () => {
+                                        try {
+                                          const method = post.created_at ? 'PUT' : 'POST';
+                                          const url = post.created_at ? `/api/blog/posts/${post.id}` : '/api/blog/posts';
+                                          const res = await fetch(url, {
+                                            method,
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                              title: post.title,
+                                              slug: post.slug,
+                                              content: post.content,
+                                              excerpt: post.excerpt,
+                                              is_published: post.is_published || post.published,
+                                              featured_image: post.coverImage,
+                                              seo_title: post.seo_title,
+                                              seo_description: post.seo_description
+                                            })
+                                          });
+                                          if (!res.ok) throw new Error('Failed to save post');
+                                          setEditingItem(null);
+                                          loadBlogPosts();
+                                        } catch (e) {
+                                          console.error('Save failed:', e);
+                                          alert('Failed to save post');
+                                        }
+                                      }}>
+                                        <Save className="w-4 h-4" />
+                                      </Button>
+                                      <Button size="sm" variant="outline" onClick={() => setEditingItem(null)}>
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <h3 className="font-medium">{post.title}</h3>
+                                    <p className="text-sm text-slate-600 mt-1">{post.excerpt}</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <Badge variant={post.is_published || post.published ? "default" : "secondary"}>
+                                        {post.is_published || post.published ? "Published" : "Draft"}
+                                      </Badge>
+                                      {post.tags && post.tags.length > 0 && (
+                                        <div className="flex gap-1">
+                                          {post.tags.slice(0, 2).map(tag => (
+                                            <Badge key={tag} variant="outline" className="text-xs">
+                                              {tag}
+                                            </Badge>
+                                          ))}
+                                          {post.tags.length > 2 && (
+                                            <span className="text-xs text-slate-500">+{post.tags.length - 2}</span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              {editingItem !== post.id && (
+                                <div className="flex gap-2 ml-4">
+                                  <Button size="sm" variant="outline" onClick={() => {
+                                    setBlogPosts(prev => prev.map(p => 
+                                      p.id === post.id ? { ...p, is_published: !p.is_published, published: !p.published } : p
+                                    ));
+                                  }}>
+                                    {post.is_published || post.published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={() => setEditingItem(post.id)}>
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={() => deleteItem('blog', post.id)}>
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Categories and Tags */}
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Categories</CardTitle>
+                      <CardDescription>Organize your content</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <Button size="sm" variant="outline" className="w-full" onClick={async () => {
+                          const name = prompt("Category name:");
+                          if (!name) return;
+                          const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                          try {
+                            const res = await fetch('/api/blog/categories', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ name, slug })
+                            });
+                            if (!res.ok) throw new Error('Failed to create category');
+                            loadBlogCategories();
+                          } catch (e) {
+                            console.error('Create category failed:', e);
+                            alert('Failed to create category');
+                          }
+                        }}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Category
+                        </Button>
+                        {blogCategories.map(cat => (
+                          <div key={cat.id} className="flex items-center justify-between p-2 border rounded">
+                            <span className="text-sm">{cat.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Tags</CardTitle>
+                      <CardDescription>Label your content</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <Button size="sm" variant="outline" className="w-full" onClick={async () => {
+                          const name = prompt("Tag name:");
+                          if (!name) return;
+                          const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                          try {
+                            const res = await fetch('/api/blog/tags', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ name, slug })
+                            });
+                            if (!res.ok) throw new Error('Failed to create tag');
+                            loadBlogTags();
+                          } catch (e) {
+                            console.error('Create tag failed:', e);
+                            alert('Failed to create tag');
+                          }
+                        }}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Tag
+                        </Button>
+                        {blogTags.map(tag => (
+                          <div key={tag.id} className="flex items-center justify-between p-2 border rounded">
+                            <span className="text-sm">{tag.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </div>
           )}

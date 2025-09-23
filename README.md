@@ -32,6 +32,47 @@ To learn more about Next.js, take a look at the following resources:
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
 ## Deploy on Vercel
+## Supabase Blog Schema
+
+Run this SQL in your Supabase project:
+
+```sql
+create table if not exists blog_categories (
+  id uuid primary key default gen_random_uuid(),
+  name text not null unique,
+  slug text not null unique,
+  created_at timestamptz default now()
+);
+
+create table if not exists blog_tags (
+  id uuid primary key default gen_random_uuid(),
+  name text not null unique,
+  slug text not null unique,
+  created_at timestamptz default now()
+);
+
+create table if not exists blog_posts (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  slug text not null unique,
+  excerpt text,
+  content text,
+  cover_image text,
+  category_id uuid references blog_categories(id) on delete set null,
+  author text,
+  published boolean default false,
+  published_at timestamptz,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table if not exists blog_post_tags (
+  post_id uuid references blog_posts(id) on delete cascade,
+  tag_id uuid references blog_tags(id) on delete cascade,
+  primary key (post_id, tag_id)
+);
+```
+
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
