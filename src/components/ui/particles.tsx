@@ -68,6 +68,7 @@ interface Circle {
   dx: number;
   dy: number;
   color: string;
+  magnetism?: number;
 }
 
 export default function Particles({
@@ -86,8 +87,8 @@ export default function Particles({
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const context = useRef<CanvasRenderingContext2D | null>(null);
   const circles = useRef<Circle[]>([]);
-  // const mousePosition = MousePosition();
-  // const mouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const mousePosition = MousePosition();
+  const mouse = useRef<{ x: number; y: number; ready: boolean }>({ x: 0, y: 0, ready: false });
   const canvasSize = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
   // const dpr = typeof window !== "undefined" ? window.devicePixelRatio : 1;
   const rafID = useRef<number>(0);
@@ -125,9 +126,9 @@ export default function Particles({
     const y = Math.floor(Math.random() * canvasSize.current.h);
     const translateX = 0;
     const translateY = 0;
-    const pSize = Math.floor(Math.random() * 2) + size;
+    const pSize = Math.floor(Math.random() * 2) + Math.max(1, size);
     const alpha = 0;
-    const targetAlpha = parseFloat((Math.random() * 0.6).toFixed(1));
+    const targetAlpha = parseFloat((0.3 + Math.random() * 0.5).toFixed(2));
     const dx = (Math.random() - 0.5) * 0.1;
     const dy = (Math.random() - 0.5) * 0.1;
     const colorValue = hexToRgb(color);
@@ -142,6 +143,7 @@ export default function Particles({
       dx,
       dy,
       color: `rgba(${colorValue.join(", ")}, ${alpha})`,
+      magnetism: 0.5 + Math.random() * 1.0,
     };
   }, [color, size]);
 
@@ -164,6 +166,22 @@ export default function Particles({
       
       circle.x += circle.dx + vx;
       circle.y += circle.dy + vy;
+
+      // Mouse interaction: gentle push away within radius
+      if (mouse.current.ready) {
+        const mx = mouse.current.x;
+        const my = mouse.current.y;
+        const dxm = circle.x - mx;
+        const dym = circle.y - my;
+        const distSq = dxm * dxm + dym * dym;
+        const radius = 140; // px
+        if (distSq > 0 && distSq < radius * radius) {
+          const dist = Math.sqrt(distSq) || 1;
+          const force = ((radius - dist) / radius) * (circle.magnetism || 1) * (staticity / 100) * 0.8;
+          circle.x += (dxm / dist) * force;
+          circle.y += (dym / dist) * force;
+        }
+      }
 
       // Wrap particles around edges
       if (circle.x < 0) circle.x = canvasSize.current.w;
@@ -216,14 +234,15 @@ export default function Particles({
     initCanvas();
   }, [refresh, initCanvas]);
 
-  // Update mouse position smoothly - only when canvas is ready
-  // useEffect(() => {
-  //   if (canvasRef.current && canvasSize.current.w > 0) {
-  //     const rect = canvasRef.current.getBoundingClientRect();
-  //     mouse.current.x = mousePosition.x - rect.left;
-  //     mouse.current.y = mousePosition.y - rect.top;
-  //   }
-  // }, [mousePosition.x, mousePosition.y]);
+  // Update mouse position relative to canvas
+  useEffect(() => {
+    if (canvasRef.current && canvasSize.current.w > 0) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      mouse.current.x = mousePosition.x - rect.left;
+      mouse.current.y = mousePosition.y - rect.top;
+      mouse.current.ready = mouse.current.x >= 0 && mouse.current.y >= 0 && mouse.current.x <= rect.width && mouse.current.y <= rect.height;
+    }
+  }, [mousePosition.x, mousePosition.y]);
 
   // Start animation loop
   useEffect(() => {
