@@ -1,7 +1,6 @@
-import dynamic from "next/dynamic";
+"use client";
 
-// Render client-wrapped admin dashboard to avoid Turbopack issues
-const AdminClient = dynamic(() => import("./admin-client"), { ssr: false });
+import AdminClient from "./admin-client";
 
 export default function AdminRoute() {
   return <AdminClient />;
