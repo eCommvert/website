@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/server-supabase";
+import { getServerSupabase } from "@/lib/server-supabase";
 import { auth } from "@clerk/nextjs/server";
 
 // GET /api/blog/posts/[id] - Get single post
@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const supabase = createClient();
+    const supabase = getServerSupabase();
 
     const { data, error } = await supabase
       .from("blog_posts")
@@ -75,7 +75,7 @@ export async function PUT(
       tags = []
     } = body;
 
-    const supabase = createClient();
+    const supabase = getServerSupabase();
 
     // Update the post
     const { data: post, error: postError } = await supabase
@@ -140,7 +140,7 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const supabase = createClient();
+    const supabase = getServerSupabase();
 
     const { error } = await supabase
       .from("blog_posts")

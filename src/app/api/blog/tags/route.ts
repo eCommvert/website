@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/server-supabase";
+import { getServerSupabase } from "@/lib/server-supabase";
 import { auth } from "@clerk/nextjs/server";
 
 // GET /api/blog/tags - List all tags
 export async function GET() {
   try {
-    const supabase = createClient();
+    const supabase = getServerSupabase();
 
     const { data, error } = await supabase
       .from("blog_tags")
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Name and slug are required" }, { status: 400 });
     }
 
-    const supabase = createClient();
+    const supabase = getServerSupabase();
 
     const { data, error } = await supabase
       .from("blog_tags")

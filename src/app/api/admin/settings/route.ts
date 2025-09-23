@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/server-supabase";
+import { getServerSupabase } from "@/lib/server-supabase";
 import { auth } from "@clerk/nextjs/server";
 
 // GET /api/admin/settings - Get all settings
@@ -10,7 +10,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const supabase = createClient();
+    const supabase = getServerSupabase();
 
     const { data, error } = await supabase
       .from("settings")
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { autosave, showInactive, enableAnalytics, gtmContainer } = body;
 
-    const supabase = createClient();
+    const supabase = getServerSupabase();
 
     // Upsert the settings (insert or update)
     const { data, error } = await supabase
