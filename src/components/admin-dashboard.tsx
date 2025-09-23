@@ -2228,23 +2228,27 @@ export const AdminDashboard = () => {
                       />
                     </div>
                     <div>
-                            <Label>Categories (comma-separated names)</Label>
-                      <Input
-                              value={categoryNames}
-                              onChange={(e) => {
-                                const names = e.target.value.split(',').map(v => v.trim()).filter(Boolean);
-                                // Map names to ids; create if not found
-                                const ids: string[] = names.map(name => {
-                                  const existing = productCategories.find(c => c.name.toLowerCase() === name.toLowerCase());
-                                  if (existing) return existing.id;
-                                  const id = (crypto as unknown as { randomUUID?: () => string })?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
-                                  const newCat: ProductCategory = { id, name, description: '', slug: name.toLowerCase().replace(/\s+/g,'-'), isActive: true, productCount: 0 };
-                                  setProductCategories(prev => [...prev, newCat]);
-                                  return id;
-                                });
-                                setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, categories: ids } }));
-                              }}
-                              placeholder="e.g., Analytics Tools, Dashboards"
+                      <Label>Categories</Label>
+                      <MultiSelectWithCreate
+                        options={productCategories.map(c => ({ id: c.id, name: c.name, slug: c.slug }))}
+                        selectedIds={extra.categories}
+                        onSelectionChange={(ids) => {
+                          setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, categories: ids } }));
+                        }}
+                        onCreateNew={(name) => {
+                          const id = (crypto as unknown as { randomUUID?: () => string })?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+                          const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                          // If slug exists, append numeric suffix
+                          let uniqueSlug = slug;
+                          let idx = 1;
+                          while (productCategories.some(c => c.slug === uniqueSlug)) {
+                            uniqueSlug = `${slug}-${idx++}`;
+                          }
+                          const newCat: ProductCategory = { id, name, description: '', slug: uniqueSlug, isActive: true, productCount: 0 };
+                          setProductCategories(prev => [...prev, newCat]);
+                          setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, categories: [...(extra.categories || []), id] } }));
+                        }}
+                        placeholder="Select or create categories"
                       />
                     </div>
                           <div className="space-y-2">
