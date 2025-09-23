@@ -9,11 +9,10 @@ type PageEntry = { route: string; filePath: string };
 export default function AdminPages() {
   const { user } = useUser();
   const email = user?.primaryEmailAddress?.emailAddress || "";
-  const allowed = (process.env.NEXT_PUBLIC_OWNER_EMAILS || "")
-    .split(",")
-    .map(v => v.trim())
-    .filter(Boolean)
-    .includes(email);
+  // Prefer Clerk-managed authorization over env allowlist
+  const role = (user?.publicMetadata as Record<string, unknown> | undefined)?.role as string | undefined;
+  const isAdminFlag = (user?.publicMetadata as Record<string, unknown> | undefined)?.admin === true;
+  const allowed = Boolean(isAdminFlag || (role && ["admin", "owner"].includes(role)));
 
   const [pages, setPages] = useState<PageEntry[]>([]);
   const [loading, setLoading] = useState(false);
@@ -50,6 +49,9 @@ export default function AdminPages() {
         {!allowed ? (
           <div className="container mx-auto p-6 text-center">
             <p>You are signed in but not authorized to access this area.</p>
+            <div className="mt-4">
+              <SignInButton mode="modal">Sign in as different user</SignInButton>
+            </div>
           </div>
         ) : (
           <main className="container mx-auto px-4 md:px-6 lg:px-8 py-8">
