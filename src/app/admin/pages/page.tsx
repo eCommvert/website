@@ -7,12 +7,18 @@ import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/nextjs";
 type PageEntry = { route: string; filePath: string };
 
 export default function AdminPages() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const email = user?.primaryEmailAddress?.emailAddress || "";
-  // Prefer Clerk-managed authorization over env allowlist
+  // Prefer Clerk-managed authorization, but also support env allowlist as fallback
   const role = (user?.publicMetadata as Record<string, unknown> | undefined)?.role as string | undefined;
   const isAdminFlag = (user?.publicMetadata as Record<string, unknown> | undefined)?.admin === true;
-  const allowed = Boolean(isAdminFlag || (role && ["admin", "owner"].includes(role)));
+  const fromMetadata = Boolean(isAdminFlag || (role && ["admin", "owner"].includes(role)));
+  const fromEnv = (process.env.NEXT_PUBLIC_OWNER_EMAILS || "")
+    .split(",")
+    .map(v => v.trim())
+    .filter(Boolean)
+    .includes(email);
+  const allowed = isLoaded ? (fromMetadata || fromEnv) : false;
 
   const [pages, setPages] = useState<PageEntry[]>([]);
   const [loading, setLoading] = useState(false);
@@ -46,7 +52,11 @@ export default function AdminPages() {
         </div>
       </SignedOut>
       <SignedIn>
-        {!allowed ? (
+        {!isLoaded ? (
+          <div className="container mx-auto p-6 text-center">
+            <p>Loading your access...</p>
+          </div>
+        ) : !allowed ? (
           <div className="container mx-auto p-6 text-center">
             <p>You are signed in but not authorized to access this area.</p>
             <div className="mt-4">

@@ -115,11 +115,11 @@ export default function Particles({
     context.current.save();
     context.current.globalAlpha = alpha;
     context.current.beginPath();
-    context.current.arc(x, y, size, 0, 2 * Math.PI);
+    context.current.arc(x, y, circle.size, 0, 2 * Math.PI);
     context.current.fillStyle = color;
     context.current.fill();
     context.current.restore();
-  }, [size]);
+  }, []);
 
   const circleParams = useCallback((): Circle => {
     const x = Math.floor(Math.random() * canvasSize.current.w);
