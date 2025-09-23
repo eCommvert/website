@@ -64,9 +64,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    const rawTitle = (body?.title || "").trim();
+    const rawSlug = (body?.slug || "").trim();
+    const title = rawTitle;
+    const slug = rawSlug || rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     const {
-      title,
-      slug,
       content,
       excerpt,
       is_published = false,
@@ -82,6 +84,21 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = getServerSupabase();
+
+    const { data: existing, error: existErr } = await supabase
+      .from("blog_posts")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (existErr) {
+      console.error("Post uniqueness check error:", existErr);
+      return NextResponse.json({ error: "Failed to validate post uniqueness" }, { status: 500 });
+    }
+
+    if (existing) {
+      return NextResponse.json({ error: "Post slug already exists", code: "duplicate_slug" }, { status: 409 });
+    }
 
     // Create the post
     const { data: post, error: postError } = await supabase

@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { fetchLemonSqueezyProducts, LemonSqueezyProduct } from "@/lib/lemonsqueezy";
+import { MultiSelectWithCreate } from "@/components/ui/multi-select-with-create";
 
 // Types for our CMS data
 interface Testimonial {
@@ -1024,18 +1025,6 @@ export const AdminDashboard = () => {
             >
               <FileText className="w-4 h-4 mr-2" />
               Case Studies
-            </Button>
-            <Button
-              variant={activeTab === "categories" ? "default" : "ghost"}
-              className={`w-full justify-start font-medium ${
-                activeTab === "categories" 
-                  ? "bg-primary text-white hover:bg-primary/90" 
-                  : "text-slate-300 hover:text-white hover:bg-slate-800"
-              }`}
-              onClick={() => setActiveTab("categories")}
-            >
-              <ShoppingCart className="w-4 h-4 mr-2" />
-              Product Categories
             </Button>
             <Button
               variant={activeTab === "products" ? "default" : "ghost"}
