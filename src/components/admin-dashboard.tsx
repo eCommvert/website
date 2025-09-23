@@ -2111,7 +2111,7 @@ export const AdminDashboard = () => {
             </div>
           )}
 
-          {/* Settings Tab */
+          {/* Settings Tab */}
           {activeTab === "settings" && (
             <div className="space-y-6">
               <div>

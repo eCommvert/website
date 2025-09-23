@@ -4,11 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { 
   Target, 
-  Clock, 
   Users, 
   Shield, 
-  BarChart3, 
-  Settings,
   ArrowRight,
   CheckCircle
 } from "lucide-react";

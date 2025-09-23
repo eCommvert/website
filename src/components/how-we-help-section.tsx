@@ -194,11 +194,10 @@ export function HowWeHelpSection() {
                       <ResponsiveContainer key={auditsInView ? 'radar-live' : 'radar-wait'} width="100%" height="100%">
                         <RadarChart 
                           data={auditData}
-                          onMouseMove={(e:any) => {
-                            if (e && typeof e.activeTooltipIndex === 'number') {
-                              setActiveAxisIndex(e.activeTooltipIndex);
-                            }
-                          }}
+                          onMouseMove={((e: any) => {
+                            const idx = e?.activeTooltipIndex;
+                            if (typeof idx === 'number') setActiveAxisIndex(idx);
+                          }) as any}
                           onMouseEnter={() => setIsAuditsHovering(true)}
                           onMouseLeave={() => { setIsAuditsHovering(false); setActiveAxisIndex(null); }}
                         >
@@ -215,10 +214,11 @@ export function HowWeHelpSection() {
                           {/* Tooltip for category details */}
                           <Tooltip 
                             cursor={false}
-                            content={({ active, label, payload }) => {
+                            content={((props: any) => {
+                              const { active, label, payload } = props || {};
                               if (!active || !payload || payload.length === 0) return null;
-                              const cur = payload.find((p:any) => p.dataKey === 'current')?.value ?? null;
-                              const pot = payload.find((p:any) => p.dataKey === 'potential')?.value ?? null;
+                              const cur = payload.find((p: any) => p.dataKey === 'current')?.value ?? null;
+                              const pot = payload.find((p: any) => p.dataKey === 'potential')?.value ?? null;
                               const delta = (pot ?? 0) - (cur ?? 0);
                               return (
                                 <div className="rounded-md border border-white/10 bg-zinc-900/90 px-3 py-2 text-xs text-white shadow-lg">
@@ -232,14 +232,16 @@ export function HowWeHelpSection() {
                                   <div className="text-zinc-300">Gap: {delta > 0 ? "+"+delta : delta}</div>
                                 </div>
                               );
-                            }}
+                            }) as any}
                           />
                           {/* Customized overlay to highlight active axis */}
-                          <Customized component={({ width, height }: any) => {
+                          <Customized component={({ width, height }: { width?: number; height?: number }) => {
                             if (activeAxisIndex == null) return null;
-                            const cx = (width ?? 0) / 2;
-                            const cy = (height ?? 0) / 2;
-                            const radius = Math.min(width, height) * 0.36;
+                            const w = width ?? 0;
+                            const h = height ?? 0;
+                            const cx = w / 2;
+                            const cy = h / 2;
+                            const radius = Math.min(w, h) * 0.36;
                             const angle = -Math.PI / 2 + (2 * Math.PI * activeAxisIndex / auditData.length);
                             const x = cx + radius * Math.cos(angle);
                             const y = cy + radius * Math.sin(angle);
