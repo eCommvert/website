@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SiteHeader } from "@/components/site-header";
 import { 
   BarChart3, 
   ExternalLink, 
@@ -130,7 +131,9 @@ export const ReportsPage = () => {
   ];
 
   return (
-    <main className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-slate-900">
+      <SiteHeader />
+      <main>
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-b from-slate-900 via-purple-900/20 to-slate-900 relative overflow-hidden">
         <div className="absolute inset-0">
@@ -376,6 +379,7 @@ export const ReportsPage = () => {
           </motion.div>
         </div>
       </section>
-    </main>
+      </main>
+    </div>
   );
 };

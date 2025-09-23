@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
+import { SiteHeader } from "@/components/site-header";
 import { fetchLemonSqueezyProducts, LemonSqueezyProduct, formatPrice, truncateDescription } from "@/lib/lemonsqueezy";
 
 export default function Page() {
@@ -20,13 +21,16 @@ export default function Page() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center p-6">
-      {product ? (
-        <Product3DCard product={product} />
-      ) : (
-        <div className="text-sm text-muted-foreground">{error ?? "Loading product..."}</div>
-      )}
-    </main>
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <main className="flex items-center justify-center p-6 min-h-[calc(100vh-80px)]">
+        {product ? (
+          <Product3DCard product={product} />
+        ) : (
+          <div className="text-sm text-muted-foreground">{error ?? "Loading product..."}</div>
+        )}
+      </main>
+    </div>
   );
 }
 
