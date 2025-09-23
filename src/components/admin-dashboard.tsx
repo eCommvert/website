@@ -2050,7 +2050,7 @@ export const AdminDashboard = () => {
                                 const ids: string[] = names.map(name => {
                                   const existing = productCategories.find(c => c.name.toLowerCase() === name.toLowerCase());
                                   if (existing) return existing.id;
-                                  const id = (crypto as any)?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+                                  const id = (crypto as unknown as { randomUUID?: () => string })?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
                                   const newCat: ProductCategory = { id, name, description: '', slug: name.toLowerCase().replace(/\s+/g,'-'), isActive: true, productCount: 0 };
                                   setProductCategories(prev => [...prev, newCat]);
                                   return id;

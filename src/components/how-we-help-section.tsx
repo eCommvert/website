@@ -194,10 +194,10 @@ export function HowWeHelpSection() {
                       <ResponsiveContainer key={auditsInView ? 'radar-live' : 'radar-wait'} width="100%" height="100%">
                         <RadarChart 
                           data={auditData}
-                          onMouseMove={((e: any) => {
-                            const idx = e?.activeTooltipIndex;
+                          onMouseMove={(e: unknown) => {
+                            const idx = (e as { activeTooltipIndex?: number })?.activeTooltipIndex;
                             if (typeof idx === 'number') setActiveAxisIndex(idx);
-                          }) as any}
+                          }}
                           onMouseEnter={() => setIsAuditsHovering(true)}
                           onMouseLeave={() => { setIsAuditsHovering(false); setActiveAxisIndex(null); }}
                         >
@@ -214,11 +214,11 @@ export function HowWeHelpSection() {
                           {/* Tooltip for category details */}
                           <Tooltip 
                             cursor={false}
-                            content={((props: any) => {
-                              const { active, label, payload } = props || {};
+                            content={(props: unknown) => {
+                              const { active, label, payload } = (props as { active?: boolean; label?: string; payload?: Array<{ dataKey: string; value: number }> }) || {};
                               if (!active || !payload || payload.length === 0) return null;
-                              const cur = payload.find((p: any) => p.dataKey === 'current')?.value ?? null;
-                              const pot = payload.find((p: any) => p.dataKey === 'potential')?.value ?? null;
+                              const cur = payload.find((p) => p.dataKey === 'current')?.value ?? null;
+                              const pot = payload.find((p) => p.dataKey === 'potential')?.value ?? null;
                               const delta = (pot ?? 0) - (cur ?? 0);
                               return (
                                 <div className="rounded-md border border-white/10 bg-zinc-900/90 px-3 py-2 text-xs text-white shadow-lg">
@@ -232,10 +232,11 @@ export function HowWeHelpSection() {
                                   <div className="text-zinc-300">Gap: {delta > 0 ? "+"+delta : delta}</div>
                                 </div>
                               );
-                            }) as any}
+                            }}
                           />
                           {/* Customized overlay to highlight active axis */}
-                          <Customized component={({ width, height }: { width?: number; height?: number }) => {
+                          <Customized component={(props: unknown) => {
+                            const { width, height } = props as { width?: number; height?: number };
                             if (activeAxisIndex == null) return null;
                             const w = width ?? 0;
                             const h = height ?? 0;
