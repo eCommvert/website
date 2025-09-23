@@ -28,6 +28,7 @@ import {
   Download,
   RefreshCw
 } from "lucide-react";
+import Link from "next/link";
 import { fetchLemonSqueezyProducts, LemonSqueezyProduct } from "@/lib/lemonsqueezy";
 
 // Types for our CMS data
@@ -250,6 +251,11 @@ export const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
   const [settings, setSettings] = useState<{ autosave: boolean; showInactive: boolean; enableAnalytics: boolean }>({ autosave: true, showInactive: true, enableAnalytics: false });
+  // Pages tab state
+  type PageEntry = { route: string; filePath: string };
+  const [pages, setPages] = useState<PageEntry[]>([]);
+  const [pagesLoading, setPagesLoading] = useState(false);
+  const [pagesError, setPagesError] = useState<string | null>(null);
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const restoreInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -361,6 +367,20 @@ export const AdminDashboard = () => {
   // Helpers to talk to server API
   const getOwnerEmail = () => user?.primaryEmailAddress?.emailAddress || "";
   const apiBase = "/api/admin/content";
+  const loadPages = async () => {
+    try {
+      setPagesLoading(true);
+      setPagesError(null);
+      const res = await fetch("/api/admin/pages", { cache: "no-store" });
+      if (!res.ok) throw new Error(await res.text());
+      const json = await res.json();
+      setPages(json.pages || []);
+    } catch (e) {
+      setPagesError((e as Error).message);
+    } finally {
+      setPagesLoading(false);
+    }
+  };
   type CategoryRow = { id: string; name: string; description?: string; is_active: boolean; created_at: string };
   type ResultsPayload = {
     metric1: { name: string; before: number; after: number; improvement: number; format: string; points?: number };
@@ -949,6 +969,23 @@ export const AdminDashboard = () => {
               <Settings className="w-4 h-4 mr-2" />
               Settings
             </Button>
+            <Button
+              variant={activeTab === "pages" ? "default" : "ghost"}
+              className={`w-full justify-start font-medium ${
+                activeTab === "pages" 
+                  ? "bg-primary text-white hover:bg-primary/90" 
+                  : "text-slate-300 hover:text-white hover:bg-slate-800"
+              }`}
+              onClick={() => {
+                setActiveTab("pages");
+                if (pages.length === 0) {
+                  loadPages();
+                }
+              }}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Pages
+            </Button>
           </nav>
         </div>
 
@@ -1044,6 +1081,52 @@ export const AdminDashboard = () => {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          )}
+
+          {/* Pages Tab */}
+          {activeTab === "pages" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-2xl font-bold">Site Pages</h2>
+                <button
+                  className="text-sm px-3 py-1 rounded border hover:bg-accent"
+                  onClick={loadPages}
+                  disabled={pagesLoading}
+                >
+                  {pagesLoading ? "Refreshing..." : "Refresh"}
+                </button>
+              </div>
+              <p className="text-sm text-muted-foreground">Real-time scan of <code className="px-1 rounded bg-muted">src/app</code> for <code className="px-1 rounded bg-muted">page.tsx</code> files (API excluded). Use Refresh after adding pages.</p>
+              {pagesError && <div className="text-sm text-red-500">{pagesError}</div>}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left border-b">
+                      <th className="py-2 pr-4">Route</th>
+                      <th className="py-2">File</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pages.length === 0 ? (
+                      <tr>
+                        <td colSpan={2} className="py-6 text-muted-foreground">No pages detected.</td>
+                      </tr>
+                    ) : (
+                      pages.map((p) => (
+                        <tr key={p.filePath} className="border-b hover:bg-muted/40">
+                          <td className="py-2 pr-4">
+                            <Link href={p.route} className="text-primary hover:underline">
+                              {p.route}
+                            </Link>
+                          </td>
+                          <td className="py-2 font-mono text-xs break-all">{p.filePath.replace(process.cwd() + "/", "")}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
