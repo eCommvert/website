@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { 
   ArrowRight, 
   MessageCircle,
@@ -38,14 +39,25 @@ export function SiteFooter() {
             </div>
           </div>
 
-          {/* Services */}
+          {/* Services (Home anchors) */}
           <div className="space-y-4">
             <h3 className="font-semibold">Services</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-primary transition-colors">Strategic Oversight</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Campaign Architecture</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Performance Analysis</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Competitive Analysis</a></li>
+              <li>
+                <Link href="/#audits" className="hover:text-primary transition-colors">
+                  Strategic Audits
+                </Link>
+              </li>
+              <li>
+                <Link href="/#consulting" className="hover:text-primary transition-colors">
+                  Monthly Consulting
+                </Link>
+              </li>
+              <li>
+                <Link href="/tools" className="hover:text-primary transition-colors">
+                  Digital Products
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -53,10 +65,21 @@ export function SiteFooter() {
           <div className="space-y-4">
             <h3 className="font-semibold">Resources</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-primary transition-colors">Case Studies</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Free Audit</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Strategy Guide</a></li>
+              <li>
+                <Link href="/case-studies" className="hover:text-primary transition-colors">
+                  Case Studies
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="hover:text-primary transition-colors">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link href="/tools" className="hover:text-primary transition-colors">
+                  Tools
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -92,9 +115,9 @@ export function SiteFooter() {
             © 2024 eCommvert. All rights reserved.
           </div>
           <div className="flex space-x-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-primary transition-colors">Cookie Policy</a>
+            <Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link>
+            <Link href="#" className="hover:text-primary transition-colors">Terms of Service</Link>
+            <Link href="#" className="hover:text-primary transition-colors">Cookie Policy</Link>
           </div>
         </div>
       </div>

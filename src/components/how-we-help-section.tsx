@@ -15,12 +15,17 @@ import {
   MessageSquare,
   Clock
 } from "lucide-react";
-import { useRef } from "react";
-import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
+import { useRef, useState, useEffect } from "react";
+import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, Customized } from "recharts";
 import { AnimatedPerformanceGraph } from "@/components/animated-performance-graph";
 
 export function HowWeHelpSection() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [auditsInView, setAuditsInView] = useState(false);
+  const [isAuditsHovering, setIsAuditsHovering] = useState(false);
+  const [activeAxisIndex, setActiveAxisIndex] = useState<number | null>(null);
+  const chartBoxRef = useRef<HTMLDivElement>(null);
+  const [chartBox, setChartBox] = useState<{w:number;h:number}>({w:0,h:0});
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
@@ -43,6 +48,32 @@ export function HowWeHelpSection() {
     { category: 'Campaign Structure', current: 4, potential: 8 },
     { category: 'Conversion Tracking', current: 6, potential: 9 }
   ];
+
+  const mostUnderIndex = (() => {
+    let idx = 0;
+    let maxDelta = -Infinity;
+    for (let i = 0; i < auditData.length; i++) {
+      const delta = (auditData[i].potential ?? 0) - (auditData[i].current ?? 0);
+      if (delta > maxDelta) {
+        maxDelta = delta;
+        idx = i;
+      }
+    }
+    return idx;
+  })();
+
+  // Track chart container size for ripple positioning
+  useEffect(() => {
+    const el = chartBoxRef.current;
+    if (!el) return;
+    const handle = () => {
+      setChartBox({ w: el.clientWidth, h: el.clientHeight });
+    };
+    handle();
+    const ro = new ResizeObserver(handle);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
 
   const handleScrollToPricing = () => {
@@ -141,45 +172,149 @@ export function HowWeHelpSection() {
 
               {/* Visual Side - Softened Radar Chart */}
               <div className="relative">
-                <div className="bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 rounded-2xl p-6 md:p-8 backdrop-blur-sm border border-white/10 md:border-transparent">
-                  <div className="w-full h-64 md:h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart data={auditData}>
-                        <PolarGrid stroke="#ffffff" strokeOpacity={0.1} />
-                        <PolarAngleAxis 
-                          dataKey="category" 
-                          tick={{ fontSize: 10, fill: '#a1a1aa' }}
-                        />
-                        <PolarRadiusAxis 
-                          domain={[0, 10]} 
-                          tick={false}
-                          axisLine={false}
-                        />
-                        <Radar
-                          name="Current Performance"
-                          dataKey="current"
-                          stroke="#ef4444"
-                          fill="#ef4444"
-                          fillOpacity={0.1}
-                          strokeWidth={2}
-                          strokeOpacity={0.6}
-                        />
-                        <Radar
-                          name="Optimization Potential"
-                          dataKey="potential"
-                          stroke="#8b5cf6"
-                          fill="#8b5cf6"
-                          fillOpacity={0.15}
-                          strokeWidth={2}
-                          strokeOpacity={0.8}
-                        />
-                      </RadarChart>
-                    </ResponsiveContainer>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true, amount: 0.4 }}
+                  onViewportEnter={() => setAuditsInView(true)}
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                  className="bg-gradient-to-br from-zinc-900/50 to-zinc-800/30 rounded-2xl p-6 md:p-8 backdrop-blur-sm border border-white/10 md:border-transparent overflow-hidden"
+                >
+                  {/* Subtle looping pulse over potential area */}
+                  <motion.div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0"
+                    animate={{ opacity: [0.04, 0.1, 0.04] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{ background: 'radial-gradient(60% 60% at 50% 50%, rgba(139,92,246,0.15), transparent)' }}
+                  />
+
+                  <div ref={chartBoxRef} className="w-full h-64 md:h-80 relative">
+                    {auditsInView && (
+                      <ResponsiveContainer key={auditsInView ? 'radar-live' : 'radar-wait'} width="100%" height="100%">
+                        <RadarChart 
+                          data={auditData}
+                          onMouseMove={(e:any) => {
+                            if (e && typeof e.activeTooltipIndex === 'number') {
+                              setActiveAxisIndex(e.activeTooltipIndex);
+                            }
+                          }}
+                          onMouseEnter={() => setIsAuditsHovering(true)}
+                          onMouseLeave={() => { setIsAuditsHovering(false); setActiveAxisIndex(null); }}
+                        >
+                          <PolarGrid stroke="#ffffff" strokeOpacity={0.1} />
+                          <PolarAngleAxis 
+                            dataKey="category" 
+                            tick={{ fontSize: 10, fill: '#a1a1aa' }}
+                          />
+                          <PolarRadiusAxis 
+                            domain={[0, 10]} 
+                            tick={false}
+                            axisLine={false}
+                          />
+                          {/* Tooltip for category details */}
+                          <Tooltip 
+                            cursor={false}
+                            content={({ active, label, payload }) => {
+                              if (!active || !payload || payload.length === 0) return null;
+                              const cur = payload.find((p:any) => p.dataKey === 'current')?.value ?? null;
+                              const pot = payload.find((p:any) => p.dataKey === 'potential')?.value ?? null;
+                              const delta = (pot ?? 0) - (cur ?? 0);
+                              return (
+                                <div className="rounded-md border border-white/10 bg-zinc-900/90 px-3 py-2 text-xs text-white shadow-lg">
+                                  <div className="font-medium mb-1">{label}</div>
+                                  {cur != null && (
+                                    <div className="text-red-300">Current: {cur}</div>
+                                  )}
+                                  {pot != null && (
+                                    <div className="text-purple-300">Potential: {pot}</div>
+                                  )}
+                                  <div className="text-zinc-300">Gap: {delta > 0 ? "+"+delta : delta}</div>
+                                </div>
+                              );
+                            }}
+                          />
+                          {/* Customized overlay to highlight active axis */}
+                          <Customized component={({ width, height }: any) => {
+                            if (activeAxisIndex == null) return null;
+                            const cx = (width ?? 0) / 2;
+                            const cy = (height ?? 0) / 2;
+                            const radius = Math.min(width, height) * 0.36;
+                            const angle = -Math.PI / 2 + (2 * Math.PI * activeAxisIndex / auditData.length);
+                            const x = cx + radius * Math.cos(angle);
+                            const y = cy + radius * Math.sin(angle);
+                            return (
+                              <g>
+                                <circle cx={x} cy={y} r={5} fill="#8b5cf6" fillOpacity={0.9} />
+                              </g>
+                            );
+                          }} />
+                          {/* Stage 2: Potential polygon draws in with slight glow */}
+                          <Radar
+                            isAnimationActive
+                            animationBegin={200}
+                            animationDuration={900}
+                            animationEasing="ease-out"
+                            name="Optimization Potential"
+                            dataKey="potential"
+                            stroke="#8b5cf6"
+                            fill="#8b5cf6"
+                            fillOpacity={isAuditsHovering ? 0.24 : 0.18}
+                            strokeWidth={isAuditsHovering ? 2.5 : 2}
+                            strokeOpacity={0.95}
+                            className={isAuditsHovering ? 'animate-[dash_1.6s_linear_infinite]' : ''}
+                            style={{ filter: isAuditsHovering ? 'drop-shadow(0 0 10px rgba(139,92,246,0.5))' : 'drop-shadow(0 0 8px rgba(139,92,246,0.35))' }}
+                          />
+                          {/* Stage 3: Current polygon fills from center (delayed) */}
+                          <Radar
+                            isAnimationActive
+                            animationBegin={650}
+                            animationDuration={700}
+                            animationEasing="ease-in-out"
+                            name="Current Performance"
+                            dataKey="current"
+                            stroke="#ef4444"
+                            fill="#ef4444"
+                            fillOpacity={0.12}
+                            strokeWidth={2}
+                            strokeOpacity={0.65}
+                          />
+                        </RadarChart>
+                      </ResponsiveContainer>
+                    )}
+                    {/* Hover ripple from most underperforming axis */}
+                    {isAuditsHovering && chartBox.w > 0 && chartBox.h > 0 && (
+                      (() => {
+                        const cx = chartBox.w / 2;
+                        const cy = chartBox.h / 2;
+                        const radius = Math.min(chartBox.w, chartBox.h) * 0.36;
+                        const angle = -Math.PI / 2 + (2 * Math.PI * mostUnderIndex / auditData.length);
+                        const x = cx + radius * Math.cos(angle);
+                        const y = cy + radius * Math.sin(angle);
+                        return (
+                          <motion.div
+                            key={`ripple-${mostUnderIndex}`}
+                            className="pointer-events-none absolute rounded-full"
+                            style={{
+                              left: x - 8,
+                              top: y - 8,
+                              width: 16,
+                              height: 16,
+                              background: 'radial-gradient(circle, rgba(139,92,246,0.35), rgba(139,92,246,0.15) 40%, transparent 70%)',
+                              filter: 'blur(2px)'
+                            }}
+                            initial={{ opacity: 0.4, scale: 0.6 }}
+                            animate={{ opacity: [0.4, 0.15, 0], scale: [0.6, 1.6, 2.2] }}
+                            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeOut' }}
+                          />
+                        );
+                      })()
+                    )}
                   </div>
                   <p className="text-xs text-zinc-400 text-center mt-4">
                     Your current vs potential performance across key areas
                   </p>
-                </div>
+                </motion.div>
               </div>
             </div>
           </motion.div>

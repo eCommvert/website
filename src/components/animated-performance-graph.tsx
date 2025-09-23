@@ -9,7 +9,7 @@ interface PerformanceGraphProps {
 export function AnimatedPerformanceGraph({ className = "" }: PerformanceGraphProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
-  const [pulsingDot, setPulsingDot] = useState(0);
+  const rafIdRef = useRef<number | null>(null);
 
   // Performance data
   // Data for the performance graph - memoized to prevent re-creation on every render
@@ -40,21 +40,25 @@ export function AnimatedPerformanceGraph({ className = "" }: PerformanceGraphPro
   }, []);
 
   useEffect(() => {
-    // Start animation after component mounts
-    const timer = setTimeout(() => {
-      setAnimationProgress(1);
-    }, 1000);
+    // Smooth animation of the purple line from baseline to target over duration
+    const durationMs = 1600;
+    const startTime = performance.now();
 
-    return () => clearTimeout(timer);
-  }, []);
+    const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-  useEffect(() => {
-    // Pulsing dot animation
-    const interval = setInterval(() => {
-      setPulsingDot((prev) => (prev + 1) % months.length);
-    }, 2000);
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const t = Math.min(1, Math.max(0, elapsed / durationMs));
+      setAnimationProgress(easeInOutCubic(t));
+      if (t < 1) {
+        rafIdRef.current = requestAnimationFrame(tick);
+      }
+    };
 
-    return () => clearInterval(interval);
+    rafIdRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -182,17 +186,15 @@ export function AnimatedPerformanceGraph({ className = "" }: PerformanceGraphPro
       }
       ctx.stroke();
 
-      // Draw "With Consulting" dots
-      animatedData.forEach((point, index) => {
-        const progress = Math.max(0, Math.min(1, animationProgress * 6 - index));
-        if (progress > 0) {
-          ctx.fillStyle = "#8b5cf6";
-          ctx.globalAlpha = progress;
-          ctx.beginPath();
-          ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
-          ctx.fill();
-        }
-      });
+      // Moving highlight dot on animated line
+      if (visiblePoints.length > 0) {
+        const head = visiblePoints[visiblePoints.length - 1];
+        ctx.fillStyle = "#8b5cf6";
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        ctx.arc(head.x, head.y, 4, 0, 2 * Math.PI);
+        ctx.fill();
+      }
 
       // Draw filled area between lines with smooth curves - fixed to prevent overlap
       ctx.globalAlpha = 0.15;
@@ -252,26 +254,16 @@ export function AnimatedPerformanceGraph({ className = "" }: PerformanceGraphPro
       ctx.fillText("% Growth", 0, 0);
       ctx.restore();
 
-      // Draw month labels
+      // Draw month labels only (no pulsing dot under axis)
       months.forEach((month, index) => {
         const x = chartX + (chartWidth / 5) * index;
         const y = height - 10;
         ctx.fillText(month, x, y);
       });
-
-      // Draw pulsing dot for current month
-      const currentMonthX = chartX + (chartWidth / 5) * pulsingDot;
-      const currentMonthY = height - 10;
-      
-      ctx.fillStyle = "#8b5cf6";
-      ctx.globalAlpha = 0.8;
-      ctx.beginPath();
-      ctx.arc(currentMonthX, currentMonthY - 15, 4, 0, 2 * Math.PI);
-      ctx.fill();
     };
 
     draw();
-  }, [animationProgress, pulsingDot, currentPerformance, months, withConsulting]);
+  }, [animationProgress, currentPerformance, months, withConsulting]);
 
   return (
     <div className={`relative w-full h-full ${className}`}>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { RichTextEditor } from "@/components/rich-text-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +28,7 @@ import {
   Download,
   RefreshCw
 } from "lucide-react";
-import { LemonSqueezyIntegration } from "./lemonsqueezy-integration";
+import { fetchLemonSqueezyProducts, LemonSqueezyProduct } from "@/lib/lemonsqueezy";
 
 // Types for our CMS data
 interface Testimonial {
@@ -92,6 +92,16 @@ interface ProductCategory {
   slug: string;
   isActive: boolean;
   productCount: number;
+}
+
+interface ProductExtra {
+  // Local metadata layered on top of LemonSqueezy products
+  id: string; // lemonsqueezy product id
+  draft: boolean;
+  categories: string[]; // category ids
+  headline?: string;
+  gallery?: string[]; // image URLs
+  notes?: string; // rich text notes/description
 }
 
 // Blog CMS
@@ -233,10 +243,15 @@ export const AdminDashboard = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
   const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
+  const [products, setProducts] = useState<LemonSqueezyProduct[]>([]);
+  const [productExtras, setProductExtras] = useState<Record<string, ProductExtra>>({});
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
+  const [settings, setSettings] = useState<{ autosave: boolean; showInactive: boolean; enableAnalytics: boolean }>({ autosave: true, showInactive: true, enableAnalytics: false });
+  const importInputRef = useRef<HTMLInputElement | null>(null);
+  const restoreInputRef = useRef<HTMLInputElement | null>(null);
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -244,6 +259,8 @@ export const AdminDashboard = () => {
     const savedCaseStudies = localStorage.getItem('admin-case-studies');
     const savedCategories = localStorage.getItem('admin-categories');
     const savedBlogPosts = localStorage.getItem('admin-blog-posts');
+    const savedProductExtras = localStorage.getItem('admin-product-extras');
+    const savedSettings = localStorage.getItem('admin-settings');
     
     // Set default data first
     setTestimonials(mockTestimonials);
@@ -311,6 +328,30 @@ export const AdminDashboard = () => {
         setBlogPosts(JSON.parse(savedBlogPosts));
       } catch (error) {
         console.error('Error parsing blog posts:', error);
+      }
+    }
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        setSettings({ autosave: !!parsed.autosave, showInactive: !!parsed.showInactive, enableAnalytics: !!parsed.enableAnalytics });
+      } catch (error) {
+        console.error('Error parsing settings:', error);
+      }
+    }
+
+    // Fetch products from LemonSqueezy using public store id
+    const storeId = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_ID || '';
+    if (storeId) {
+      fetchLemonSqueezyProducts(storeId).then((list) => {
+        setProducts(list);
+      }).catch(() => {});
+    }
+
+    if (savedProductExtras) {
+      try {
+        setProductExtras(JSON.parse(savedProductExtras));
+      } catch (e) {
+        console.error('Error parsing product extras:', e);
       }
     }
     
@@ -475,6 +516,96 @@ export const AdminDashboard = () => {
   useEffect(() => {
     localStorage.setItem('admin-blog-posts', JSON.stringify(blogPosts));
   }, [blogPosts]);
+  useEffect(() => {
+    localStorage.setItem('admin-settings', JSON.stringify(settings));
+  }, [settings]);
+  useEffect(() => {
+    localStorage.setItem('admin-product-extras', JSON.stringify(productExtras));
+  }, [productExtras]);
+
+  // Export / Import / Backup helpers
+  const downloadJson = (data: unknown, filename: string) => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportAllData = () => {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      testimonials,
+      caseStudies,
+      productCategories,
+      products,
+      productExtras,
+      blogPosts,
+      settings,
+    };
+    downloadJson(payload, `ecommvert-admin-export-${Date.now()}.json`);
+  };
+
+  const importDataFromFile = async (file: File) => {
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      if (json.testimonials) setTestimonials(json.testimonials);
+      if (json.caseStudies) setCaseStudies(json.caseStudies);
+      if (json.productCategories) setProductCategories(json.productCategories);
+      if (json.products) setProducts(json.products);
+      if (json.productExtras) setProductExtras(json.productExtras);
+      if (json.blogPosts) setBlogPosts(json.blogPosts);
+      if (json.settings) setSettings({
+        autosave: !!json.settings.autosave,
+        showInactive: !!json.settings.showInactive,
+        enableAnalytics: !!json.settings.enableAnalytics,
+      });
+      alert('Import successful. Changes saved locally.');
+    } catch (e) {
+      console.error('Import error', e);
+      alert('Failed to import file. Ensure it is a valid export JSON.');
+    }
+  };
+
+  const clearAllData = async () => {
+    const ok = confirm('This will clear local admin data (not server). Continue?');
+    if (!ok) return;
+    try {
+      localStorage.removeItem('admin-testimonials');
+      localStorage.removeItem('admin-case-studies');
+      localStorage.removeItem('admin-categories');
+      localStorage.removeItem('admin-blog-posts');
+      // Do not clear settings to keep user prefs
+      setTestimonials(mockTestimonials);
+      setCaseStudies(mockCaseStudies);
+      setProductCategories(mockProductCategories);
+      setBlogPosts(mockBlogPosts);
+      alert('Local data cleared. Default mock data restored.');
+    } catch (e) {
+      console.error('Clear data failed', e);
+    }
+  };
+
+  const createBackup = () => {
+    const payload = {
+      backedUpAt: new Date().toISOString(),
+      testimonials,
+      caseStudies,
+      productCategories,
+      products,
+      productExtras,
+      blogPosts,
+      settings,
+    };
+    // Save a small metadata record
+    localStorage.setItem('admin-last-backup', payload.backedUpAt);
+    downloadJson(payload, `ecommvert-backup-${Date.now()}.json`);
+  };
 
   const toggleItemStatus = (type: 'testimonial' | 'case-study' | 'category', id: string) => {
     if (type === 'testimonial') {
@@ -594,22 +725,28 @@ export const AdminDashboard = () => {
     }
   };
 
-  const filteredTestimonials = testimonials.filter(item => 
-    item.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.company.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTestimonials = testimonials
+    .filter(item => settings.showInactive || item.isActive)
+    .filter(item => 
+      item.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.company.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-  const filteredCaseStudies = caseStudies.filter(item => 
-    item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.client.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCaseStudies = caseStudies
+    .filter(item => settings.showInactive || item.isActive)
+    .filter(item => 
+      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.client.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-  const filteredCategories = productCategories.filter(item => 
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCategories = productCategories
+    .filter(item => settings.showInactive || item.isActive)
+    .filter(item => 
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   if (!isLoaded) {
     return (
@@ -789,16 +926,16 @@ export const AdminDashboard = () => {
               Product Categories
             </Button>
             <Button
-              variant={activeTab === "lemonsqueezy" ? "default" : "ghost"}
+              variant={activeTab === "products" ? "default" : "ghost"}
               className={`w-full justify-start font-medium ${
-                activeTab === "lemonsqueezy" 
+                activeTab === "products" 
                   ? "bg-primary text-white hover:bg-primary/90" 
                   : "text-slate-300 hover:text-white hover:bg-slate-800"
               }`}
-              onClick={() => setActiveTab("lemonsqueezy")}
+              onClick={() => setActiveTab("products")}
             >
               <ShoppingCart className="w-4 h-4 mr-2" />
-              LemonSqueezy
+              Products
             </Button>
             <Button
               variant={activeTab === "settings" ? "default" : "ghost"}
@@ -1850,18 +1987,131 @@ export const AdminDashboard = () => {
             </div>
           )}
 
-          {/* LemonSqueezy Tab */}
-          {activeTab === "lemonsqueezy" && (
+          {/* Products Tab */}
+          {activeTab === "products" && (
             <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900">LemonSqueezy Integration</h2>
-                <p className="text-slate-600">Connect and manage your LemonSqueezy products</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">Products</h2>
+                  <p className="text-slate-600">Fetched from LemonSqueezy with local customizations</p>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                    <Input
+                      placeholder="Search products..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 w-64"
+                    />
+                  </div>
+                </div>
               </div>
-              <LemonSqueezyIntegration />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {products
+                  .filter(p => (settings.showInactive || !productExtras[p.id]?.draft))
+                  .filter(p => {
+                    const q = searchTerm.toLowerCase();
+                    return p.attributes.name.toLowerCase().includes(q) || (productExtras[p.id]?.headline || '').toLowerCase().includes(q);
+                  })
+                  .map((product) => {
+                    const extra = productExtras[product.id] || { id: product.id, draft: false, categories: [] } as ProductExtra;
+                    const categoryNames = extra.categories
+                      .map(id => productCategories.find(c => c.id === id)?.name)
+                      .filter(Boolean)
+                      .join(', ');
+                    return (
+                      <Card key={product.id} className="relative">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <Badge variant={extra.draft ? "secondary" : "default"}>{extra.draft ? 'Draft' : 'Published'}</Badge>
+                            <div className="text-xs text-slate-500">{categoryNames || 'No categories'}</div>
+                          </div>
+                          <CardTitle className="text-lg">{product.attributes.name}</CardTitle>
+                          <CardDescription>LS Slug: {product.attributes.slug}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div>
+                            <Label>Custom Headline</Label>
+                            <Input
+                              value={extra.headline || ''}
+                              onChange={(e) => setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, headline: e.target.value } }))}
+                              placeholder="Optional marketing headline"
+                            />
+                          </div>
+                          <div>
+                            <Label>Categories (comma-separated names)</Label>
+                            <Input
+                              value={categoryNames}
+                              onChange={(e) => {
+                                const names = e.target.value.split(',').map(v => v.trim()).filter(Boolean);
+                                // Map names to ids; create if not found
+                                const ids: string[] = names.map(name => {
+                                  const existing = productCategories.find(c => c.name.toLowerCase() === name.toLowerCase());
+                                  if (existing) return existing.id;
+                                  const id = (crypto as any)?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+                                  const newCat: ProductCategory = { id, name, description: '', slug: name.toLowerCase().replace(/\s+/g,'-'), isActive: true, productCount: 0 };
+                                  setProductCategories(prev => [...prev, newCat]);
+                                  return id;
+                                });
+                                setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, categories: ids } }));
+                              }}
+                              placeholder="e.g., Analytics Tools, Dashboards"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Gallery Images</Label>
+                            {(extra.gallery || []).map((url, idx) => (
+                              <div key={idx} className="flex items-center gap-2">
+                                <Input
+                                  value={url}
+                                  onChange={(e) => {
+                                    const gallery = [...(extra.gallery || [])];
+                                    gallery[idx] = e.target.value;
+                                    setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, gallery } }));
+                                  }}
+                                  placeholder="https://.../image.jpg"
+                                />
+                                <Button variant="outline" size="sm" onClick={() => {
+                                  const gallery = (extra.gallery || []).filter((_, i) => i !== idx);
+                                  setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, gallery } }));
+                                }}>
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ))}
+                            <Button variant="outline" size="sm" onClick={() => {
+                              const gallery = [...(extra.gallery || []), '' ];
+                              setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, gallery } }));
+                            }}>
+                              <Plus className="w-4 h-4 mr-2" /> Add Image
+                            </Button>
+                          </div>
+                          <div>
+                            <Label>Notes</Label>
+                            <Textarea
+                              rows={4}
+                              value={extra.notes || ''}
+                              onChange={(e) => setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, notes: e.target.value } }))}
+                              placeholder="Optional extra copy, bullets, or admin notes"
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Button variant="outline" size="sm" onClick={() => setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, draft: !extra.draft } }))}>
+                              {extra.draft ? 'Set Published' : 'Set Draft'}
+                            </Button>
+                            <div className="text-sm text-slate-600">Price: {product.attributes.price_formatted}</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+              </div>
             </div>
           )}
 
-          {/* Settings Tab */}
+          {/* Settings Tab */
           {activeTab === "settings" && (
             <div className="space-y-6">
               <div>
@@ -1870,33 +2120,7 @@ export const AdminDashboard = () => {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>LemonSqueezy Integration</CardTitle>
-                    <CardDescription>Configure your LemonSqueezy API settings</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="api-key">API Key</Label>
-                      <Input
-                        id="api-key"
-                        type="password"
-                        placeholder="Enter your LemonSqueezy API key"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="store-id">Store ID</Label>
-                      <Input
-                        id="store-id"
-                        placeholder="Enter your store ID"
-                      />
-                    </div>
-                    <Button className="w-full">
-                      <Save className="w-4 h-4 mr-2" />
-                      Save Settings
-                    </Button>
-                  </CardContent>
-                </Card>
+                {/* Removed LemonSqueezy credentials; env vars handle this */}
 
                 <Card>
                   <CardHeader>
@@ -1909,21 +2133,27 @@ export const AdminDashboard = () => {
                         <Label>Auto-save changes</Label>
                         <p className="text-sm text-slate-600">Automatically save changes as you type</p>
                       </div>
-                      <Button variant="outline" size="sm">Toggle</Button>
+                      <Button variant={settings.autosave ? "default" : "outline"} size="sm" onClick={() => setSettings(s => ({ ...s, autosave: !s.autosave }))}>
+                        {settings.autosave ? 'On' : 'Off'}
+                      </Button>
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <Label>Show inactive items</Label>
                         <p className="text-sm text-slate-600">Display inactive testimonials and case studies</p>
                       </div>
-                      <Button variant="outline" size="sm">Toggle</Button>
+                      <Button variant={settings.showInactive ? "default" : "outline"} size="sm" onClick={() => setSettings(s => ({ ...s, showInactive: !s.showInactive }))}>
+                        {settings.showInactive ? 'On' : 'Off'}
+                      </Button>
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <Label>Enable analytics</Label>
                         <p className="text-sm text-slate-600">Track content performance and engagement</p>
                       </div>
-                      <Button variant="outline" size="sm">Toggle</Button>
+                      <Button variant={settings.enableAnalytics ? "default" : "outline"} size="sm" onClick={() => setSettings(s => ({ ...s, enableAnalytics: !s.enableAnalytics }))}>
+                        {settings.enableAnalytics ? 'On' : 'Off'}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -1934,15 +2164,20 @@ export const AdminDashboard = () => {
                     <CardDescription>Manage your content data</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full" onClick={exportAllData}>
                       <Download className="w-4 h-4 mr-2" />
                       Export All Data
                     </Button>
-                    <Button variant="outline" className="w-full">
+                    <input ref={importInputRef} type="file" accept="application/json" className="hidden" onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void importDataFromFile(file);
+                      if (importInputRef.current) importInputRef.current.value = '';
+                    }} />
+                    <Button variant="outline" className="w-full" onClick={() => importInputRef.current?.click()}>
                       <Upload className="w-4 h-4 mr-2" />
                       Import Data
                     </Button>
-                    <Button variant="outline" className="w-full text-red-600 hover:text-red-700">
+                    <Button variant="outline" className="w-full text-red-600 hover:text-red-700" onClick={clearAllData}>
                       <Trash2 className="w-4 h-4 mr-2" />
                       Clear All Data
                     </Button>
@@ -1956,15 +2191,20 @@ export const AdminDashboard = () => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="text-sm text-slate-600">
-                      <p>Last backup: 2 hours ago</p>
-                      <p>Backup size: 2.3 MB</p>
+                      <p>Last backup: {localStorage.getItem('admin-last-backup') || 'Never'}</p>
+                      <p>Backup size: ~{Math.max(1, Math.round((JSON.stringify({ testimonials, caseStudies, productCategories, blogPosts, settings }).length / 1024)))} KB</p>
                       <p>Items backed up: {testimonials.length + caseStudies.length + productCategories.length}</p>
                     </div>
-                    <Button className="w-full">
+                    <Button className="w-full" onClick={createBackup}>
                       <RefreshCw className="w-4 h-4 mr-2" />
                       Create Backup
                     </Button>
-                    <Button variant="outline" className="w-full">
+                    <input ref={restoreInputRef} type="file" accept="application/json" className="hidden" onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void importDataFromFile(file);
+                      if (restoreInputRef.current) restoreInputRef.current.value = '';
+                    }} />
+                    <Button variant="outline" className="w-full" onClick={() => restoreInputRef.current?.click()}>
                       Restore from Backup
                     </Button>
                   </CardContent>
