@@ -274,7 +274,7 @@ export const AdminDashboard = () => {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
-  const [settings, setSettings] = useState<{ autosave: boolean; showInactive: boolean; enableAnalytics: boolean }>({ autosave: true, showInactive: true, enableAnalytics: false });
+  const [settings, setSettings] = useState<{ autosave: boolean; showInactive: boolean; enableAnalytics: boolean; gtmContainer?: string }>({ autosave: true, showInactive: true, enableAnalytics: false, gtmContainer: '' });
   // Pages tab state
   type PageEntry = { route: string; filePath: string };
   const [pages, setPages] = useState<PageEntry[]>([]);
@@ -363,11 +363,14 @@ export const AdminDashboard = () => {
     if (savedSettings) {
       try {
         const parsed = JSON.parse(savedSettings);
-        setSettings({ autosave: !!parsed.autosave, showInactive: !!parsed.showInactive, enableAnalytics: !!parsed.enableAnalytics });
+        setSettings({ autosave: !!parsed.autosave, showInactive: !!parsed.showInactive, enableAnalytics: !!parsed.enableAnalytics, gtmContainer: parsed.gtmContainer || '' });
       } catch (error) {
         console.error('Error parsing settings:', error);
       }
     }
+
+    // Load settings from API
+    loadSettings();
 
     // Fetch products from LemonSqueezy using public store id
     const storeId = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_ID || '';
@@ -436,6 +439,38 @@ export const AdminDashboard = () => {
       setBlogTags(json.tags || []);
     } catch (e) {
       console.error("Error loading blog tags:", e);
+    }
+  };
+
+  const loadSettings = async () => {
+    try {
+      const res = await fetch("/api/admin/settings");
+      if (!res.ok) throw new Error("Failed to load settings");
+      const json = await res.json();
+      setSettings(json.settings);
+    } catch (e) {
+      console.error("Error loading settings:", e);
+      // Keep local settings as fallback
+    }
+  };
+
+  const saveSettings = async (newSettings: typeof settings) => {
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newSettings)
+      });
+      if (!res.ok) throw new Error("Failed to save settings");
+      const json = await res.json();
+      setSettings(json.settings);
+      // Also save to localStorage as backup
+      localStorage.setItem('admin-settings', JSON.stringify(json.settings));
+    } catch (e) {
+      console.error("Error saving settings:", e);
+      // Save to localStorage as fallback
+      localStorage.setItem('admin-settings', JSON.stringify(newSettings));
+      setSettings(newSettings);
     }
   };
   type CategoryRow = { id: string; name: string; description?: string; is_active: boolean; created_at: string };
@@ -805,25 +840,25 @@ export const AdminDashboard = () => {
   const filteredTestimonials = testimonials
     .filter(item => settings.showInactive || item.isActive)
     .filter(item => 
-      item.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.company.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    item.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.company.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const filteredCaseStudies = caseStudies
     .filter(item => settings.showInactive || item.isActive)
     .filter(item => 
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.client.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.client.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const filteredCategories = productCategories
     .filter(item => settings.showInactive || item.isActive)
     .filter(item => 
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (!isLoaded) {
     return (
@@ -2154,10 +2189,10 @@ export const AdminDashboard = () => {
           {activeTab === "products" && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <div>
+              <div>
                   <h2 className="text-2xl font-bold text-slate-900">Products</h2>
                   <p className="text-slate-600">Fetched from LemonSqueezy with local customizations</p>
-                </div>
+              </div>
                 <div className="flex items-center space-x-4">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
@@ -2167,7 +2202,7 @@ export const AdminDashboard = () => {
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-10 w-64"
                     />
-                  </div>
+            </div>
                 </div>
               </div>
 
@@ -2193,19 +2228,19 @@ export const AdminDashboard = () => {
                           </div>
                           <CardTitle className="text-lg">{product.attributes.name}</CardTitle>
                           <CardDescription>LS Slug: {product.attributes.slug}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
                             <Label>Custom Headline</Label>
-                            <Input
+                      <Input
                               value={extra.headline || ''}
                               onChange={(e) => setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, headline: e.target.value } }))}
                               placeholder="Optional marketing headline"
-                            />
-                          </div>
-                          <div>
+                      />
+                    </div>
+                    <div>
                             <Label>Categories (comma-separated names)</Label>
-                            <Input
+                      <Input
                               value={categoryNames}
                               onChange={(e) => {
                                 const names = e.target.value.split(',').map(v => v.trim()).filter(Boolean);
@@ -2221,8 +2256,8 @@ export const AdminDashboard = () => {
                                 setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, categories: ids } }));
                               }}
                               placeholder="e.g., Analytics Tools, Dashboards"
-                            />
-                          </div>
+                      />
+                    </div>
                           <div className="space-y-2">
                             <Label>Gallery Images</Label>
                             {(extra.gallery || []).map((url, idx) => (
@@ -2241,7 +2276,7 @@ export const AdminDashboard = () => {
                                   setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, gallery } }));
                                 }}>
                                   <Trash2 className="w-4 h-4" />
-                                </Button>
+                    </Button>
                               </div>
                             ))}
                             <Button variant="outline" size="sm" onClick={() => {
@@ -2266,8 +2301,8 @@ export const AdminDashboard = () => {
                             </Button>
                             <div className="text-sm text-slate-600">Price: {product.attributes.price_formatted}</div>
                           </div>
-                        </CardContent>
-                      </Card>
+                  </CardContent>
+                </Card>
                     );
                   })}
               </div>
@@ -2296,7 +2331,7 @@ export const AdminDashboard = () => {
                         <Label>Auto-save changes</Label>
                         <p className="text-sm text-slate-600">Automatically save changes as you type</p>
                       </div>
-                      <Button variant={settings.autosave ? "default" : "outline"} size="sm" onClick={() => setSettings(s => ({ ...s, autosave: !s.autosave }))}>
+                      <Button variant={settings.autosave ? "default" : "outline"} size="sm" onClick={() => saveSettings({ ...settings, autosave: !settings.autosave })}>
                         {settings.autosave ? 'On' : 'Off'}
                       </Button>
                     </div>
@@ -2305,16 +2340,45 @@ export const AdminDashboard = () => {
                         <Label>Show inactive items</Label>
                         <p className="text-sm text-slate-600">Display inactive testimonials and case studies</p>
                       </div>
-                      <Button variant={settings.showInactive ? "default" : "outline"} size="sm" onClick={() => setSettings(s => ({ ...s, showInactive: !s.showInactive }))}>
+                      <Button variant={settings.showInactive ? "default" : "outline"} size="sm" onClick={() => saveSettings({ ...settings, showInactive: !settings.showInactive })}>
                         {settings.showInactive ? 'On' : 'Off'}
                       </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Tracking & Analytics</CardTitle>
+                    <CardDescription>Configure tracking scripts and analytics</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="gtm-container">Google Tag Manager Container ID</Label>
+                      <Input
+                        id="gtm-container"
+                        value={settings.gtmContainer || ''}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          setSettings(s => ({ ...s, gtmContainer: newValue }));
+                          // Debounced save
+                          setTimeout(() => {
+                            saveSettings({ ...settings, gtmContainer: newValue });
+                          }, 1000);
+                        }}
+                        placeholder="GTM-XXXXXXX"
+                        className="font-mono text-sm"
+                      />
+                      <p className="text-xs text-slate-600">
+                        Enter your GTM container ID (e.g., GTM-XXXXXXX). Scripts will be automatically injected.
+                      </p>
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <Label>Enable analytics</Label>
                         <p className="text-sm text-slate-600">Track content performance and engagement</p>
                       </div>
-                      <Button variant={settings.enableAnalytics ? "default" : "outline"} size="sm" onClick={() => setSettings(s => ({ ...s, enableAnalytics: !s.enableAnalytics }))}>
+                      <Button variant={settings.enableAnalytics ? "default" : "outline"} size="sm" onClick={() => saveSettings({ ...settings, enableAnalytics: !settings.enableAnalytics })}>
                         {settings.enableAnalytics ? 'On' : 'Off'}
                       </Button>
                     </div>

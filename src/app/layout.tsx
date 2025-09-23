@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
+import { GTMScript } from "@/components/gtm";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,6 +24,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body suppressHydrationWarning className={`${inter.variable} font-sans antialiased`}>
+          <GTMScript />
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
