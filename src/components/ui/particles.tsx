@@ -113,7 +113,6 @@ export default function Particles({
     if (!context.current) return;
     const { x, y, alpha, color } = circle;
     context.current.save();
-    context.current.globalAlpha = alpha;
     context.current.beginPath();
     context.current.arc(x, y, circle.size, 0, 2 * Math.PI);
     context.current.fillStyle = color;
