@@ -265,13 +265,13 @@ const mockProductCategories: ProductCategory[] = [
 
 export const AdminDashboard = () => {
   const { user } = useUser();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("products");
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
   const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [products, setProducts] = useState<LemonSqueezyProduct[]>([]);
   const [productExtras, setProductExtras] = useState<Record<string, ProductExtra>>({});
-  const [productFiltersMap, setProductFiltersMap] = useState<Record<string, { platform?: string[]; dataBackend?: string; pricing?: string }>>({});
+  const [productFiltersMap, setProductFiltersMap] = useState<Record<string, { platform?: string[]; dataBackend?: string[]; pricing?: string }>>({});
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
   const [blogTags, setBlogTags] = useState<BlogTag[]>([]);
@@ -1000,18 +1000,7 @@ export const AdminDashboard = () => {
         {/* Sidebar Navigation */}
         <div className="w-64 bg-slate-900 border-r border-slate-700 min-h-screen">
           <nav className="p-4 space-y-2">
-            <Button
-              variant={activeTab === "overview" ? "default" : "ghost"}
-              className={`w-full justify-start font-medium ${
-                activeTab === "overview" 
-                  ? "bg-primary text-white hover:bg-primary/90" 
-                  : "text-slate-300 hover:text-white hover:bg-slate-800"
-              }`}
-              onClick={() => setActiveTab("overview")}
-            >
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Overview
-            </Button>
+            {/* Overview removed */}
             <Button
               variant={activeTab === "testimonials" ? "default" : "ghost"}
               className={`w-full justify-start font-medium ${
@@ -1105,98 +1094,7 @@ export const AdminDashboard = () => {
 
         {/* Main Content */}
         <div className="flex-1 p-6">
-          {/* Overview Tab */}
-          {activeTab === "overview" && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <Users className="h-8 w-8 text-blue-600" />
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-slate-600">Testimonials</p>
-                        <p className="text-2xl font-bold text-slate-900">{testimonials.length}</p>
-                        <p className="text-xs text-green-600">{testimonials.filter(t => t.isActive).length} active</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <FileText className="h-8 w-8 text-green-600" />
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-slate-600">Case Studies</p>
-                        <p className="text-2xl font-bold text-slate-900">{caseStudies.length}</p>
-                        <p className="text-xs text-green-600">{caseStudies.filter(c => c.isActive).length} active</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <ShoppingCart className="h-8 w-8 text-purple-600" />
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-slate-600">Categories</p>
-                        <p className="text-2xl font-bold text-slate-900">{productCategories.length}</p>
-                        <p className="text-xs text-green-600">{productCategories.filter(c => c.isActive).length} active</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <BarChart3 className="h-8 w-8 text-orange-600" />
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-slate-600">Total Products</p>
-                        <p className="text-2xl font-bold text-slate-900">
-                          {productCategories.reduce((sum, cat) => sum + cat.productCount, 0)}
-                        </p>
-                        <p className="text-xs text-slate-600">across all categories</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>Latest changes to your content</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Testimonial added</p>
-                        <p className="text-xs text-slate-600">Sarah M. testimonial was published</p>
-                      </div>
-                      <span className="text-xs text-slate-500">2 hours ago</span>
-                    </div>
-                    <div className="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Case study updated</p>
-                        <p className="text-xs text-slate-600">Fashion Brand case study metrics updated</p>
-                      </div>
-                      <span className="text-xs text-slate-500">1 day ago</span>
-                    </div>
-                    <div className="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Category created</p>
-                        <p className="text-xs text-slate-600">New Analytics Tools category added</p>
-                      </div>
-                      <span className="text-xs text-slate-500">3 days ago</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+          {/* Overview removed */}
 
           {/* Pages Tab */}
           {activeTab === "pages" && (
@@ -1210,7 +1108,7 @@ export const AdminDashboard = () => {
                 >
                   {pagesLoading ? "Refreshing..." : "Refresh"}
                 </button>
-              </div>
+                      </div>
               <p className="text-sm text-muted-foreground">Real-time scan of <code className="px-1 rounded bg-muted">src/app</code> for <code className="px-1 rounded bg-muted">page.tsx</code> files (API excluded). Use Refresh after adding pages.</p>
               {pagesError && <div className="text-sm text-red-500">{pagesError}</div>}
               <div className="overflow-x-auto">
@@ -1240,7 +1138,7 @@ export const AdminDashboard = () => {
                     )}
                   </tbody>
                 </table>
-              </div>
+                    </div>
             </div>
           )}
 
@@ -2275,40 +2173,54 @@ export const AdminDashboard = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div>
-                        <Label>Platform</Label>
-                        <Select
-                          value={(productFiltersMap[product.id]?.platform?.[0]) || 'all'}
-                          onValueChange={(val) => {
-                            const current = productFiltersMap[product.id] || {};
-                            const next = { ...current, platform: val === 'all' ? [] : [val] };
-                            setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
-                          }}
-                        >
-                          <SelectTrigger className="w-full"><SelectValue placeholder="Select platform" /></SelectTrigger>
-                          <SelectContent>
-                            {FILTER_FACETS.platform.map(opt => (
-                              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Label>Platform (multi)</Label>
+                        <div className="border rounded-md p-2 space-y-1">
+                          {FILTER_FACETS.platform.map(opt => {
+                            const sel = new Set(productFiltersMap[product.id]?.platform || []);
+                            const checked = sel.has(opt.value);
+                            return (
+                              <label key={opt.value} className="flex items-center gap-2 text-sm">
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={(e) => {
+                                    const current = productFiltersMap[product.id] || {};
+                                    const nextSet = new Set<string>(current.platform || []);
+                                    if (e.target.checked) nextSet.add(opt.value); else nextSet.delete(opt.value);
+                                    const next = { ...current, platform: Array.from(nextSet) };
+                                    setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
+                                  }}
+                                />
+                                {opt.label}
+                              </label>
+                            );
+                          })}
+                        </div>
                       </div>
                       <div>
-                        <Label>Data backend</Label>
-                        <Select
-                          value={(productFiltersMap[product.id]?.dataBackend) || 'all'}
-                          onValueChange={(val) => {
-                            const current = productFiltersMap[product.id] || {};
-                            const next = { ...current, dataBackend: val };
-                            setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
-                          }}
-                        >
-                          <SelectTrigger className="w-full"><SelectValue placeholder="Select backend" /></SelectTrigger>
-                          <SelectContent>
-                            {FILTER_FACETS.dataBackend.map(opt => (
-                              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Label>Data backend (multi)</Label>
+                        <div className="border rounded-md p-2 space-y-1">
+                          {FILTER_FACETS.dataBackend.map(opt => {
+                            const sel = new Set(productFiltersMap[product.id]?.dataBackend || []);
+                            const checked = sel.has(opt.value);
+                            return (
+                              <label key={opt.value} className="flex items-center gap-2 text-sm">
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={(e) => {
+                                    const current = productFiltersMap[product.id] || {};
+                                    const nextSet = new Set<string>(current.dataBackend || []);
+                                    if (e.target.checked) nextSet.add(opt.value); else nextSet.delete(opt.value);
+                                    const next = { ...current, dataBackend: Array.from(nextSet) };
+                                    setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
+                                  }}
+                                />
+                                {opt.label}
+                              </label>
+                            );
+                          })}
+                        </div>
                       </div>
                       <div>
                         <Label>Price</Label>
@@ -2333,7 +2245,7 @@ export const AdminDashboard = () => {
                             <Label>Gallery Images</Label>
                             {(extra.gallery || []).map((url, idx) => (
                               <div key={idx} className="flex items-center gap-2">
-                                <Input
+                      <Input
                                   value={url}
                                   onChange={(e) => {
                                     const gallery = [...(extra.gallery || [])];
@@ -2348,14 +2260,14 @@ export const AdminDashboard = () => {
                                 }}>
                                   <Trash2 className="w-4 h-4" />
                     </Button>
-                              </div>
+                    </div>
                             ))}
                             <Button variant="outline" size="sm" onClick={() => {
                               const gallery = [...(extra.gallery || []), '' ];
                               setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, gallery } }));
                             }}>
                               <Plus className="w-4 h-4 mr-2" /> Add Image
-                            </Button>
+                    </Button>
                           </div>
                           <div>
                             <Label>Notes</Label>

@@ -25,16 +25,16 @@ export const ToolsPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPriceFilter, setSelectedPriceFilter] = useState("all");
-  const [selectedPlatformFilter, setSelectedPlatformFilter] = useState("all");
-  const [selectedDataBackendFilter, setSelectedDataBackendFilter] = useState("all");
+  const [selectedPlatformFilter, setSelectedPlatformFilter] = useState<string[]>([]);
+  const [selectedDataBackendFilter, setSelectedDataBackendFilter] = useState<string[]>([]);
   const [categories, setCategories] = useState<Array<{ id: string; name: string; description?: string; isActive: boolean }>>([]);
   const [productCategoryMap, setProductCategoryMap] = useState<Record<string, string>>({});
   const [productFiltersMap, setProductFiltersMap] = useState<Record<string, { platform?: string[]; dataBackend?: string; pricing?: string }>>({});
   const [viewMode, setViewMode] = useState<'list' | 'gallery'>(() => {
-    if (typeof window === 'undefined') return 'list';
+    if (typeof window === 'undefined') return 'gallery';
     const url = new URLSearchParams(window.location.search).get('view');
     const ls = localStorage.getItem('tools-view');
-    return (url === 'gallery' || ls === 'gallery') ? 'gallery' : 'list';
+    return (url ? url : (ls || 'gallery')) === 'gallery' ? 'gallery' : 'list';
   });
 
   // Fetch products from LemonSqueezy
@@ -95,12 +95,12 @@ export const ToolsPage = () => {
       const ls = localStorage.getItem('tools-filters');
       const initial = ls ? JSON.parse(ls) : {};
       const q = params.get('q') ?? initial.q ?? "";
-      const platform = params.get('platform') ?? initial.platform ?? 'all';
-      const dataBackend = params.get('dataBackend') ?? initial.dataBackend ?? 'all';
+      const platform = (params.get('platform')?.split(',').filter(Boolean)) ?? (initial.platform || []);
+      const dataBackend = (params.get('dataBackend')?.split(',').filter(Boolean)) ?? (initial.dataBackend || []);
       const price = params.get('price') ?? initial.price ?? 'all';
       setSearchQuery(q);
-      setSelectedPlatformFilter(platform);
-      setSelectedDataBackendFilter(dataBackend);
+      setSelectedPlatformFilter(Array.isArray(platform) ? platform : []);
+      setSelectedDataBackendFilter(Array.isArray(dataBackend) ? dataBackend : []);
       setSelectedPriceFilter(price);
     } catch {}
   }, []);
@@ -127,18 +127,18 @@ export const ToolsPage = () => {
     }
 
     // Platform filter (from admin-assigned filters; supports multiple)
-    if (selectedPlatformFilter !== "all") {
+    if (selectedPlatformFilter.length > 0) {
       filtered = filtered.filter(product => {
         const arr = productFiltersMap[product.id]?.platform || [];
-        return Array.isArray(arr) && arr.includes(selectedPlatformFilter);
+        return Array.isArray(arr) && selectedPlatformFilter.some(v => arr.includes(v));
       });
     }
 
     // Data backend filter (from admin-assigned filters)
-    if (selectedDataBackendFilter !== "all") {
+    if (selectedDataBackendFilter.length > 0) {
       filtered = filtered.filter(product => {
-        const tag = productFiltersMap[product.id]?.dataBackend || 'all';
-        return tag === selectedDataBackendFilter;
+        const arr = productFiltersMap[product.id]?.dataBackend || [];
+        return Array.isArray(arr) && selectedDataBackendFilter.some(v => arr.includes(v));
       });
     }
 
@@ -151,8 +151,8 @@ export const ToolsPage = () => {
       try {
         const params = new URLSearchParams(window.location.search);
         if (searchQuery) params.set('q', searchQuery); else params.delete('q');
-        if (selectedPlatformFilter && selectedPlatformFilter !== 'all') params.set('platform', selectedPlatformFilter); else params.delete('platform');
-        if (selectedDataBackendFilter && selectedDataBackendFilter !== 'all') params.set('dataBackend', selectedDataBackendFilter); else params.delete('dataBackend');
+        if (selectedPlatformFilter.length) params.set('platform', selectedPlatformFilter.join(',')); else params.delete('platform');
+        if (selectedDataBackendFilter.length) params.set('dataBackend', selectedDataBackendFilter.join(',')); else params.delete('dataBackend');
         if (selectedPriceFilter && selectedPriceFilter !== 'all') params.set('price', selectedPriceFilter); else params.delete('price');
         const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}${window.location.hash}`;
         window.history.replaceState(null, '', newUrl);
