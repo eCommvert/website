@@ -30,6 +30,12 @@ export const ToolsPage = () => {
   const [categories, setCategories] = useState<Array<{ id: string; name: string; description?: string; isActive: boolean }>>([]);
   const [productCategoryMap, setProductCategoryMap] = useState<Record<string, string>>({});
   const [productFiltersMap, setProductFiltersMap] = useState<Record<string, { platform?: string[]; dataBackend?: string; pricing?: string }>>({});
+  const [viewMode, setViewMode] = useState<'list' | 'gallery'>(() => {
+    if (typeof window === 'undefined') return 'list';
+    const url = new URLSearchParams(window.location.search).get('view');
+    const ls = localStorage.getItem('tools-view');
+    return (url === 'gallery' || ls === 'gallery') ? 'gallery' : 'list';
+  });
 
   // Fetch products from LemonSqueezy
   useEffect(() => {
@@ -156,6 +162,17 @@ export const ToolsPage = () => {
     return () => clearTimeout(id);
   }, [searchQuery, selectedPlatformFilter, selectedDataBackendFilter, selectedPriceFilter]);
 
+  // Persist view mode
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      params.set('view', viewMode);
+      const newUrl = `${window.location.pathname}?${params.toString()}${window.location.hash}`;
+      window.history.replaceState(null, '', newUrl);
+      localStorage.setItem('tools-view', viewMode);
+    } catch {}
+  }, [viewMode]);
+
   const features = [
     {
       icon: Users,
@@ -266,73 +283,97 @@ export const ToolsPage = () => {
             </p>
           </motion.div>
 
-          {/* Layout: sticky filters left (desktop), products right */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-            {/* Sidebar Filters */}
-            <aside className="md:col-span-3">
-              <div className="md:sticky md:top-24 space-y-4">
-                <div>
-                  <label className="block text-sm text-muted-foreground mb-2">Search</label>
-                  <input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search tools..."
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-muted-foreground mb-2">Platform</label>
-                  <select
-                    value={selectedPlatformFilter}
-                    onChange={(e) => setSelectedPlatformFilter(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2"
-                  >
-                    {FILTER_FACETS.platform.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm text-muted-foreground mb-2">Data backend</label>
-                  <select
-                    value={selectedDataBackendFilter}
-                    onChange={(e) => setSelectedDataBackendFilter(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2"
-                  >
-                    {FILTER_FACETS.dataBackend.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm text-muted-foreground mb-2">Price</label>
-                  <select
-                    value={selectedPriceFilter}
-                    onChange={(e) => setSelectedPriceFilter(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2"
-                  >
-                    {FILTER_FACETS.pricing.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setSelectedPriceFilter("all");
-                    setSelectedPlatformFilter("all");
-                    setSelectedDataBackendFilter("all");
-                  }}
-                >
-                  Clear filters
-                </Button>
-              </div>
-            </aside>
+          {/* View Toggle */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="hidden md:block text-sm text-muted-foreground">
+              {filteredProducts.length} items
+            </div>
+            <div className="inline-flex rounded-md border border-border overflow-hidden">
+              <button
+                aria-pressed={viewMode === 'list'}
+                className={`px-3 py-1.5 text-sm ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'bg-background text-foreground'}`}
+                onClick={() => setViewMode('list')}
+              >
+                List
+              </button>
+              <button
+                aria-pressed={viewMode === 'gallery'}
+                className={`px-3 py-1.5 text-sm border-l border-border ${viewMode === 'gallery' ? 'bg-primary text-primary-foreground' : 'bg-background text-foreground'}`}
+                onClick={() => setViewMode('gallery')}
+              >
+                Gallery
+              </button>
+            </div>
+          </div>
 
-            {/* Products Column */}
-            <div className="md:col-span-9">
+          {/* Layout: filters left for list view; filters above for gallery view */}
+          {viewMode === 'list' ? (
+            <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8">
+              {/* Sidebar Filters */}
+              <aside>
+                <div className="md:sticky md:top-24 space-y-4">
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-2">Search</label>
+                    <input
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search tools..."
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-2">Platform</label>
+                    <select
+                      value={selectedPlatformFilter}
+                      onChange={(e) => setSelectedPlatformFilter(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2"
+                    >
+                      {FILTER_FACETS.platform.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-2">Data backend</label>
+                    <select
+                      value={selectedDataBackendFilter}
+                      onChange={(e) => setSelectedDataBackendFilter(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2"
+                    >
+                      {FILTER_FACETS.dataBackend.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-muted-foreground mb-2">Price</label>
+                    <select
+                      value={selectedPriceFilter}
+                      onChange={(e) => setSelectedPriceFilter(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2"
+                    >
+                      {FILTER_FACETS.pricing.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSelectedPriceFilter("all");
+                      setSelectedPlatformFilter("all");
+                      setSelectedDataBackendFilter("all");
+                    }}
+                  >
+                    Clear filters
+                  </Button>
+                </div>
+              </aside>
+
+              {/* Products Column */}
+              <div>
               {/* Products Grid */}
               {loading ? (
                 <div className="flex justify-center items-center py-20">
@@ -343,7 +384,6 @@ export const ToolsPage = () => {
                 <div className="space-y-12 mb-16">
                   {[
                     ...categories.map(c => c.id),
-                    'uncategorized',
                   ].map((catId) => {
                     const items = grouped[catId] || [];
                     if (items.length === 0) return null;
@@ -374,63 +414,54 @@ export const ToolsPage = () => {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Products Grid */}
-          {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <span className="ml-3 text-muted-foreground">Loading products...</span>
-            </div>
-          ) : filteredProducts.length > 0 ? (
-            <div className="space-y-12 mb-16">
-              {[
-                // Render active categories in order, then uncategorized if any
-                ...categories.map(c => c.id),
-                'uncategorized',
-              ].map((catId) => {
-                const items = grouped[catId] || [];
-                if (items.length === 0) return null;
-                const cat = getCategoryById(catId);
-                const title = cat ? cat.name : 'Uncategorized';
-                const desc = cat?.description || (cat ? '' : 'Items not yet assigned to a category');
-                return (
-                  <div key={catId}>
-                    <div className="mb-6">
-                      <h3 className="text-2xl sm:text-3xl font-bold text-white">{title}</h3>
-                      {desc ? <p className="text-gray-300 mt-2">{desc}</p> : null}
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {items.map((product, index) => (
-                        <ProductCard key={product.id} product={product} index={index} />
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
+              </div>
             </div>
           ) : (
-            <div className="text-center py-20">
-              <div className="text-muted-foreground text-lg mb-4">
-                {searchQuery || selectedPriceFilter !== "all" || selectedPlatformFilter !== "all" || selectedDataBackendFilter !== "all"
-                  ? "No products match your filters"
-                  : "No products available"}
+            // Gallery view
+            <div className="space-y-6">
+              {/* Compact filters above products */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search tools..."
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2"
+                />
+                <select value={selectedPlatformFilter} onChange={(e) => setSelectedPlatformFilter(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2">
+                  {FILTER_FACETS.platform.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+                </select>
+                <select value={selectedDataBackendFilter} onChange={(e) => setSelectedDataBackendFilter(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2">
+                  {FILTER_FACETS.dataBackend.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+                </select>
+                <select value={selectedPriceFilter} onChange={(e) => setSelectedPriceFilter(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2">
+                  {FILTER_FACETS.pricing.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+                </select>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSearchQuery("");
-                  setSelectedPriceFilter("all");
-                  setSelectedPlatformFilter("all");
-                  setSelectedDataBackendFilter("all");
-                }}
-                className="border-border hover:bg-accent hover:text-accent-foreground"
-              >
-                Clear Filters
-              </Button>
+
+              {loading ? (
+                <div className="flex justify-center items-center py-20">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <span className="ml-3 text-muted-foreground">Loading products...</span>
+                </div>
+              ) : filteredProducts.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredProducts.map((product, index) => (
+                    <ProductCard key={product.id} product={product} index={index} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-20">
+                  <div className="text-muted-foreground text-lg mb-4">
+                    {searchQuery || selectedPriceFilter !== "all" || selectedPlatformFilter !== "all" || selectedDataBackendFilter !== "all"
+                      ? "No products match your filters"
+                      : "No products available"}
+                  </div>
+                </div>
+              )}
             </div>
           )}
+
+          {/* Removed duplicate 3-column section to avoid duplication */}
         </div>
       </section>
 
