@@ -506,11 +506,11 @@ export const ToolsPage = () => {
                 <Card className="bg-card border-border backdrop-blur-sm hover:bg-accent/10 transition-all duration-300">
                   <CardContent className="p-6">
                     <div className="flex items-center mb-4">
-                      {[...Array(testimonial.rating)].map((_, i) => (
+                      {[...Array((testimonial.rating ?? 5))].map((_, i) => (
                         <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
                       ))}
                     </div>
-                    <p className="text-muted-foreground mb-4 leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
+                    <p className="text-muted-foreground mb-4 leading-relaxed">&ldquo;{testimonial.quote}&rdquo;</p>
                     <div>
                       <div className="font-semibold">{testimonial.name}</div>
                       <div className="text-muted-foreground text-sm">{testimonial.role} at {testimonial.company}</div>
