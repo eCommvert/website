@@ -14,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   Settings, 
   Users, 
-  BarChart3, 
   FileText, 
   ShoppingCart,
   Plus,

@@ -323,8 +323,12 @@ export const ToolsPage = () => {
                   <div>
                     <label className="block text-sm text-muted-foreground mb-2">Platform</label>
                     <select
+                      multiple
                       value={selectedPlatformFilter}
-                      onChange={(e) => setSelectedPlatformFilter(e.target.value)}
+                      onChange={(e) => {
+                        const vals = Array.from((e.target as HTMLSelectElement).selectedOptions).map(o => o.value);
+                        setSelectedPlatformFilter(vals);
+                      }}
                       className="w-full rounded-lg border border-border bg-background px-3 py-2"
                     >
                       {FILTER_FACETS.platform.map(opt => (
@@ -335,8 +339,12 @@ export const ToolsPage = () => {
                   <div>
                     <label className="block text-sm text-muted-foreground mb-2">Data backend</label>
                     <select
+                      multiple
                       value={selectedDataBackendFilter}
-                      onChange={(e) => setSelectedDataBackendFilter(e.target.value)}
+                      onChange={(e) => {
+                        const vals = Array.from((e.target as HTMLSelectElement).selectedOptions).map(o => o.value);
+                        setSelectedDataBackendFilter(vals);
+                      }}
                       className="w-full rounded-lg border border-border bg-background px-3 py-2"
                     >
                       {FILTER_FACETS.dataBackend.map(opt => (
@@ -362,8 +370,8 @@ export const ToolsPage = () => {
                     onClick={() => {
                       setSearchQuery("");
                       setSelectedPriceFilter("all");
-                      setSelectedPlatformFilter("all");
-                      setSelectedDataBackendFilter("all");
+                      setSelectedPlatformFilter([]);
+                      setSelectedDataBackendFilter([]);
                     }}
                   >
                     Clear filters
@@ -408,7 +416,7 @@ export const ToolsPage = () => {
               ) : (
                 <div className="text-center py-20">
                   <div className="text-muted-foreground text-lg mb-4">
-                    {searchQuery || selectedPriceFilter !== "all" || selectedPlatformFilter !== "all" || selectedDataBackendFilter !== "all"
+                    {searchQuery || selectedPriceFilter !== "all" || selectedPlatformFilter.length > 0 || selectedDataBackendFilter.length > 0
                       ? "No products match your filters"
                       : "No products available"}
                   </div>
