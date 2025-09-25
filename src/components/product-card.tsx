@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, ArrowRight, Download, Calendar } from "lucide-react";
+import { ExternalLink, ArrowRight, Calendar } from "lucide-react";
 import { LemonSqueezyProduct, formatPrice, truncateDescription, cleanRichText } from "@/lib/lemonsqueezy";
 
 interface ProductCardProps {
@@ -138,10 +138,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
 
               {/* Meta Info */}
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Download className="w-3 h-3" />
-                  {attributes.sales_count ?? 0} downloads
-                </span>
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
                   Updated {new Date(attributes.updated_at).toLocaleDateString()}

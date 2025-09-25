@@ -15,6 +15,7 @@ import {
   Loader2
 } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
+import { ProductCardVertical } from "@/components/product-card-vertical";
 // import { SearchFilters } from "@/components/search-filters";
 import { FILTER_FACETS } from "@/lib/product-filters";
 import { LemonSqueezyProduct, fetchLemonSqueezyProducts } from "@/lib/lemonsqueezy";
@@ -446,7 +447,7 @@ export const ToolsPage = () => {
               ) : filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {filteredProducts.map((product, index) => (
-                    <ProductCard key={product.id} product={product} index={index} />
+                    <ProductCardVertical key={product.id} product={product} index={index} />
                   ))}
                 </div>
               ) : (
