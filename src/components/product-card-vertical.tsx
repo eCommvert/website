@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,8 +15,8 @@ interface ProductCardVerticalProps {
 
 export const ProductCardVertical: React.FC<ProductCardVerticalProps> = ({ product, index }) => {
   const { attributes } = product;
-  const [customHeadline, setCustomHeadline] = React.useState<string | null>(null);
-  React.useEffect(() => {
+  const [customHeadline, setCustomHeadline] = useState<string | null>(null);
+  useEffect(() => {
     try {
       const extrasRaw = localStorage.getItem('admin-product-extras');
       if (extrasRaw) {
