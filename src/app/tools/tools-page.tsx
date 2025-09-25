@@ -29,7 +29,7 @@ export const ToolsPage = () => {
   const [selectedDataBackendFilter, setSelectedDataBackendFilter] = useState<string[]>([]);
   const [categories, setCategories] = useState<Array<{ id: string; name: string; description?: string; isActive: boolean }>>([]);
   const [productCategoryMap, setProductCategoryMap] = useState<Record<string, string>>({});
-  const [productFiltersMap, setProductFiltersMap] = useState<Record<string, { platform?: string[]; dataBackend?: string; pricing?: string }>>({});
+  const [productFiltersMap, setProductFiltersMap] = useState<Record<string, { platform?: string[]; dataBackend?: string[]; pricing?: string }>>({});
   const [viewMode, setViewMode] = useState<'list' | 'gallery'>(() => {
     if (typeof window === 'undefined') return 'gallery';
     const url = new URLSearchParams(window.location.search).get('view');
