@@ -382,10 +382,11 @@ export const ToolsPage = () => {
                   <span className="ml-3 text-muted-foreground">Loading products...</span>
                 </div>
               ) : filteredProducts.length > 0 ? (
-                <div className="space-y-12 mb-16">
-                  {[
-                    ...categories.map(c => c.id),
-                  ].map((catId) => {
+                  <div className="space-y-12 mb-16">
+                    {[
+                      ...categories.map(c => c.id),
+                      'uncategorized',
+                    ].map((catId) => {
                     const items = grouped[catId] || [];
                     if (items.length === 0) return null;
                     const cat = getCategoryById(catId);
