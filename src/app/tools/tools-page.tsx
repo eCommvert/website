@@ -158,50 +158,38 @@ export const ToolsPage = () => {
 
   const features = [
     {
+      icon: Users,
+      title: "From marketers to marketers",
+      description: "Built by hands‑on performance marketers for their own work—then shared with the world.",
+    },
+    {
       icon: Zap,
-      title: "Lightning Fast",
-      description: "Optimized for speed and performance, ensuring your data loads instantly.",
+      title: "Reliable tools marketers use",
+      description: "Works with Looker Studio, Make.com, Google Ads Scripts, Google Sheets, and n8n.",
     },
     {
       icon: Shield,
-      title: "Secure & Reliable",
-      description: "Enterprise-grade security with 99.9% uptime guarantee.",
-    },
-    {
-      icon: Users,
-      title: "Team Collaboration",
-      description: "Built for teams with role-based access and real-time collaboration.",
+      title: "Secure",
+      description: "We never store your client data. Automations and dashboards run in your environment.",
     },
     {
       icon: Clock,
       title: "24/7 Support",
-      description: "Round-the-clock support to help you succeed.",
+      description: "Friendly help when you need it—documentation, email support, and quick fixes.",
     },
   ];
+  type StoredTestimonial = { id: string; quote: string; author: string; role: string; company: string; photo?: string; isActive?: boolean; rating?: number; scope?: "tools" | "consulting" };
+  const [testimonials, setTestimonials] = useState<StoredTestimonial[]>([]);
 
-  const testimonials = [
-    {
-      name: "Sarah Johnson",
-      role: "Marketing Director",
-      company: "TechCorp",
-      content: "These tools have transformed our marketing operations. The dashboards are incredibly intuitive and the automation saves us hours every week.",
-      rating: 5,
-    },
-    {
-      name: "Michael Chen",
-      role: "E-commerce Manager",
-      company: "Shopify Store",
-      content: "The n8n workflows have automated 80% of our manual tasks. ROI has increased by 300% since implementation.",
-      rating: 5,
-    },
-    {
-      name: "Emma Rodriguez",
-      role: "Digital Marketing Lead",
-      company: "StartupXYZ",
-      content: "The SOPs and documentation have standardized our processes across the entire team. Highly recommended!",
-      rating: 5,
-    },
-  ];
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('admin-testimonials');
+      if (raw) {
+        const list = JSON.parse(raw) as StoredTestimonial[];
+        setTestimonials(list.filter(t => (t.isActive ?? true) && (t.scope === 'tools')));
+      }
+    } catch {}
+  }, []);
 
   const grouped: Record<string, LemonSqueezyProduct[]> = React.useMemo(() => {
     const groups: Record<string, LemonSqueezyProduct[]> = {};

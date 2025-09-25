@@ -41,6 +41,7 @@ interface Testimonial {
   company: string;
   photo: string;
   isActive: boolean;
+  scope?: "tools" | "consulting";
 }
 
 interface CaseStudy {
@@ -1337,6 +1338,18 @@ export const AdminDashboard = () => {
                               onChange={(e) => updateItem('testimonial', testimonial.id, { photo: e.target.value })}
                               placeholder="/testimonials/photo.jpg"
                             />
+                          </div>
+                          <div>
+                            <Label htmlFor="scope">Scope</Label>
+                            <Select value={testimonial.scope || 'consulting'} onValueChange={(v) => updateItem('testimonial', testimonial.id, { scope: v as 'tools' | 'consulting' })}>
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select scope" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="consulting">Consulting</SelectItem>
+                                <SelectItem value="tools">Tools</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                           <Button onClick={() => setEditingItem(null)} className="w-full">
                             <Save className="w-4 h-4 mr-2" />
