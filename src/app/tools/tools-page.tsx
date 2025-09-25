@@ -37,6 +37,53 @@ export const ToolsPage = () => {
     return (url ? url : (ls || 'gallery')) === 'gallery' ? 'gallery' : 'list';
   });
 
+  // Simple checkbox dropdown used for multi-select filters
+  function CheckboxDropdown({
+    label,
+    options,
+    values,
+    onChange,
+  }: { label: string; options: { value: string; label: string }[]; values: string[]; onChange: (vals: string[]) => void }) {
+    const [open, setOpen] = useState(false);
+    return (
+      <div className="relative">
+        <button type="button" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-left" onClick={() => setOpen(o => !o)}>
+          <span className="text-sm text-muted-foreground">{label}</span>
+          {values.length > 0 && (
+            <span className="ml-2 text-xs text-foreground">({values.length})</span>
+          )}
+        </button>
+        {open && (
+          <div className="absolute z-50 mt-2 w-64 rounded-md border border-border bg-popover p-2 shadow-md">
+            <div className="max-h-56 overflow-auto space-y-1">
+              {options.map(opt => {
+                const checked = values.includes(opt.value);
+                return (
+                  <label key={opt.value} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) => {
+                        const next = new Set(values);
+                        if (e.target.checked) next.add(opt.value); else next.delete(opt.value);
+                        onChange(Array.from(next));
+                      }}
+                    />
+                    {opt.label}
+                  </label>
+                );
+              })}
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button className="text-xs text-muted-foreground hover:text-foreground" onClick={() => { onChange([]); }}>Clear</button>
+              <button className="text-xs text-primary" onClick={() => setOpen(false)}>Done</button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   // Fetch products from LemonSqueezy
   useEffect(() => {
     const loadProducts = async () => {
@@ -320,38 +367,18 @@ export const ToolsPage = () => {
                       className="w-full rounded-lg border border-border bg-background px-3 py-2"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm text-muted-foreground mb-2">Platform</label>
-                    <select
-                      multiple
-                      value={selectedPlatformFilter}
-                      onChange={(e) => {
-                        const vals = Array.from((e.target as HTMLSelectElement).selectedOptions).map(o => o.value);
-                        setSelectedPlatformFilter(vals);
-                      }}
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2"
-                    >
-                      {FILTER_FACETS.platform.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm text-muted-foreground mb-2">Data backend</label>
-                    <select
-                      multiple
-                      value={selectedDataBackendFilter}
-                      onChange={(e) => {
-                        const vals = Array.from((e.target as HTMLSelectElement).selectedOptions).map(o => o.value);
-                        setSelectedDataBackendFilter(vals);
-                      }}
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2"
-                    >
-                      {FILTER_FACETS.dataBackend.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <CheckboxDropdown
+                    label="Platform"
+                    options={FILTER_FACETS.platform}
+                    values={selectedPlatformFilter}
+                    onChange={setSelectedPlatformFilter}
+                  />
+                  <CheckboxDropdown
+                    label="Data backend"
+                    options={FILTER_FACETS.dataBackend}
+                    values={selectedDataBackendFilter}
+                    onChange={setSelectedDataBackendFilter}
+                  />
                   <div>
                     <label className="block text-sm text-muted-foreground mb-2">Price</label>
                     <select
@@ -435,18 +462,18 @@ export const ToolsPage = () => {
                   placeholder="Search tools..."
                   className="w-full rounded-lg border border-border bg-background px-3 py-2"
                 />
-                <select multiple value={selectedPlatformFilter} onChange={(e) => {
-                  const vals = Array.from((e.target as HTMLSelectElement).selectedOptions).map(o => o.value);
-                  setSelectedPlatformFilter(vals);
-                }} className="rounded-lg border border-border bg-background px-3 py-2">
-                  {FILTER_FACETS.platform.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
-                </select>
-                <select multiple value={selectedDataBackendFilter} onChange={(e) => {
-                  const vals = Array.from((e.target as HTMLSelectElement).selectedOptions).map(o => o.value);
-                  setSelectedDataBackendFilter(vals);
-                }} className="rounded-lg border border-border bg-background px-3 py-2">
-                  {FILTER_FACETS.dataBackend.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
-                </select>
+                <CheckboxDropdown
+                  label="Platform"
+                  options={FILTER_FACETS.platform}
+                  values={selectedPlatformFilter}
+                  onChange={setSelectedPlatformFilter}
+                />
+                <CheckboxDropdown
+                  label="Data backend"
+                  options={FILTER_FACETS.dataBackend}
+                  values={selectedDataBackendFilter}
+                  onChange={setSelectedDataBackendFilter}
+                />
                 <select value={selectedPriceFilter} onChange={(e) => setSelectedPriceFilter(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2">
                   {FILTER_FACETS.pricing.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
                 </select>
