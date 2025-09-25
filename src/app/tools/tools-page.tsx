@@ -43,7 +43,7 @@ export const ToolsPage = () => {
     options,
     values,
     onChange,
-  }: { label: string; options: { value: string; label: string }[]; values: string[]; onChange: (vals: string[]) => void }) {
+  }: { label: string; options: ReadonlyArray<{ value: string; label: string }>; values: string[]; onChange: (vals: string[]) => void }) {
     const [open, setOpen] = useState(false);
     return (
       <div className="relative">
