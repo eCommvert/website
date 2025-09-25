@@ -1,4 +1,3 @@
-import { SiteHeader } from "@/components/site-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -66,7 +65,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader />
       <main className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">

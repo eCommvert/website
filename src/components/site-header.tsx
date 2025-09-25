@@ -39,14 +39,14 @@ export function SiteHeader() {
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <a href="/" className="flex items-center space-x-2">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-sm">eC</span>
               </div>
               <span className="font-bold text-xl">eCommvert<span className="text-orange-500">.</span></span>
             </div>
-          </div>
+          </a>
 
           {/* Desktop Navigation */}
           {isMounted && (
@@ -59,7 +59,7 @@ export function SiteHeader() {
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <div className="grid gap-3 p-4 w-[400px]">
-                    <NavigationMenuLink href="#pricing" className="flex items-start space-x-3 p-3 rounded-lg hover:bg-accent/50">
+                    <NavigationMenuLink href="/#consulting" className="flex items-start space-x-3 p-3 rounded-lg hover:bg-accent/50">
                       <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                         <User className="w-4 h-4 text-primary-foreground" />
                       </div>
@@ -68,7 +68,7 @@ export function SiteHeader() {
                         <div className="text-xs text-muted-foreground">We will consult your Ad campaigns and manage your agency or internal team</div>
                       </div>
                     </NavigationMenuLink>
-                    <NavigationMenuLink href="#pricing" className="flex items-start space-x-3 p-3 rounded-lg hover:bg-accent/50">
+                    <NavigationMenuLink href="/#audits" className="flex items-start space-x-3 p-3 rounded-lg hover:bg-accent/50">
                       <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                         <FileText className="w-4 h-4 text-primary-foreground" />
                       </div>
@@ -77,7 +77,7 @@ export function SiteHeader() {
                         <div className="text-xs text-muted-foreground">Get an unbiased view on your campaigns</div>
                       </div>
                     </NavigationMenuLink>
-                    <NavigationMenuLink href="#pricing" className="flex items-start space-x-3 p-3 rounded-lg hover:bg-accent/50">
+                    <NavigationMenuLink href="/#automation" className="flex items-start space-x-3 p-3 rounded-lg hover:bg-accent/50">
                       <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                         <Bot className="w-4 h-4 text-primary-foreground" />
                       </div>
@@ -164,13 +164,13 @@ export function SiteHeader() {
               <nav className="py-4 space-y-4">
                 <div className="space-y-2">
                   <div className="text-sm font-medium text-muted-foreground">Marketing Consulting</div>
-                  <a href="#pricing" className="block text-sm hover:text-primary transition-colors ml-4">
+                  <a href="/#consulting" className="block text-sm hover:text-primary transition-colors ml-4">
                     Monthly Consulting
                   </a>
-                  <a href="#pricing" className="block text-sm hover:text-primary transition-colors ml-4">
+                  <a href="/#audits" className="block text-sm hover:text-primary transition-colors ml-4">
                     One-time Audit
                   </a>
-                  <a href="#pricing" className="block text-sm hover:text-primary transition-colors ml-4">
+                  <a href="/#automation" className="block text-sm hover:text-primary transition-colors ml-4">
                     Done-for-You Automatisation
                   </a>
                 </div>

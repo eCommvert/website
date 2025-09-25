@@ -1,10 +1,8 @@
 import { CaseStudiesSection } from "@/components/case-studies-section";
-import { SiteHeader } from "@/components/site-header";
 
 export default function CaseStudiesPage() {
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader />
       <main>
         <section className="pt-12">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">

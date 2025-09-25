@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { SiteHeader } from "@/components/site-header";
 import { 
   Zap, 
   Users,
@@ -225,7 +224,6 @@ export const ToolsPage = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SiteHeader />
       <main>
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-b from-background via-primary/10 to-background relative overflow-hidden">
