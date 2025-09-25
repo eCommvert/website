@@ -512,7 +512,7 @@ export const ToolsPage = () => {
                     </div>
                     <p className="text-muted-foreground mb-4 leading-relaxed">&ldquo;{testimonial.quote}&rdquo;</p>
                     <div>
-                      <div className="font-semibold">{testimonial.name}</div>
+                      <div className="font-semibold">{testimonial.author}</div>
                       <div className="text-muted-foreground text-sm">{testimonial.role} at {testimonial.company}</div>
                     </div>
                   </CardContent>
