@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { fetchLemonSqueezyProducts, LemonSqueezyProduct } from "@/lib/lemonsqueezy";
+import { FILTER_FACETS } from "@/lib/product-filters";
 import { MultiSelectWithCreate } from "@/components/ui/multi-select-with-create";
 
 // Types for our CMS data
@@ -270,6 +271,7 @@ export const AdminDashboard = () => {
   const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [products, setProducts] = useState<LemonSqueezyProduct[]>([]);
   const [productExtras, setProductExtras] = useState<Record<string, ProductExtra>>({});
+  const [productFiltersMap, setProductFiltersMap] = useState<Record<string, { platform?: string[]; dataBackend?: string; pricing?: string }>>({});
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
   const [blogTags, setBlogTags] = useState<BlogTag[]>([]);
@@ -636,6 +638,9 @@ export const AdminDashboard = () => {
   useEffect(() => {
     localStorage.setItem('admin-product-extras', JSON.stringify(productExtras));
   }, [productExtras]);
+  useEffect(() => {
+    localStorage.setItem('lemonsqueezy-product-filters-map', JSON.stringify(productFiltersMap));
+  }, [productFiltersMap]);
 
   // Export / Import / Backup helpers
   const downloadJson = (data: unknown, filename: string) => {
@@ -673,6 +678,10 @@ export const AdminDashboard = () => {
       if (json.productCategories) setProductCategories(json.productCategories);
       if (json.products) setProducts(json.products);
       if (json.productExtras) setProductExtras(json.productExtras);
+      try {
+        const savedFiltersMap = localStorage.getItem('lemonsqueezy-product-filters-map');
+        if (savedFiltersMap) setProductFiltersMap(JSON.parse(savedFiltersMap));
+      } catch {}
       if (json.blogPosts) setBlogPosts(json.blogPosts);
       if (json.settings) setSettings({
         autosave: !!json.settings.autosave,
@@ -2263,6 +2272,62 @@ export const AdminDashboard = () => {
                         }}
                         placeholder="Select or create categories"
                       />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div>
+                        <Label>Platform</Label>
+                        <Select
+                          value={(productFiltersMap[product.id]?.platform?.[0]) || 'all'}
+                          onValueChange={(val) => {
+                            const current = productFiltersMap[product.id] || {};
+                            const next = { ...current, platform: val === 'all' ? [] : [val] };
+                            setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
+                          }}
+                        >
+                          <SelectTrigger className="w-full"><SelectValue placeholder="Select platform" /></SelectTrigger>
+                          <SelectContent>
+                            {FILTER_FACETS.platform.map(opt => (
+                              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Data backend</Label>
+                        <Select
+                          value={(productFiltersMap[product.id]?.dataBackend) || 'all'}
+                          onValueChange={(val) => {
+                            const current = productFiltersMap[product.id] || {};
+                            const next = { ...current, dataBackend: val };
+                            setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
+                          }}
+                        >
+                          <SelectTrigger className="w-full"><SelectValue placeholder="Select backend" /></SelectTrigger>
+                          <SelectContent>
+                            {FILTER_FACETS.dataBackend.map(opt => (
+                              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Price</Label>
+                        <Select
+                          value={(productFiltersMap[product.id]?.pricing) || (product.attributes.price === 0 ? 'free' : 'paid')}
+                          onValueChange={(val) => {
+                            const current = productFiltersMap[product.id] || {};
+                            const next = { ...current, pricing: val };
+                            setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
+                          }}
+                        >
+                          <SelectTrigger className="w-full"><SelectValue placeholder="Select pricing" /></SelectTrigger>
+                          <SelectContent>
+                            {FILTER_FACETS.pricing.map(opt => (
+                              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                           <div className="space-y-2">
                             <Label>Gallery Images</Label>
