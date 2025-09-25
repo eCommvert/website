@@ -641,6 +641,33 @@ export const AdminDashboard = () => {
     localStorage.setItem('lemonsqueezy-product-filters-map', JSON.stringify(productFiltersMap));
   }, [productFiltersMap]);
 
+  // Persist a single product's filters to Supabase (best-effort)
+  const saveProductFilters = useCallback(async (productId: string) => {
+    try {
+      const filters = productFiltersMap[productId] || {};
+      const email = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || '';
+      await fetch('/api/admin/content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-email': email,
+        },
+        body: JSON.stringify({
+          table: 'product_filters',
+          mode: 'upsert',
+          payload: {
+            id: productId,
+            platform: filters.platform || [],
+            data_backend: filters.dataBackend || [],
+            pricing: filters.pricing || null,
+          },
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to save product filters', e);
+    }
+  }, [productFiltersMap, user]);
+
   // Export / Import / Backup helpers
   const downloadJson = (data: unknown, filename: string) => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -680,6 +707,22 @@ export const AdminDashboard = () => {
       try {
         const savedFiltersMap = localStorage.getItem('lemonsqueezy-product-filters-map');
         if (savedFiltersMap) setProductFiltersMap(JSON.parse(savedFiltersMap));
+        // Load from Supabase if available and merge over local
+        try {
+          const res = await fetch('/api/admin/content?table=product_filters');
+          if (res.ok) {
+            const json = await res.json();
+            const map: Record<string, { platform?: string[]; dataBackend?: string[]; pricing?: string }> = {};
+            (json.data || []).forEach((row: any) => {
+              map[row.id] = {
+                platform: row.platform || [],
+                dataBackend: row.data_backend || [],
+                pricing: row.pricing || undefined,
+              };
+            });
+            setProductFiltersMap(prev => ({ ...prev, ...map }));
+          }
+        } catch {}
       } catch {}
       if (json.blogPosts) setBlogPosts(json.blogPosts);
       if (json.settings) setSettings({
@@ -2278,9 +2321,14 @@ export const AdminDashboard = () => {
                             />
                           </div>
                           <div className="flex items-center justify-between">
-                            <Button variant="outline" size="sm" onClick={() => setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, draft: !extra.draft } }))}>
-                              {extra.draft ? 'Set Published' : 'Set Draft'}
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <Button variant="outline" size="sm" onClick={() => setProductExtras(prev => ({ ...prev, [product.id]: { ...extra, draft: !extra.draft } }))}>
+                                {extra.draft ? 'Set Published' : 'Set Draft'}
+                              </Button>
+                              <Button variant="default" size="sm" onClick={() => saveProductFilters(product.id)}>
+                                Save Filters
+                              </Button>
+                            </div>
                             <div className="text-sm text-slate-600">Price: {product.attributes.price_formatted}</div>
                           </div>
                   </CardContent>
