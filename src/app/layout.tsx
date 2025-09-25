@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import SiteChrome from "@/components/site-chrome";
 import { ClerkProvider } from "@clerk/nextjs";
 import { GTMScript } from "@/components/gtm";
 
@@ -30,9 +31,9 @@ export default function RootLayout({
             defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
+              >
+                <SiteChrome>{children}</SiteChrome>
+              </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

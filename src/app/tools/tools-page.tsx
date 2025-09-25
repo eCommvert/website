@@ -556,36 +556,7 @@ export const ToolsPage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-b from-background via-primary/10 to-background">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <Card className="bg-card border-border backdrop-blur-sm">
-              <CardContent className="p-8">
-                <h3 className="text-3xl font-bold mb-4">Ready to Transform Your Marketing?</h3>
-                <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                  Join 500+ marketing professionals who have already upgraded their operations with our tools.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                    Start Free Trial
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                  <Button variant="outline" className="border-border hover:bg-accent hover:text-accent-foreground">
-                    Schedule Demo
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
+      {/* CTA Section removed per request */}
       </main>
     </div>
   );
