@@ -14,6 +14,7 @@ import {
   Network
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   NavigationMenu,
@@ -39,14 +40,14 @@ export function SiteHeader() {
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <a href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-sm">eC</span>
               </div>
               <span className="font-bold text-xl">eCommvert<span className="text-orange-500">.</span></span>
             </div>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           {isMounted && (
@@ -164,15 +165,15 @@ export function SiteHeader() {
               <nav className="py-4 space-y-4">
                 <div className="space-y-2">
                   <div className="text-sm font-medium text-muted-foreground">Marketing Consulting</div>
-                  <a href="/#consulting" className="block text-sm hover:text-primary transition-colors ml-4">
+                  <Link href="/#consulting" className="block text-sm hover:text-primary transition-colors ml-4">
                     Monthly Consulting
-                  </a>
-                  <a href="/#audits" className="block text-sm hover:text-primary transition-colors ml-4">
+                  </Link>
+                  <Link href="/#audits" className="block text-sm hover:text-primary transition-colors ml-4">
                     One-time Audit
-                  </a>
-                  <a href="/#automation" className="block text-sm hover:text-primary transition-colors ml-4">
+                  </Link>
+                  <Link href="/#automation" className="block text-sm hover:text-primary transition-colors ml-4">
                     Done-for-You Automatisation
-                  </a>
+                  </Link>
                 </div>
                 <div className="space-y-2">
                   <div className="text-sm font-medium text-muted-foreground">Tools & Automatisation</div>
