@@ -713,11 +713,11 @@ export const AdminDashboard = () => {
           if (res.ok) {
             const json = await res.json();
             const map: Record<string, { platform?: string[]; dataBackend?: string[]; pricing?: string }> = {};
-            (json.data || []).forEach((row: any) => {
+            (json.data || []).forEach((row: { id: string; platform?: string[] | null; data_backend?: string[] | null; pricing?: string | null }) => {
               map[row.id] = {
-                platform: row.platform || [],
-                dataBackend: row.data_backend || [],
-                pricing: row.pricing || undefined,
+                platform: row.platform ?? [],
+                dataBackend: row.data_backend ?? [],
+                pricing: row.pricing ?? undefined,
               };
             });
             setProductFiltersMap(prev => ({ ...prev, ...map }));

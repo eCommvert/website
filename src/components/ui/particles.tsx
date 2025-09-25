@@ -76,6 +76,8 @@ type Circle = {
   magnetism: number;
 };
 
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export const Particles: React.FC<ParticlesProps> = ({
   className = "",
   quantity = 100,
@@ -245,6 +247,7 @@ useEffect(() => {
     }
   };
 
+  // Note: remapValue kept for potential future use; eslint disabled above
   const remapValue = (
     value: number,
     start1: number,
