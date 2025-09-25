@@ -2,8 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, MessageCircle, Mail } from "lucide-react";
-import { SiLinkedin, SiX } from "react-icons/si";
+import { ArrowRight, MessageCircle, Mail, Linkedin, Twitter } from "lucide-react";
 
 export function SiteFooter() {
   return (
@@ -25,10 +24,10 @@ export function SiteFooter() {
             </p>
             <div className="flex space-x-4">
               <Link href="https://www.linkedin.com/in/denis-capko/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-md hover:bg-accent transition-colors">
-                <SiLinkedin className="w-4 h-4" />
+                <Linkedin className="w-4 h-4" />
               </Link>
               <Link href="https://x.com/CapkoDenis" target="_blank" rel="noopener noreferrer" className="p-2 rounded-md hover:bg-accent transition-colors">
-                <SiX className="w-4 h-4" />
+                <Twitter className="w-4 h-4" />
               </Link>
             </div>
           </div>
