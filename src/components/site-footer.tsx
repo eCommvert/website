@@ -2,14 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { 
-  ArrowRight, 
-  MessageCircle,
-  Mail,
-  Phone,
-  Linkedin,
-  Twitter
-} from "lucide-react";
+import { ArrowRight, MessageCircle, Mail } from "lucide-react";
+import { SiLinkedin, SiX } from "react-icons/si";
 
 export function SiteFooter() {
   return (
@@ -30,12 +24,12 @@ export function SiteFooter() {
               Senior expertise with immediate availability.
             </p>
             <div className="flex space-x-4">
-              <Button variant="ghost" size="sm" className="p-2">
-                <Linkedin className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="sm" className="p-2">
-                <Twitter className="w-4 h-4" />
-              </Button>
+              <Link href="https://www.linkedin.com/in/denis-capko/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-md hover:bg-accent transition-colors">
+                <SiLinkedin className="w-4 h-4" />
+              </Link>
+              <Link href="https://x.com/CapkoDenis" target="_blank" rel="noopener noreferrer" className="p-2 rounded-md hover:bg-accent transition-colors">
+                <SiX className="w-4 h-4" />
+              </Link>
             </div>
           </div>
 
@@ -87,23 +81,23 @@ export function SiteFooter() {
           <div className="space-y-4">
             <h3 className="font-semibold">Get Started</h3>
             <div className="space-y-3">
-              <Button size="sm" className="w-full">
+              <Link href="/contact" className="w-full">
+                <Button size="sm" className="w-full">
                 Schedule Strategy Call
                 <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-              <Button variant="outline" size="sm" className="w-full">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Contact Us
-              </Button>
+                </Button>
+              </Link>
+              <Link href="/contact" className="w-full">
+                <Button variant="outline" size="sm" className="w-full">
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Contact Us
+                </Button>
+              </Link>
             </div>
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4" />
                 <span>hello@ecommvert.com</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Phone className="w-4 h-4" />
-                <span>+1 (555) 123-4567</span>
               </div>
             </div>
           </div>
