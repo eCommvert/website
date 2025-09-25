@@ -2,6 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Particles } from "@/components/ui/particles";
@@ -95,17 +99,49 @@ export function HeroSection() {
               transition={{ duration: 0.6, delay: 0.5 }}
               className="flex flex-col sm:flex-row gap-3 justify-center"
             >
-              <Button
-                size="default"
-                className="!pl-10 !pr-6 !py-3 text-base font-medium"
-                onClick={() => {
-                  const el = document.getElementById('audits');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                How We Can Help
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    size="default"
+                    className="!pl-10 !pr-6 !py-3 text-base font-medium shadow-sm hover:shadow-lg transition-shadow"
+                  >
+                    Get a tailored plan
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-lg">
+                  <DialogHeader>
+                    <DialogTitle>Tell us a bit about you</DialogTitle>
+                    <DialogDescription>
+                      Takes ~30 seconds. We’ll suggest the best next step (no commitment).
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-1">
+                      <Label htmlFor="name">Your name</Label>
+                      <Input id="name" placeholder="Alex Smith" />
+                    </div>
+                    <div className="grid gap-1">
+                      <Label htmlFor="company">Company</Label>
+                      <Input id="company" placeholder="Acme Co" />
+                    </div>
+                    <div className="grid gap-1">
+                      <Label htmlFor="goal">What’s your main goal?</Label>
+                      <Textarea id="goal" placeholder="e.g., scale Google Ads profitably, reduce CPA, automate reporting" />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      onClick={() => {
+                        const el = document.getElementById('consulting') || document.getElementById('audits');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                    >
+                      Get recommendations
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
               <Button
                 variant="outline"
                 size="default"
