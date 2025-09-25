@@ -20,6 +20,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
   const [platformTags, setPlatformTags] = useState<string[]>([]);
   const [dataBackend, setDataBackend] = useState<string | null>(null);
   const [pricingTag, setPricingTag] = useState<string | null>(null);
+  const [customHeadline, setCustomHeadline] = useState<string | null>(null);
 
   // Get the best available image URL
   const getImageUrl = () => {
@@ -70,6 +71,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
         if (entry?.dataBackend && entry.dataBackend !== 'all') setDataBackend(entry.dataBackend);
         if (entry?.pricing && entry.pricing !== 'all') setPricingTag(entry.pricing);
       }
+      const extrasRaw = localStorage.getItem('admin-product-extras');
+      if (extrasRaw) {
+        const extras = JSON.parse(extrasRaw) as Record<string, { headline?: string }>;
+        const extra = extras[product.id];
+        if (extra?.headline) setCustomHeadline(extra.headline);
+      }
     } catch {}
   }, [product.id]);
 
@@ -111,7 +118,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, index }) => {
             {/* Middle Column: Title, Description, Badges, Meta */}
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-semibold text-foreground leading-tight mb-1 line-clamp-1">
-                {attributes.name}
+                {customHeadline || attributes.name}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-2">
                 {truncateDescription(cleanRichText(attributes.description), 100)}

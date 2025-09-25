@@ -14,6 +14,17 @@ interface ProductCardVerticalProps {
 
 export const ProductCardVertical: React.FC<ProductCardVerticalProps> = ({ product, index }) => {
   const { attributes } = product;
+  const [customHeadline, setCustomHeadline] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    try {
+      const extrasRaw = localStorage.getItem('admin-product-extras');
+      if (extrasRaw) {
+        const extras = JSON.parse(extrasRaw) as Record<string, { headline?: string }>;
+        const extra = extras[product.id];
+        if (extra?.headline) setCustomHeadline(extra.headline);
+      }
+    } catch {}
+  }, [product.id]);
   const isFree = attributes.price === 0;
   const displayPrice = isFree ? "$0.00" : formatPrice(attributes.price);
 
@@ -30,7 +41,7 @@ export const ProductCardVertical: React.FC<ProductCardVerticalProps> = ({ produc
         )}
         <CardContent className="p-5 space-y-3">
           <div className="flex items-baseline justify-between gap-4">
-            <h3 className="text-lg md:text-xl font-semibold leading-tight line-clamp-2">{attributes.name}</h3>
+            <h3 className="text-lg md:text-xl font-semibold leading-tight line-clamp-2">{customHeadline || attributes.name}</h3>
             <div className="text-base font-semibold whitespace-nowrap">{displayPrice}</div>
           </div>
           <p className="text-sm md:text-base text-muted-foreground line-clamp-3">
