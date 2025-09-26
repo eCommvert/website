@@ -31,6 +31,7 @@ import Link from "next/link";
 import { fetchLemonSqueezyProducts, LemonSqueezyProduct } from "@/lib/lemonsqueezy";
 import { FILTER_FACETS } from "@/lib/product-filters";
 import { MultiSelectWithCreate } from "@/components/ui/multi-select-with-create";
+import { MultiSelectPopover } from "@/components/ui/multi-select-popover";
 
 // Types for our CMS data
 interface Testimonial {
@@ -2214,55 +2215,33 @@ export const AdminDashboard = () => {
                       />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div>
-                        <Label>Platform (multi)</Label>
-                        <div className="border rounded-md p-2 space-y-1">
-                          {FILTER_FACETS.platform.map(opt => {
-                            const sel = new Set(productFiltersMap[product.id]?.platform || []);
-                            const checked = sel.has(opt.value);
-                            return (
-                              <label key={opt.value} className="flex items-center gap-2 text-sm">
-                                <input
-                                  type="checkbox"
-                                  checked={checked}
-                                  onChange={(e) => {
-                                    const current = productFiltersMap[product.id] || {};
-                                    const nextSet = new Set<string>(current.platform || []);
-                                    if (e.target.checked) nextSet.add(opt.value); else nextSet.delete(opt.value);
-                                    const next = { ...current, platform: Array.from(nextSet) };
-                                    setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
-                                  }}
-                                />
-                                {opt.label}
-                              </label>
-                            );
-                          })}
-                        </div>
+                      <div className="space-y-1">
+                        <Label>Platform</Label>
+                        <MultiSelectPopover
+                          label="Platforms"
+                          options={FILTER_FACETS.platform.map(p => ({ id: p.value, label: p.label }))}
+                          selected={productFiltersMap[product.id]?.platform || []}
+                          onChange={(ids) => {
+                            const current = productFiltersMap[product.id] || {};
+                            const next = { ...current, platform: ids };
+                            setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
+                          }}
+                          defaultAllHint="All platforms (default)"
+                        />
                       </div>
-                      <div>
-                        <Label>Data backend (multi)</Label>
-                        <div className="border rounded-md p-2 space-y-1">
-                          {FILTER_FACETS.dataBackend.map(opt => {
-                            const sel = new Set(productFiltersMap[product.id]?.dataBackend || []);
-                            const checked = sel.has(opt.value);
-                            return (
-                              <label key={opt.value} className="flex items-center gap-2 text-sm">
-                                <input
-                                  type="checkbox"
-                                  checked={checked}
-                                  onChange={(e) => {
-                                    const current = productFiltersMap[product.id] || {};
-                                    const nextSet = new Set<string>(current.dataBackend || []);
-                                    if (e.target.checked) nextSet.add(opt.value); else nextSet.delete(opt.value);
-                                    const next = { ...current, dataBackend: Array.from(nextSet) };
-                                    setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
-                                  }}
-                                />
-                                {opt.label}
-                              </label>
-                            );
-                          })}
-                        </div>
+                      <div className="space-y-1">
+                        <Label>Data backend</Label>
+                        <MultiSelectPopover
+                          label="Data backends"
+                          options={FILTER_FACETS.dataBackend.map(p => ({ id: p.value, label: p.label }))}
+                          selected={productFiltersMap[product.id]?.dataBackend || []}
+                          onChange={(ids) => {
+                            const current = productFiltersMap[product.id] || {};
+                            const next = { ...current, dataBackend: ids };
+                            setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
+                          }}
+                          defaultAllHint="All data backends (default)"
+                        />
                       </div>
                       <div>
                         <Label>Price</Label>
