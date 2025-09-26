@@ -146,7 +146,7 @@ export const CaseStudyDetailModal = ({ caseStudy, isOpen, onClose }: CaseStudyDe
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent fullscreen showCloseButton className="max-w-none">
+      <DialogContent showCloseButton className="max-w-5xl w-[96vw] md:w-[92vw]">
         <DialogHeader className="space-y-4 px-6 pt-6">
           <div className="flex items-start justify-between">
             <div className="space-y-2">

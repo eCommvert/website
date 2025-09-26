@@ -37,7 +37,8 @@ const socialProofItems = [
 
 export function SocialProofSection() {
   return (
-    <section className="py-16 md:py-20 bg-background">
+    <section className="py-16 md:py-20 bg-muted/40 border-t border-white/10 relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5" />
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         {/* Authority Section */}
         <motion.div
