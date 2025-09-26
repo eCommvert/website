@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import * as Pop from "@radix-ui/react-popover";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 type Option = { id: string; label: string };
 
@@ -46,28 +46,31 @@ export function MultiSelectPopover({ label, options, selected, onChange, placeho
   const countText = (selected && selected.length > 0) ? `${selected.length} selected` : defaultAllHint;
 
   return (
-    <Pop.Root open={open} onOpenChange={setOpen}>
-      <Pop.Trigger asChild>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
         <Button variant="outline" size="sm" className="justify-between w-full">
           <span className="truncate text-left">{label}: {countText}</span>
           <span className="opacity-60 ml-2">▾</span>
         </Button>
-      </Pop.Trigger>
-      <Pop.Content sideOffset={6} className="z-50 rounded-md border bg-popover p-3 text-popover-foreground shadow-md w-64">
-        <div className="space-y-2">
-          <Input placeholder={placeholder} value={query} onChange={(e) => setQuery(e.target.value)} className="h-8" />
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <button onClick={selectAll} className="hover:text-foreground">Select all</button>
-            <button onClick={clear} className="hover:text-foreground">Clear</button>
+      </SheetTrigger>
+      <SheetContent side="bottom" className="h-[80vh]">
+        <SheetHeader>
+          <SheetTitle>Select {label}</SheetTitle>
+        </SheetHeader>
+        <div className="space-y-4 mt-4">
+          <Input placeholder={placeholder} value={query} onChange={(e) => setQuery(e.target.value)} className="h-10" />
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <button onClick={selectAll} className="hover:text-foreground font-medium">Select all</button>
+            <button onClick={clear} className="hover:text-foreground font-medium">Clear</button>
           </div>
-          <div className="max-h-56 overflow-auto rounded-md border">
+          <div className="flex-1 overflow-auto rounded-md border max-h-[50vh]">
             {filtered.length === 0 ? (
-              <div className="p-3 text-sm text-muted-foreground">No options</div>
+              <div className="p-4 text-sm text-muted-foreground text-center">No options found</div>
             ) : (
               filtered.map(opt => {
                 const checked = local.includes(opt.id);
                 return (
-                  <label key={opt.id} className="flex items-center gap-2 px-3 py-2 text-sm border-b last:border-b-0 cursor-pointer hover:bg-accent/40">
+                  <label key={opt.id} className="flex items-center gap-3 px-4 py-3 text-sm border-b last:border-b-0 cursor-pointer hover:bg-accent/40">
                     <input
                       type="checkbox"
                       className="h-4 w-4"
@@ -86,13 +89,13 @@ export function MultiSelectPopover({ label, options, selected, onChange, placeho
               })
             )}
           </div>
-          <div className="flex items-center justify-end gap-2 pt-1">
-            <Button variant="outline" size="sm" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button size="sm" onClick={apply}>Apply</Button>
+          <div className="flex items-center justify-end gap-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button onClick={apply}>Apply</Button>
           </div>
         </div>
-      </Pop.Content>
-    </Pop.Root>
+      </SheetContent>
+    </Sheet>
   );
 }
 
