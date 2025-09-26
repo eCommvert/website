@@ -91,10 +91,10 @@ export function SiteHeader() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
-              {/* Tools & Automatisation */}
+              {/* Tools for Marketers */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent hover:bg-accent/50">
-                  Tools & Automatisation
+                  Tools for Marketers
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <div className="grid gap-3 p-4 w-[400px]">
@@ -176,16 +176,16 @@ export function SiteHeader() {
                   </Link>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-sm font-medium text-muted-foreground">Tools & Automatisation</div>
-                  <a href="/tools" className="block text-sm hover:text-primary transition-colors ml-4">
+                  <div className="text-sm font-medium text-muted-foreground">Tools for Marketers</div>
+                  <Link href="/tools" className="block text-sm hover:text-primary transition-colors ml-4">
                     All Tools
-                  </a>
-                  <a href="/tools" className="block text-sm hover:text-primary transition-colors ml-4">
+                  </Link>
+                  <Link href="/tools" className="block text-sm hover:text-primary transition-colors ml-4">
                     By Platform
-                  </a>
-                  <a href="/tools" className="block text-sm hover:text-primary transition-colors ml-4">
+                  </Link>
+                  <Link href="/tools" className="block text-sm hover:text-primary transition-colors ml-4">
                     By Automatisation tool
-                  </a>
+                  </Link>
                 </div>
                 <div className="pt-4 space-y-3">
                   <div className="flex items-center justify-between">
