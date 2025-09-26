@@ -146,15 +146,15 @@ export const CaseStudyDetailModal = ({ caseStudy, isOpen, onClose }: CaseStudyDe
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[96vw] md:w-[94vw] lg:w-[92vw] max-w-none max-h-[92vh] overflow-y-auto">
-        <DialogHeader className="space-y-4">
+      <DialogContent fullscreen showCloseButton className="max-w-none">
+        <DialogHeader className="space-y-4 px-6 pt-6">
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Badge variant="secondary">{caseStudy.category}</Badge>
                 <Badge variant="outline">{caseStudy.industry}</Badge>
               </div>
-              <DialogTitle className="text-2xl md:text-3xl">{caseStudy.title}</DialogTitle>
+              <DialogTitle className="text-2xl md:text-4xl lg:text-5xl leading-tight">{caseStudy.title}</DialogTitle>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Building className="w-4 h-4" />
@@ -170,16 +170,14 @@ export const CaseStudyDetailModal = ({ caseStudy, isOpen, onClose }: CaseStudyDe
                 </div>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close case study">
-              <X className="w-4 h-4" />
-            </Button>
+            {/* Remove duplicate close; DialogContent renders one */}
           </div>
         </DialogHeader>
 
-        <div className="space-y-8">
+        <div className="space-y-8 px-6 pb-10">
           {/* Hero Image */}
           {detailedContent?.heroImage && (
-            <div className="relative h-64 md:h-80 rounded-lg overflow-hidden">
+            <div className="relative h-64 md:h-[28rem] rounded-lg overflow-hidden">
               <Image
                 src={detailedContent.heroImage}
                 alt={caseStudy.title}

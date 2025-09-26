@@ -12,25 +12,25 @@ import { motion } from "framer-motion";
 
 const socialProofItems = [
   {
-    icon: Star,
-    title: "Former Google Ads Team Member",
-    subtitle: "9+ Years Scaling E-commerce Businesses",
-    description: "Strategic Partner to Agencies & In-House Teams",
-    color: "text-primary"
-  },
-  {
     icon: Users,
-    title: "Limited Client Load for Maximum Attention",
-    subtitle: "Handful of Clients for Quality Over Quantity",
-    description: "Senior Strategic Oversight, Not Junior Execution",
+    title: "Limited Client Load",
+    subtitle: "",
+    description: "We work with a handful of partners at a time. Senior attention on every account — no junior handoffs.",
     color: "text-blue-600"
   },
   {
+    icon: Star,
+    title: "No Hiring Risk — Cancel Anytime",
+    subtitle: "",
+    description: "Start fast without long contracts. Stay month-to-month and pause when you no longer need us.",
+    color: "text-purple-600"
+  },
+  {
     icon: TrendingUp,
-    title: "Average 20%+ Efficiency Improvements",
-    subtitle: "Strategic Roadmaps Worth Months of Work",
-    description: "Immediate Start vs. 2-3 Month Hiring Process",
-    color: "text-green-600"
+    title: "Aligned on Outcomes",
+    subtitle: "",
+    description: "Success fee options available. We tie incentives to results — not hours logged.",
+    color: "text-primary"
   }
 ];
 
@@ -47,16 +47,9 @@ export function SocialProofSection() {
           viewport={{ once: true }}
           className="text-center space-y-4 mb-16"
         >
-          <Badge variant="secondary" className="px-4 py-2">
-            Trusted Expertise
-          </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold">
-            Why E-commerce Brands Choose eCommvert
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Senior expertise with immediate availability and no hiring risk. 
-            Strategic oversight that bridges CMO vision and agency execution.
-          </p>
+          <Badge variant="secondary" className="px-4 py-2">Why E-commerce Brands Choose eCommvert</Badge>
+          <h2 className="text-3xl md:text-4xl font-bold">Built for speed, seniority and flexibility</h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Partner directly with senior expertise, start quickly, and keep full flexibility with month-to-month engagement and outcome-aligned models.</p>
         </motion.div>
 
         {/* Social Proof Cards */}

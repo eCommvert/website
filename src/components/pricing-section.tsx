@@ -75,7 +75,7 @@ export function PricingSection() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col">
-                  <div className="text-2xl font-bold mb-6">$3,990 / monthly</div>
+                  <div className="text-2xl font-bold mb-6">from $3,000 / monthly</div>
                   <div className="space-y-3 flex-1">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
@@ -102,7 +102,7 @@ export function PricingSection() {
                 <CardFooter className="flex flex-col gap-3 pt-6">
                   <Button 
                     className="w-full bg-primary hover:bg-primary/90"
-                    onClick={() => window.open('https://calendar.app.google/UxGcM27wsoNqLHL1A', '_blank')}
+                    onClick={() => window.open('https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0e87iaSbJPqTsbMqqXVe9gyZJEji1ZsPaujJP5MO8ljbXyzjHOOUJ97qHhE8VeP_HiD-xj914j', '_blank')}
                   >
                     Book a Call
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -143,7 +143,7 @@ export function PricingSection() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col">
-                  <div className="text-2xl font-bold mb-6">from $2,500 + success fee</div>
+                  <div className="text-2xl font-bold mb-6">from $2,000 + success fee</div>
                   <div className="space-y-3 flex-1">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
@@ -170,7 +170,7 @@ export function PricingSection() {
                 <CardFooter className="flex flex-col gap-3 pt-6">
                   <Button 
                     className="w-full bg-primary hover:bg-primary/90"
-                    onClick={() => window.open('https://calendar.app.google/UxGcM27wsoNqLHL1A', '_blank')}
+                    onClick={() => window.open('https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0e87iaSbJPqTsbMqqXVe9gyZJEji1ZsPaujJP5MO8ljbXyzjHOOUJ97qHhE8VeP_HiD-xj914j', '_blank')}
                   >
                     Book a Call
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -274,7 +274,7 @@ export function PricingSection() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold mb-4">from €500</div>
+                  <div className="text-3xl font-bold mb-4">from €1,000 monthly</div>
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-primary" />
@@ -299,8 +299,8 @@ export function PricingSection() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full bg-primary hover:bg-primary/90">
-                    Request Custom Solution
+                  <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => window.open('https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0e87iaSbJPqTsbMqqXVe9gyZJEji1ZsPaujJP5MO8ljbXyzjHOOUJ97qHhE8VeP_HiD-xj914j', '_blank')}>
+                    Automate Marketing Tasks
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </CardFooter>

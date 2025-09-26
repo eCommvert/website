@@ -80,13 +80,13 @@ export function SiteFooter() {
           <div className="space-y-4">
             <h3 className="font-semibold">Get Started</h3>
             <div className="space-y-3">
-              <Link href="/contact" className="w-full">
+              <Link href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0e87iaSbJPqTsbMqqXVe9gyZJEji1ZsPaujJP5MO8ljbXyzjHOOUJ97qHhE8VeP_HiD-xj914j" target="_blank" rel="noopener noreferrer" className="w-full">
                 <Button size="sm" className="w-full">
-                Schedule Strategy Call
-                <ArrowRight className="w-4 h-4 ml-2" />
+                  Schedule Strategy Call
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
-              <Link href="/contact" className="w-full">
+              <Link href="mailto:ads@ecommvert.com" className="w-full">
                 <Button variant="outline" size="sm" className="w-full">
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Contact Us
@@ -96,7 +96,7 @@ export function SiteFooter() {
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4" />
-                <span>hello@ecommvert.com</span>
+                <span>ads@ecommvert.com</span>
               </div>
             </div>
           </div>

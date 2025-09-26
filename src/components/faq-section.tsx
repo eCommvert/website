@@ -120,12 +120,16 @@ export const FAQSection = () => {
                 We&apos;re here to help! Schedule a free consultation to discuss your specific needs and how we can help you achieve your goals.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                  Schedule Free Consultation
-                </Button>
-                <Button variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10">
-                  Contact Us
-                </Button>
+                <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0e87iaSbJPqTsbMqqXVe9gyZJEji1ZsPaujJP5MO8ljbXyzjHOOUJ97qHhE8VeP_HiD-xj914j" target="_blank" rel="noopener noreferrer">
+                  <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                    Schedule Free Consultation
+                  </Button>
+                </a>
+                <a href="mailto:ads@ecommvert.com">
+                  <Button variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10">
+                    Contact Us
+                  </Button>
+                </a>
               </div>
             </CardContent>
           </Card>
