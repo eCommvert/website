@@ -2,10 +2,8 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover" as any;
-// Using Radix directly to avoid adding another wrapper; site already uses shadcn primitives
-import * as Pop from "@radix-ui/react-popover";
 import { Input } from "@/components/ui/input";
+import * as Pop from "@radix-ui/react-popover";
 
 type Option = { id: string; label: string };
 
