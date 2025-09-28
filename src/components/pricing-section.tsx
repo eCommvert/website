@@ -212,7 +212,7 @@ export function PricingSection() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold mb-4">$2,000 / one-time payment</div>
+                  <div className="text-2xl font-bold mb-6">$2,000 / one-time payment</div>
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-primary" />
@@ -274,7 +274,7 @@ export function PricingSection() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold mb-4">from €1,000 monthly</div>
+                  <div className="text-2xl font-bold mb-6">from €1,000 monthly</div>
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-primary" />

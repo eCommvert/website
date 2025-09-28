@@ -32,6 +32,7 @@ import { fetchLemonSqueezyProducts, LemonSqueezyProduct } from "@/lib/lemonsquee
 import { FILTER_FACETS } from "@/lib/product-filters";
 import { MultiSelectWithCreate } from "@/components/ui/multi-select-with-create";
 import { MultiSelectPopover } from "@/components/ui/multi-select-popover";
+import { CheckboxDropdown } from "@/components/ui/checkbox-dropdown";
 
 // Types for our CMS data
 interface Testimonial {
@@ -264,7 +265,7 @@ const mockProductCategories: ProductCategory[] = [
 ];
 
 export const AdminDashboard = () => {
-  const { user } = useUser();
+  const { user, isLoaded: clerkLoaded } = useUser();
   const [activeTab, setActiveTab] = useState("products");
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
@@ -391,6 +392,39 @@ export const AdminDashboard = () => {
         console.error('Error parsing product extras:', e);
       }
     }
+
+    // Load product filters from localStorage
+    const savedFiltersMap = localStorage.getItem('lemonsqueezy-product-filters-map');
+    if (savedFiltersMap) {
+      try {
+        setProductFiltersMap(JSON.parse(savedFiltersMap));
+      } catch (e) {
+        console.error('Error parsing product filters map:', e);
+      }
+    }
+
+    // Load product filters from Supabase and merge with local data
+    const loadProductFiltersFromServer = async () => {
+      try {
+        const res = await fetch('/api/admin/content?table=product_filters');
+        if (res.ok) {
+          const json = await res.json();
+          const serverMap: Record<string, { platform?: string[]; dataBackend?: string[]; pricing?: string }> = {};
+          (json.data || []).forEach((row: { id: string; platform?: string[] | null; data_backend?: string[] | null; pricing?: string | null }) => {
+            serverMap[row.id] = {
+              platform: row.platform ?? [],
+              dataBackend: row.data_backend ?? [],
+              pricing: row.pricing ?? undefined,
+            };
+          });
+          setProductFiltersMap(prev => ({ ...prev, ...serverMap }));
+        }
+      } catch (e) {
+        console.error('Error loading product filters from server:', e);
+      }
+    };
+    
+    loadProductFiltersFromServer();
     
     setIsLoaded(true);
   }, []);
@@ -914,12 +948,40 @@ export const AdminDashboard = () => {
     item.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (!isLoaded) {
+  // Show loading while Clerk is loading or dashboard data is loading
+  if (!clerkLoaded || !isLoaded) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading admin dashboard...</p>
+          <p className="text-slate-600">
+            {!clerkLoaded ? 'Loading authentication...' : 'Loading admin dashboard...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if Clerk failed to load but we have no user
+  if (clerkLoaded && !user) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">
+            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-slate-900 mb-2">Authentication Error</h2>
+          <p className="text-slate-600 mb-4">
+            Failed to load authentication. Please check your Clerk configuration.
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -2217,30 +2279,30 @@ export const AdminDashboard = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div className="space-y-1">
                         <Label>Platform</Label>
-                        <MultiSelectPopover
-                          label="Platforms"
-                          options={FILTER_FACETS.platform.map(p => ({ id: p.value, label: p.label }))}
+                        <CheckboxDropdown
+                          label="Platform"
+                          options={FILTER_FACETS.platform.filter(p => p.value !== 'all').map(p => ({ value: p.value, label: p.label }))}
                           selected={productFiltersMap[product.id]?.platform || []}
-                          onChange={(ids) => {
+                          onChange={(selected) => {
                             const current = productFiltersMap[product.id] || {};
-                            const next = { ...current, platform: ids };
+                            const next = { ...current, platform: selected };
                             setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
                           }}
-                          defaultAllHint="All platforms (default)"
+                          placeholder="All platforms"
                         />
                       </div>
                       <div className="space-y-1">
                         <Label>Data backend</Label>
-                        <MultiSelectPopover
-                          label="Data backends"
-                          options={FILTER_FACETS.dataBackend.map(p => ({ id: p.value, label: p.label }))}
+                        <CheckboxDropdown
+                          label="Data backend"
+                          options={FILTER_FACETS.dataBackend.filter(p => p.value !== 'all').map(p => ({ value: p.value, label: p.label }))}
                           selected={productFiltersMap[product.id]?.dataBackend || []}
-                          onChange={(ids) => {
+                          onChange={(selected) => {
                             const current = productFiltersMap[product.id] || {};
-                            const next = { ...current, dataBackend: ids };
+                            const next = { ...current, dataBackend: selected };
                             setProductFiltersMap(prev => ({ ...prev, [product.id]: next }));
                           }}
-                          defaultAllHint="All data backends (default)"
+                          placeholder="All data backends"
                         />
                       </div>
                       <div>

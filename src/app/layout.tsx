@@ -21,21 +21,31 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Check if Clerk keys are available
+  const hasClerkKeys = !!(
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && 
+    process.env.CLERK_SECRET_KEY
+  );
+
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body suppressHydrationWarning className={`${inter.variable} font-sans antialiased`}>
-          <GTMScript />
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-              >
-                <SiteChrome>{children}</SiteChrome>
-              </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning className={`${inter.variable} font-sans antialiased`}>
+        <GTMScript />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {hasClerkKeys ? (
+            <ClerkProvider>
+              <SiteChrome>{children}</SiteChrome>
+            </ClerkProvider>
+          ) : (
+            <SiteChrome>{children}</SiteChrome>
+          )}
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }
