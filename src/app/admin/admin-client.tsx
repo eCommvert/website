@@ -6,6 +6,11 @@ import AdminPage from "./admin-page";
 export default function AdminClient() {
   const { user, isLoaded } = useUser();
   
+  // Emergency switch to bypass Clerk entirely (set NEXT_PUBLIC_DISABLE_CLERK=true)
+  if (process.env.NEXT_PUBLIC_DISABLE_CLERK === 'true') {
+    return <AdminPage />;
+  }
+  
   // Check if user has admin role in Clerk metadata (server-side verified)
   const isAllowed = user?.publicMetadata?.role === 'admin' || 
                    user?.publicMetadata?.admin === true ||
