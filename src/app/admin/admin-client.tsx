@@ -3,15 +3,13 @@
 import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/nextjs";
 import AdminPage from "./admin-page";
 
-const OWNER_EMAILS = (process.env.NEXT_PUBLIC_OWNER_EMAILS || "")
-  .split(",")
-  .map((v) => v.trim())
-  .filter(Boolean);
-
 export default function AdminClient() {
   const { user, isLoaded } = useUser();
-  const email = user?.primaryEmailAddress?.emailAddress || "";
-  const isAllowed = OWNER_EMAILS.length === 0 || OWNER_EMAILS.includes(email);
+  
+  // Check if user has admin role in Clerk metadata (server-side verified)
+  const isAllowed = user?.publicMetadata?.role === 'admin' || 
+                   user?.publicMetadata?.admin === true ||
+                   user?.publicMetadata?.owner === true;
 
   // Check if Clerk keys are available (runtime check for satellite mode)
   const hasClerkKeys = !!(
