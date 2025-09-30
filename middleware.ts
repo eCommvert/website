@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server';
 
 // In local development without Clerk keys, make middleware a no-op to prevent blocking routes
 const hasClerk = !!process.env.CLERK_SECRET_KEY;
+const debugMode = process.env.CLERK_DEBUG === 'true';
 
-export default hasClerk ? clerkMiddleware() : function middleware() {
+export default (hasClerk && !debugMode) ? clerkMiddleware() : function middleware() {
   return NextResponse.next();
 };
 
