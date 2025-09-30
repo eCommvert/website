@@ -12,6 +12,7 @@ export const config = {
   matcher: [
     // Only run Clerk middleware where it's actually needed to avoid site-wide failures
     '/admin(.*)',
-    '/api/(.*)'
+    // Exclude diagnostic routes from Clerk middleware
+    '/((?!api/_clerk-env|api/_health).*)'
   ],
 };
