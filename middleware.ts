@@ -11,9 +11,8 @@ export default (hasClerk && !debugMode) ? clerkMiddleware() : function middlewar
 
 export const config = {
   matcher: [
-    // Only run Clerk middleware where it's actually needed to avoid site-wide failures
+    // Only run Clerk middleware on admin routes, exclude diagnostic APIs
     '/admin(.*)',
-    // Exclude diagnostic routes from Clerk middleware
-    '/((?!api/_clerk-env|api/_health).*)'
+    '/((?!api/_clerk-env|api/_health|api/lemonsqueezy).*)'
   ],
 };
