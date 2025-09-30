@@ -89,8 +89,8 @@ export const ToolsPage = () => {
     const loadProducts = async () => {
       setLoading(true);
       try {
-        // Replace 'your-store-id' with your actual LemonSqueezy store ID
-        const storeId = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_ID || "your-store-id";
+        // Use a default store ID if not set in env vars
+        const storeId = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_ID || "12345";
         const fetchedProducts = await fetchLemonSqueezyProducts(storeId);
         
         // Debug: Log the first product to see the structure

@@ -13,10 +13,9 @@ export default function AdminClient() {
   const email = user?.primaryEmailAddress?.emailAddress || "";
   const isAllowed = OWNER_EMAILS.length === 0 || OWNER_EMAILS.includes(email);
 
-  // Check if Clerk keys are available
+  // Check if Clerk keys are available (runtime check for satellite mode)
   const hasClerkKeys = !!(
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && 
-    process.env.CLERK_SECRET_KEY
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
   );
 
   // If no Clerk keys, show admin page directly (for development)
