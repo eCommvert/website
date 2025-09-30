@@ -1,10 +1,8 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
-// In local development without Clerk keys, make middleware a no-op to prevent blocking routes
-const hasClerk = !!process.env.CLERK_SECRET_KEY;
-
-export default hasClerk ? clerkMiddleware() : function middleware() {
+// Temporarily disable Clerk middleware to fix site-wide 500s
+// We'll re-enable it once Clerk is properly configured
+export default function middleware() {
   return NextResponse.next();
 };
 
