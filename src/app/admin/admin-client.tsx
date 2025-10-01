@@ -6,6 +6,9 @@ import AdminPage from "./admin-page";
 export default function AdminClient() {
   const { user, isLoaded } = useUser();
   
+  // Debug logging
+  console.log('AdminClient - isLoaded:', isLoaded, 'user:', user);
+  
   // Check if user has admin role in Clerk metadata (server-side verified)
   const isAllowed = user?.publicMetadata?.role === 'admin' || 
                    user?.publicMetadata?.admin === true ||
@@ -27,6 +30,9 @@ export default function AdminClient() {
       <div className="container mx-auto p-6 text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
         <p>Loading authentication...</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          If this takes too long, please refresh the page.
+        </p>
       </div>
     );
   }
