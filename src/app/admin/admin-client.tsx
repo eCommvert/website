@@ -19,13 +19,18 @@ export default function AdminClient() {
     process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
   );
 
+  // Debug: Log the environment check
+  console.log('hasClerkKeys:', hasClerkKeys, 'isLoaded:', isLoaded);
+
   // If no Clerk keys, show admin page directly (for development)
   if (!hasClerkKeys) {
+    console.log('No Clerk keys found, showing admin page directly');
     return <AdminPage />;
   }
 
-  // Show loading while Clerk is loading
+  // Show loading while Clerk is loading, but with a timeout
   if (!isLoaded) {
+    console.log('Clerk not loaded yet, showing loading state');
     return (
       <div className="container mx-auto p-6 text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
@@ -33,6 +38,12 @@ export default function AdminClient() {
         <p className="text-sm text-muted-foreground mt-2">
           If this takes too long, please refresh the page.
         </p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+        >
+          Refresh Page
+        </button>
       </div>
     );
   }

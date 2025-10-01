@@ -27,6 +27,11 @@ export default function RootLayout({
     process.env.CLERK_SECRET_KEY
   );
 
+  // Debug logging
+  console.log('RootLayout - hasClerkKeys:', hasClerkKeys);
+  console.log('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY exists:', !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+  console.log('CLERK_SECRET_KEY exists:', !!process.env.CLERK_SECRET_KEY);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning className={`${inter.variable} font-sans antialiased`}>
