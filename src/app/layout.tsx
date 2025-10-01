@@ -35,8 +35,14 @@ export default function RootLayout({
             publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
             signInUrl="https://actual-katydid-51.accounts.dev/sign-in"
             signUpUrl="https://actual-katydid-51.accounts.dev/sign-up"
-            afterSignInUrl="/admin"
-            afterSignUpUrl="/admin"
+            signInFallbackRedirectUrl="/admin"
+            signUpFallbackRedirectUrl="/admin"
+            appearance={{
+              baseTheme: undefined,
+              variables: {
+                colorPrimary: '#000000',
+              },
+            }}
           >
             <SiteChrome>{children}</SiteChrome>
           </ClerkProvider>
