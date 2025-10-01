@@ -21,17 +21,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Check if Clerk keys are available
-  const hasClerkKeys = !!(
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && 
-    process.env.CLERK_SECRET_KEY
-  );
-
-  // Debug logging
-  console.log('RootLayout - hasClerkKeys:', hasClerkKeys);
-  console.log('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY exists:', !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
-  console.log('CLERK_SECRET_KEY exists:', !!process.env.CLERK_SECRET_KEY);
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning className={`${inter.variable} font-sans antialiased`}>
@@ -42,19 +31,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {hasClerkKeys ? (
-            <ClerkProvider
-              publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-              signInUrl="https://actual-katydid-51.accounts.dev/sign-in"
-              signUpUrl="https://actual-katydid-51.accounts.dev/sign-up"
-              afterSignInUrl="/admin"
-              afterSignUpUrl="/admin"
-            >
-              <SiteChrome>{children}</SiteChrome>
-            </ClerkProvider>
-          ) : (
+          <ClerkProvider
+            publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+            signInUrl="https://actual-katydid-51.accounts.dev/sign-in"
+            signUpUrl="https://actual-katydid-51.accounts.dev/sign-up"
+            afterSignInUrl="/admin"
+            afterSignUpUrl="/admin"
+          >
             <SiteChrome>{children}</SiteChrome>
-          )}
+          </ClerkProvider>
         </ThemeProvider>
       </body>
     </html>

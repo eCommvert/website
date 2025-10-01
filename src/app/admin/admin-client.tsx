@@ -6,31 +6,14 @@ import AdminPage from "./admin-page";
 export default function AdminClient() {
   const { user, isLoaded } = useUser();
   
-  // Debug logging
-  console.log('AdminClient - isLoaded:', isLoaded, 'user:', user);
   
   // Check if user has admin role in Clerk metadata (server-side verified)
   const isAllowed = user?.publicMetadata?.role === 'admin' || 
                    user?.publicMetadata?.admin === true ||
                    user?.publicMetadata?.owner === true;
 
-  // Check if Clerk keys are available (runtime check for satellite mode)
-  const hasClerkKeys = !!(
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-  );
-
-  // Debug: Log the environment check
-  console.log('hasClerkKeys:', hasClerkKeys, 'isLoaded:', isLoaded);
-
-  // If no Clerk keys, show admin page directly (for development)
-  if (!hasClerkKeys) {
-    console.log('No Clerk keys found, showing admin page directly');
-    return <AdminPage />;
-  }
-
   // Show loading while Clerk is loading
   if (!isLoaded) {
-    console.log('Clerk not loaded yet, showing loading state');
     return (
       <div className="container mx-auto p-6 text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
