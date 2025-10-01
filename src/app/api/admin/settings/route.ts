@@ -1,27 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSupabase } from "@/lib/server-supabase";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 
 // GET /api/admin/settings - Get all settings
 export async function GET() {
   try {
-    // Try multiple authentication methods
-    let userId;
-    let user;
-    
-    try {
-      const authResult = await auth();
-      userId = authResult.userId;
-    } catch (error) {
-      console.log("Auth method 1 failed, trying currentUser");
-      try {
-        user = await currentUser();
-        userId = user?.id;
-      } catch (error2) {
-        console.log("Auth method 2 failed");
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-    }
+    const { userId } = await auth();
     
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -57,23 +41,7 @@ export async function GET() {
 // POST /api/admin/settings - Save settings
 export async function POST(request: NextRequest) {
   try {
-    // Try multiple authentication methods
-    let userId;
-    let user;
-    
-    try {
-      const authResult = await auth();
-      userId = authResult.userId;
-    } catch (error) {
-      console.log("Auth method 1 failed, trying currentUser");
-      try {
-        user = await currentUser();
-        userId = user?.id;
-      } catch (error2) {
-        console.log("Auth method 2 failed");
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-    }
+    const { userId } = await auth();
     
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

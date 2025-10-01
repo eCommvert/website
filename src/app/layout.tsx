@@ -37,12 +37,6 @@ export default function RootLayout({
             signUpUrl="https://actual-katydid-51.accounts.dev/sign-up"
             signInFallbackRedirectUrl="/admin"
             signUpFallbackRedirectUrl="/admin"
-            appearance={{
-              baseTheme: undefined,
-              variables: {
-                colorPrimary: '#000000',
-              },
-            }}
           >
             <SiteChrome>{children}</SiteChrome>
           </ClerkProvider>
