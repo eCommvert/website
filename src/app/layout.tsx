@@ -43,7 +43,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {hasClerkKeys ? (
-            <ClerkProvider>
+            <ClerkProvider
+              publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+              signInUrl="/sign-in"
+              signUpUrl="/sign-up"
+              afterSignInUrl="/admin"
+              afterSignUpUrl="/admin"
+            >
               <SiteChrome>{children}</SiteChrome>
             </ClerkProvider>
           ) : (
