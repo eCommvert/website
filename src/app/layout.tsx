@@ -49,6 +49,7 @@ export default function RootLayout({
               signUpUrl="/sign-up"
               afterSignInUrl="/admin"
               afterSignUpUrl="/admin"
+              proxyUrl={undefined}
             >
               <SiteChrome>{children}</SiteChrome>
             </ClerkProvider>
