@@ -13,9 +13,13 @@ interface BlogPost {
   blog_post_tags?: { blog_tags: { name: string; slug: string } }[];
 }
 
+// Force dynamic rendering to avoid build-time API calls
+export const dynamic = 'force-dynamic';
+
 async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/blog/posts?public=true&limit=20`, {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/blog/posts?public=true&limit=20`, {
       cache: 'no-store'
     });
     if (!res.ok) return [];
