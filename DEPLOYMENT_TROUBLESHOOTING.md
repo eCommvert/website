@@ -114,6 +114,8 @@ In Vercel Dashboard, ensure:
 1. `5b45c76` - Fix middleware and blog page deployment issues
 2. `a3c7d40` - Remove async/await from Clerk middleware to fix invocation error  
 3. `4286168` - Temporarily disable Clerk middleware to fix deployment
+4. `703a839` - Re-enable Clerk middleware with updated configuration
+5. `28e736d` - Downgrade Next.js to 15.1.0 for Clerk compatibility
 
 ## Testing Checklist
 
