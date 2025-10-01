@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-// Temporarily disable Clerk middleware to fix site-wide 500s
-// We'll re-enable it once Clerk is properly configured
-export default function middleware() {
-  return NextResponse.next();
-};
+const isProtectedRoute = createRouteMatcher([
+  '/admin(.*)',
+  '/api/admin(.*)'
+]);
+
+export default clerkMiddleware((auth, req) => {
+  if (isProtectedRoute(req)) auth().protect();
+});
 
 export const config = {
   matcher: [
