@@ -7,11 +7,14 @@ import {
   TrendingUp, 
   DollarSign, 
   ArrowUpRight,
+  ArrowRight,
   Users,
-  ShoppingCart
+  ShoppingCart,
+  Target,
+  Sparkles
 } from "lucide-react";
-import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { motion, useInView } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
 import { CaseStudyDetailModal } from "@/components/case-study-detail-modal";
 
 // Interface matching the admin dashboard
@@ -137,14 +140,19 @@ const defaultCaseStudies: CaseStudy[] = [
   }
 ];
 
-// Redesigned minimal metric card component
+// Clean metric card matching pricing section design
 const MetricCard = ({ 
   metric,
-  icon: Icon
+  icon: Icon,
+  index = 0
 }: {
   metric: { name: string; before: number; after: number; improvement: number; format: string; points?: number };
   icon: React.ComponentType<{ className?: string }>; 
+  index?: number;
 }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.3 });
+
   const formatValue = (value: number | null | undefined, format: string | null | undefined) => {
     const safe = typeof value === 'number' && !Number.isNaN(value) ? value : 0;
     const fmt = format || 'number';
@@ -166,46 +174,102 @@ const MetricCard = ({
   const isImprovement = actualImprovement > 0;
   const improvementValue = isPoints ? (metric.points ?? 0) : actualImprovement;
 
+  // Brand color per metric type
+  const getMetricColor = () => {
+    const name = metric.name?.toLowerCase() || '';
+    if (name.includes('roas')) return 'text-[#A259FF]';
+    if (name.includes('cpa') || name.includes('cost')) return 'text-[#FF5E5E]';
+    if (name.includes('revenue') || name.includes('sales')) return 'text-[#22D3EE]';
+    if (name.includes('conversion') || name.includes('rate')) return 'text-[#2DD4BF]';
+    return 'text-[#A259FF]'; // default purple
+  };
+
   return (
-    <div className="bg-muted/30 rounded-lg p-4 border border-border/50 hover:border-border transition-colors">
-      <div className="flex items-center gap-2 mb-3">
-        <Icon className="w-4 h-4 text-muted-foreground" />
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{metric.name}</span>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 12 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+      transition={{ 
+        duration: 0.3, 
+        delay: index * 0.06,
+        ease: [0.22, 1, 0.36, 1]
+      }}
+      className="
+        bg-[#202020] 
+        rounded-xl 
+        p-6 
+        border border-white/5
+        hover:border-white/10
+        shadow-md
+        transition-all duration-300
+        hover:shadow-lg
+      "
+    >
+      {/* Icon and Title */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-white/5">
+            <Icon className="w-4 h-4 text-gray-400" />
+          </div>
+          <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+            {metric.name}
+          </h4>
+        </div>
       </div>
 
-      <div className="space-y-3">
-        {!isPercentageOnly && !isPoints ? (
-          <>
-            <div className="flex justify-between items-baseline">
-              <span className="text-xs text-muted-foreground">Before</span>
-              <span className="text-sm font-medium text-foreground">{formatValue(metric.before, metric.format)}</span>
-            </div>
-            <div className="flex justify-between items-baseline">
-              <span className="text-xs text-muted-foreground">After</span>
-              <span className="text-lg font-bold text-foreground">{formatValue(metric.after, metric.format)}</span>
-            </div>
-          </>
-        ) : (
-          <div className="text-center">
-            <div className="text-2xl font-bold text-foreground">
-              {isPoints ? `${improvementValue >= 0 ? '+' : ''}${improvementValue}pp` : `${improvementValue > 0 ? '+' : ''}${improvementValue}%`}
-            </div>
-            <div className="text-xs text-muted-foreground">Improvement</div>
+      {/* Before / After Stats */}
+      {!isPercentageOnly && !isPoints ? (
+        <div className="space-y-3 mb-4">
+          {/* Before */}
+          <div className="flex items-baseline justify-between">
+            <span className="text-xs text-gray-500 uppercase tracking-wide">Before</span>
+            <span className="text-sm font-medium text-gray-300">
+              {formatValue(metric.before, metric.format)}
+            </span>
           </div>
-        )}
-        
-        {/* Subtle improvement indicator */}
-        <div className="flex justify-end">
-          <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-            isImprovement 
-              ? 'bg-green-500/10 text-green-600 border border-green-500/20' 
-              : 'bg-red-500/10 text-red-600 border border-red-500/20'
-          }`}>
-            {isPoints ? `${improvementValue >= 0 ? '+' : ''}${improvementValue}pp` : `${improvementValue > 0 ? '+' : ''}${improvementValue}%`}
+          
+          {/* After */}
+          <div className="flex items-baseline justify-between">
+            <span className="text-xs text-gray-500 uppercase tracking-wide">After</span>
+            <span className={`text-2xl font-bold ${getMetricColor()}`}>
+              {formatValue(metric.after, metric.format)}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="mb-4">
+          <div className={`text-3xl font-bold ${getMetricColor()} mb-1`}>
+            {isPoints 
+              ? `${improvementValue >= 0 ? '+' : ''}${improvementValue}pp` 
+              : `${improvementValue > 0 ? '+' : ''}${improvementValue}%`
+            }
+          </div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide">Improvement</div>
+        </div>
+      )}
+
+      {/* Change Badge */}
+      <div className="flex justify-start">
+        <div className={`
+          inline-flex items-center gap-1.5
+          px-3 py-1.5
+          rounded-lg
+          text-xs font-semibold
+          ${isImprovement 
+            ? 'bg-emerald-500/10 text-emerald-400' 
+            : 'bg-red-500/10 text-red-400'
+          }
+        `}>
+          <ArrowUpRight className={`w-3.5 h-3.5 ${!isImprovement ? 'rotate-90' : ''}`} />
+          <span>
+            {isPoints 
+              ? `${improvementValue >= 0 ? '+' : ''}${improvementValue}pp` 
+              : `${improvementValue > 0 ? '+' : ''}${improvementValue}%`
+            }
           </span>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -317,15 +381,15 @@ export function CaseStudiesSection() {
   }
 
   return (
-    <section className="py-16 md:py-20 bg-muted/30">
+    <section className="py-14 md:py-18 bg-muted/30">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          className="text-center space-y-4 mb-16"
+          className="text-center space-y-3 mb-12"
         >
           <Badge variant="outline" className="px-4 py-2">
             Proven Results
@@ -333,13 +397,13 @@ export function CaseStudiesSection() {
           <h2 className="text-3xl md:text-4xl font-bold">
             Real Client Success Stories
           </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            See how we&rsquo;ve helped e-commerce brands achieve remarkable growth through strategic Google Ads optimization and data-driven decision making.
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+            See how we&rsquo;ve helped e-commerce brands achieve remarkable growth through strategic Google Ads optimization.
           </p>
         </motion.div>
 
         {/* Case Studies */}
-        <div className="space-y-12">
+        <div className="space-y-10">
           {!isLoaded ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
@@ -351,98 +415,141 @@ export function CaseStudiesSection() {
               <p className="text-sm text-muted-foreground">Check back later or contact us for more information.</p>
             </div>
           ) : (
-            caseStudies.map((study: CaseStudy, index: number) => (
-            <motion.div
-              key={study.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-            >
-              <Card className="overflow-hidden border-border/50 hover:border-border transition-colors">
-                <CardContent className="p-0">
-                  <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-0">
-                    {/* Left Section - Story (40%) */}
-                    <div className="p-6 md:p-8 space-y-6">
-                      {/* Tags */}
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs px-2 py-1 bg-muted/30 border-border/50 text-muted-foreground">
-                          {study.category}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs px-2 py-1 bg-muted/30 border-border/50 text-muted-foreground">
-                          {study.industry}
-                        </Badge>
-                      </div>
+            caseStudies.map((study: CaseStudy, index: number) => {
+              // Prepare metrics array
+              const metrics = [
+                { ...study.results?.metric1, icon: TrendingUp, key: 'metric1' },
+                { ...study.results?.metric2, icon: DollarSign, key: 'metric2' },
+                { ...study.results?.metric3, icon: ShoppingCart, key: 'metric3' },
+                { ...study.results?.metric4, icon: Users, key: 'metric4' }
+              ].filter(m => m && m.name && m.name.trim() !== "");
 
-                      {/* Client Name */}
-                      <div>
-                        <h3 className="text-xl font-bold text-foreground mb-2">{study.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {study.client} • {study.duration} • {study.monthlySpend}/month ad spend
-                        </p>
-                      </div>
+              return (
+                <motion.div
+                  key={study.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  viewport={{ once: true, amount: 0.2 }}
+                >
+                  <Card className="overflow-hidden border-border/30 hover:border-border/50 bg-gradient-to-br from-background/95 to-muted/30 backdrop-blur-sm transition-all duration-300">
+                    <CardContent className="p-0">
+                      <div className="grid grid-cols-1 lg:grid-cols-[48%_52%] gap-0">
+                        {/* Left Section - Story & Context */}
+                        <div className="p-6 md:p-8 space-y-5 flex flex-col">
+                          {/* Tags */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge 
+                              variant="outline" 
+                              className="text-xs font-semibold px-3 py-1 bg-[#A259FF]/10 border-[#A259FF]/30 text-[#A259FF] uppercase tracking-wider"
+                            >
+                              {study.category}
+                            </Badge>
+                            <Badge 
+                              variant="outline" 
+                              className="text-xs font-semibold px-3 py-1 bg-muted/50 border-border/50 text-muted-foreground uppercase tracking-wider"
+                            >
+                              {study.industry}
+                            </Badge>
+                          </div>
 
-                      {/* Challenge */}
-                      <div className="space-y-2">
-                        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          Challenge
-                        </h4>
-                        <p className="text-sm text-foreground leading-relaxed">
-                          {study.challenge.split('\n')[0].trim()}
-                        </p>
-                      </div>
+                          {/* Project Title */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Target className="w-4 h-4 text-[#A259FF]" />
+                              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                Case Study
+                              </span>
+                            </div>
+                            <h3 className="text-2xl md:text-3xl font-bold text-foreground leading-tight tracking-tight">
+                              {study.title}
+                            </h3>
+                            <p className="text-sm font-medium text-muted-foreground flex items-center gap-2 flex-wrap">
+                              <span className="font-semibold text-foreground">{study.client}</span>
+                              <span className="text-muted-foreground/50">•</span>
+                              <span>{study.duration}</span>
+                              <span className="text-muted-foreground/50">•</span>
+                              <span className="font-semibold text-[#22D3EE]">{study.monthlySpend}/mo</span>
+                            </p>
+                          </div>
 
-                      {/* Solution */}
-                      <div className="space-y-2">
-                        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          Solution
-                        </h4>
-                        <p className="text-sm text-foreground leading-relaxed">
-                          {study.solution.split('\n')[0].trim()}
-                        </p>
-                      </div>
+                          {/* Challenge - Stacked Vertically */}
+                          <div className="space-y-2 border border-red-500/20 rounded-lg p-4 bg-transparent">
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-4 bg-red-500/70 rounded-full" />
+                              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                                Challenge
+                              </h4>
+                            </div>
+                            <p className="text-sm text-foreground/90 leading-relaxed">
+                              {study.challenge.split('\n')[0].trim()}
+                            </p>
+                          </div>
 
-                      {/* CTA Button */}
-                      <div className="pt-4">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full"
-                          onClick={() => handleViewDetails(study)}
-                        >
-                          View Details
-                          <ArrowUpRight className="w-4 h-4 ml-2" />
-                        </Button>
-                      </div>
-                    </div>
+                          {/* Solution - Stacked Vertically */}
+                          <div className="space-y-2 border border-emerald-500/20 rounded-lg p-4 bg-transparent">
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-4 bg-emerald-500/70 rounded-full" />
+                              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                                Solution
+                              </h4>
+                            </div>
+                            <p className="text-sm text-foreground/90 leading-relaxed">
+                              {study.solution.split('\n')[0].trim()}
+                            </p>
+                          </div>
 
-                    {/* Right Section - Metrics (60%) */}
-                    <div className="p-6 md:p-8 bg-muted/20 border-t lg:border-t-0 lg:border-l border-border/50">
-                      <div className="space-y-4">
-                        <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                          Key Results
-                        </h4>
-                        <div className="grid grid-cols-2 gap-4">
-                          {[
-                            { metric: study.results?.metric1, icon: TrendingUp },
-                            { metric: study.results?.metric2, icon: DollarSign },
-                            { metric: study.results?.metric3, icon: ShoppingCart },
-                            { metric: study.results?.metric4, icon: Users }
-                          ].filter(({ metric }) => metric && metric.name && metric.name.trim() !== "").map(({ metric, icon }, index) => (
-                            <MetricCard
-                              key={index}
-                              metric={metric!}
-                              icon={icon}
-                            />
-                          ))}
+                          {/* CTA Button - Premium Gradient */}
+                          <div className="pt-3 mt-auto">
+                            <Button 
+                              size="default"
+                              className="w-full group relative overflow-hidden bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] hover:from-[#6D28D9] hover:to-[#5B21B6] text-white font-bold text-sm rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300"
+                              onClick={() => handleViewDetails(study)}
+                            >
+                              <span className="relative z-10 flex items-center gap-2">
+                                View Full Results
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                              </span>
+                              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Right Section - Performance Scorecard */}
+                        <div className="p-6 md:p-8 bg-[#transparent] border-t lg:border-t-0 lg:border-l border-white/5">
+                          {/* Scorecard Header */}
+                          <div className="mb-6">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="p-2 rounded-lg bg-white/5">
+                                <Sparkles className="w-4 h-4 text-[#22D3EE]" />
+                              </div>
+                              <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+                                Performance Scorecard
+                              </h4>
+                            </div>
+                            <p className="text-xl font-bold text-white">
+                              Key Results
+                            </p>
+                          </div>
+
+                          {/* Metrics Grid - Clean 2x2 Grid */}
+                          <div className="grid grid-cols-2 gap-6">
+                            {metrics.map((m, idx) => (
+                              <MetricCard
+                                key={idx}
+                                metric={m}
+                                icon={m.icon}
+                                index={idx}
+                              />
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-            ))
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })
           )}
         </div>
 
