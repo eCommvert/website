@@ -1,15 +1,17 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-const isProtectedRoute = createRouteMatcher([
-  '/admin(.*)',
-  '/api/admin(.*)'
-]);
-
-export default clerkMiddleware((auth, req) => {
-  if (isProtectedRoute(req)) {
-    auth.protect();
+// Temporary: Disable Clerk middleware to fix deployment
+// TODO: Investigate Clerk compatibility with Next.js 15.5.2
+export function middleware(request: NextRequest) {
+  // Block access to admin routes temporarily
+  if (request.nextUrl.pathname.startsWith('/admin') || 
+      request.nextUrl.pathname.startsWith('/api/admin')) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
-});
+  
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [
