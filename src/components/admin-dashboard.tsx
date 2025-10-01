@@ -31,7 +31,7 @@ import Link from "next/link";
 import { fetchLemonSqueezyProducts, LemonSqueezyProduct } from "@/lib/lemonsqueezy";
 import { FILTER_FACETS } from "@/lib/product-filters";
 import { MultiSelectWithCreate } from "@/components/ui/multi-select-with-create";
-import { MultiSelectPopover } from "@/components/ui/multi-select-popover";
+// import { MultiSelectPopover } from "@/components/ui/multi-select-popover";
 import { CheckboxDropdown } from "@/components/ui/checkbox-dropdown";
 
 // Types for our CMS data
