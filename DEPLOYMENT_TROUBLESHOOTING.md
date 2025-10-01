@@ -4,8 +4,6 @@
 
 **Error Details:**
 - Code: `MIDDLEWARE_INVOCATION_FAILED`
-- ID: `fra1::nkj8g-1759299610455-a96914d34824` (initial)
-- ID: `fra1::tv2j5-1759300311328-0e2aa36815e8` (after first fix attempt)
 
 ## Root Cause Analysis
 
@@ -21,7 +19,7 @@ The error was initially thought to be related to missing Clerk environment varia
    - ✅ `NEXT_PUBLIC_CLERK_PROXY_URL`
    - ✅ `NEXT_PUBLIC_CLERK_IS_SATELLITE`
    - ✅ `CLERK_DEBUG`
-   - ⚠️ `NEXT_PUBLIC_DISABLE_CLERK` (was set to `true` - needs to be removed)
+   - ⚠️ `NEXT_PUBLIC_DISABLE_CLERK` (was set to `true` - its now removed)
 
 2. **Secondary Issue Found:** Blog page was making API calls during build time
    - Error: `Route /blog couldn't be rendered statically because it used revalidate: 0 fetch http://localhost:3000/api/blog/posts`
