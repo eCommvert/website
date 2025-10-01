@@ -21,16 +21,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Check if Clerk keys are available
-  const hasClerkKeys = !!(
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && 
-    process.env.CLERK_SECRET_KEY
-  );
+  // TEMPORARY: Disable Clerk completely due to proxy URL issues
+  // TODO: Fix NEXT_PUBLIC_CLERK_PROXY_URL environment variable in Vercel
+  const hasClerkKeys = false; // Force disable Clerk
 
   // Debug logging
-  console.log('RootLayout - hasClerkKeys:', hasClerkKeys);
-  console.log('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY exists:', !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
-  console.log('CLERK_SECRET_KEY exists:', !!process.env.CLERK_SECRET_KEY);
+  console.log('RootLayout - hasClerkKeys (FORCED OFF):', hasClerkKeys);
+  console.log('TEMPORARY: Clerk disabled due to proxy URL configuration issues');
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -42,20 +39,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {hasClerkKeys ? (
-            <ClerkProvider
-              publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-              signInUrl="/sign-in"
-              signUpUrl="/sign-up"
-              afterSignInUrl="/admin"
-              afterSignUpUrl="/admin"
-              proxyUrl={undefined}
-            >
-              <SiteChrome>{children}</SiteChrome>
-            </ClerkProvider>
-          ) : (
-            <SiteChrome>{children}</SiteChrome>
-          )}
+          <SiteChrome>{children}</SiteChrome>
         </ThemeProvider>
       </body>
     </html>
