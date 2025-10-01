@@ -14,18 +14,21 @@ export default function AdminClient() {
                    user?.publicMetadata?.admin === true ||
                    user?.publicMetadata?.owner === true;
 
-  // TEMPORARY: Force disable Clerk due to proxy URL issues
-  const hasClerkKeys = false;
+  // Check if Clerk keys are available (runtime check for satellite mode)
+  const hasClerkKeys = !!(
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+  );
 
   // Debug: Log the environment check
-  console.log('hasClerkKeys (FORCED OFF):', hasClerkKeys, 'isLoaded:', isLoaded);
+  console.log('hasClerkKeys:', hasClerkKeys, 'isLoaded:', isLoaded);
 
-  // TEMPORARY: Show admin page directly without authentication
-  // TODO: Fix NEXT_PUBLIC_CLERK_PROXY_URL environment variable in Vercel
-  console.log('TEMPORARY: Showing admin page directly - Clerk disabled due to proxy URL issues');
-  return <AdminPage />;
+  // If no Clerk keys, show admin page directly (for development)
+  if (!hasClerkKeys) {
+    console.log('No Clerk keys found, showing admin page directly');
+    return <AdminPage />;
+  }
 
-  // Show loading while Clerk is loading, but with a timeout
+  // Show loading while Clerk is loading
   if (!isLoaded) {
     console.log('Clerk not loaded yet, showing loading state');
     return (
