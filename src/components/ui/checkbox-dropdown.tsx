@@ -16,7 +16,7 @@ interface CheckboxDropdownProps {
 }
 
 export function CheckboxDropdown({ 
-  label: _label, 
+  label, 
   options, 
   selected, 
   onChange, 

@@ -3,7 +3,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { 
-  TrendingUp, 
   ArrowRight, 
   CheckCircle, 
   Zap,
@@ -22,7 +21,6 @@ import { AnimatedPerformanceGraph } from "@/components/animated-performance-grap
 
 export function HowWeHelpSection() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [auditsInView, setAuditsInView] = useState(false);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
@@ -149,7 +147,6 @@ export function HowWeHelpSection() {
                         <ResponsiveContainer width="100%" height="100%">
                           <RadarChart 
                             data={auditData}
-                            onMouseEnter={() => setAuditsInView(true)}
                           >
                             <PolarGrid stroke="#374151" strokeWidth={1} />
                             <PolarAngleAxis 

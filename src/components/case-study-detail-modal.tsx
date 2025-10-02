@@ -2,8 +2,6 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { 
   X, 
   TrendingUp, 
@@ -11,15 +9,10 @@ import {
   Target, 
   Users, 
   ShoppingCart,
-  BarChart3,
-  Clock,
   ArrowUpRight,
   ArrowRight,
-  Sparkles,
-  Building
+  Sparkles
 } from "lucide-react";
-import { motion } from "framer-motion";
-import Image from "next/image";
 
 interface CaseStudy {
   id: string;
@@ -289,7 +282,7 @@ export const CaseStudyDetailModal = ({ caseStudy, isOpen, onClose }: CaseStudyDe
               </div>
               <div className="flex-1">
                 <blockquote className="text-white/90 italic text-base leading-relaxed mb-4">
-                  "{caseStudy.testimonial}"
+                  &ldquo;{caseStudy.testimonial}&rdquo;
                 </blockquote>
                 <div className="text-sm">
                   <div className="font-semibold text-white">{caseStudy.author}</div>
