@@ -9,6 +9,7 @@ interface PerformanceGraphProps {
 export function AnimatedPerformanceGraph({ className = "" }: PerformanceGraphProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
   const rafIdRef = useRef<number | null>(null);
 
   // Performance data
@@ -16,6 +17,27 @@ export function AnimatedPerformanceGraph({ className = "" }: PerformanceGraphPro
   const currentPerformance = useMemo(() => [95, 100, 105, 108, 110, 115], []);
   const withConsulting = useMemo(() => [105, 118, 115, 140, 130, 170], []);
   const months = useMemo(() => ["Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6"], []);
+
+  // Intersection Observer to detect when component is visible
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(canvas);
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -26,6 +48,8 @@ export function AnimatedPerformanceGraph({ className = "" }: PerformanceGraphPro
 
     const resizeCanvas = () => {
       const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return; // Skip if not visible
+      
       canvas.width = rect.width * window.devicePixelRatio;
       canvas.height = rect.height * window.devicePixelRatio;
       ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
@@ -33,13 +57,22 @@ export function AnimatedPerformanceGraph({ className = "" }: PerformanceGraphPro
       canvas.style.height = rect.height + "px";
     };
 
-    resizeCanvas();
+    // Use a small delay to ensure the canvas is properly mounted
+    const timeoutId = setTimeout(() => {
+      resizeCanvas();
+    }, 100);
+
     window.addEventListener("resize", resizeCanvas);
 
-    return () => window.removeEventListener("resize", resizeCanvas);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", resizeCanvas);
+    };
   }, []);
 
   useEffect(() => {
+    if (!isVisible) return;
+
     // Smooth animation of the purple line from baseline to target over duration
     const durationMs = 1600;
     const startTime = performance.now();
@@ -59,7 +92,7 @@ export function AnimatedPerformanceGraph({ className = "" }: PerformanceGraphPro
     return () => {
       if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
     };
-  }, []);
+  }, [isVisible]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -262,8 +295,10 @@ export function AnimatedPerformanceGraph({ className = "" }: PerformanceGraphPro
       });
     };
 
-    draw();
-  }, [animationProgress, currentPerformance, months, withConsulting]);
+    if (isVisible) {
+      draw();
+    }
+  }, [animationProgress, currentPerformance, months, withConsulting, isVisible]);
 
   return (
     <div className={`relative w-full h-full ${className}`}>

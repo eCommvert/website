@@ -140,7 +140,7 @@ const defaultCaseStudies: CaseStudy[] = [
   }
 ];
 
-// Clean metric card matching pricing section design
+// Mobile-optimized metric card with responsive design
 const MetricCard = ({ 
   metric,
   icon: Icon,
@@ -195,72 +195,71 @@ const MetricCard = ({
         ease: [0.22, 1, 0.36, 1]
       }}
       className="
-        bg-[#202020] 
+        bg-[#1e1e22] 
         rounded-xl 
-        p-6 
-        border border-white/5
+        p-4 md:p-6 
+        border border-[#2a2a2d]
         hover:border-white/10
         shadow-md
         transition-all duration-300
         hover:shadow-lg
+        mb-4 md:mb-0
       "
     >
-      {/* Icon and Title */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-white/5">
-            <Icon className="w-4 h-4 text-gray-400" />
-          </div>
-          <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wide">
-            {metric.name}
-          </h4>
+      {/* Icon and Title - Mobile Optimized */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="p-1.5 md:p-2 rounded-lg bg-white/5">
+          <Icon className="w-4 h-4 text-gray-400" />
         </div>
+        <h4 className="text-xs md:text-sm font-medium text-zinc-400 uppercase tracking-wide truncate">
+          {metric.name}
+        </h4>
       </div>
 
-      {/* Before / After Stats */}
+      {/* Before / After Stats - Mobile Responsive */}
       {!isPercentageOnly && !isPoints ? (
-        <div className="space-y-3 mb-4">
+        <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
           {/* Before */}
           <div className="flex items-baseline justify-between">
-            <span className="text-xs text-gray-500 uppercase tracking-wide">Before</span>
-            <span className="text-sm font-medium text-gray-300">
+            <span className="text-xs text-zinc-500 uppercase tracking-wide">Before</span>
+            <span className="text-sm font-medium text-zinc-300 truncate">
               {formatValue(metric.before, metric.format)}
             </span>
           </div>
           
           {/* After */}
           <div className="flex items-baseline justify-between">
-            <span className="text-xs text-gray-500 uppercase tracking-wide">After</span>
-            <span className={`text-2xl font-bold ${getMetricColor()}`}>
+            <span className="text-xs text-zinc-500 uppercase tracking-wide">After</span>
+            <span className={`text-xl md:text-2xl font-bold ${getMetricColor()} truncate`}>
               {formatValue(metric.after, metric.format)}
             </span>
           </div>
         </div>
       ) : (
-        <div className="mb-4">
-          <div className={`text-3xl font-bold ${getMetricColor()} mb-1`}>
+        <div className="mb-3 md:mb-4">
+          <div className={`text-2xl md:text-3xl font-bold ${getMetricColor()} mb-1`}>
             {isPoints 
               ? `${improvementValue >= 0 ? '+' : ''}${improvementValue}pp` 
               : `${improvementValue > 0 ? '+' : ''}${improvementValue}%`
             }
           </div>
-          <div className="text-xs text-gray-500 uppercase tracking-wide">Improvement</div>
+          <div className="text-xs text-zinc-500 uppercase tracking-wide">Improvement</div>
         </div>
       )}
 
-      {/* Change Badge */}
+      {/* Change Badge - Mobile Optimized */}
       <div className="flex justify-start">
         <div className={`
           inline-flex items-center gap-1.5
-          px-3 py-1.5
+          px-2.5 md:px-3 py-1 md:py-1.5
           rounded-lg
           text-xs font-semibold
           ${isImprovement 
-            ? 'bg-emerald-500/10 text-emerald-400' 
-            : 'bg-red-500/10 text-red-400'
+            ? 'bg-green-600/20 text-green-400' 
+            : 'bg-red-600/20 text-red-400'
           }
         `}>
-          <ArrowUpRight className={`w-3.5 h-3.5 ${!isImprovement ? 'rotate-90' : ''}`} />
+          <ArrowUpRight className={`w-3 h-3 md:w-3.5 md:h-3.5 ${!isImprovement ? 'rotate-90' : ''}`} />
           <span>
             {isPoints 
               ? `${improvementValue >= 0 ? '+' : ''}${improvementValue}pp` 
@@ -434,7 +433,117 @@ export function CaseStudiesSection() {
                 >
                   <Card className="overflow-hidden border-border/30 hover:border-border/50 bg-gradient-to-br from-background/95 to-muted/30 backdrop-blur-sm transition-all duration-300">
                     <CardContent className="p-0">
-                      <div className="grid grid-cols-1 lg:grid-cols-[48%_52%] gap-0">
+                      {/* Mobile: Single Column Layout */}
+                      <div className="block lg:hidden">
+                        <div className="p-4 md:p-6 space-y-6">
+                          {/* Tags */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge 
+                              variant="outline" 
+                              className="text-xs font-semibold px-2.5 py-1 bg-[#A259FF]/10 border-[#A259FF]/30 text-[#A259FF] uppercase tracking-wider"
+                            >
+                              {study.category}
+                            </Badge>
+                            <Badge 
+                              variant="outline" 
+                              className="text-xs font-semibold px-2.5 py-1 bg-muted/50 border-border/50 text-muted-foreground uppercase tracking-wider"
+                            >
+                              {study.industry}
+                            </Badge>
+                          </div>
+
+                          {/* Project Title */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Target className="w-4 h-4 text-[#A259FF]" />
+                              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                Case Study
+                              </span>
+                            </div>
+                            <h3 className="text-xl md:text-2xl font-bold text-foreground leading-tight tracking-tight">
+                              {study.title}
+                            </h3>
+                            <p className="text-sm font-medium text-muted-foreground flex items-center gap-2 flex-wrap">
+                              <span className="font-semibold text-foreground">{study.client}</span>
+                              <span className="text-muted-foreground/50">•</span>
+                              <span>{study.duration}</span>
+                              <span className="text-muted-foreground/50">•</span>
+                              <span className="font-semibold text-[#22D3EE]">{study.monthlySpend}/mo</span>
+                            </p>
+                          </div>
+
+                          {/* Challenge */}
+                          <div className="space-y-2 border border-red-500/20 rounded-lg p-4 bg-transparent">
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-4 bg-red-500/70 rounded-full" />
+                              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                                Challenge
+                              </h4>
+                            </div>
+                            <p className="text-sm text-foreground/90 leading-relaxed">
+                              {study.challenge.split('\n')[0].trim()}
+                            </p>
+                          </div>
+
+                          {/* Solution */}
+                          <div className="space-y-2 border border-emerald-500/20 rounded-lg p-4 bg-transparent">
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-4 bg-emerald-500/70 rounded-full" />
+                              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                                Solution
+                              </h4>
+                            </div>
+                            <p className="text-sm text-foreground/90 leading-relaxed">
+                              {study.solution.split('\n')[0].trim()}
+                            </p>
+                          </div>
+
+                          {/* Performance Scorecard - Mobile */}
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <div className="p-2 rounded-lg bg-white/5">
+                                <Sparkles className="w-4 h-4 text-[#22D3EE]" />
+                              </div>
+                              <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+                                Performance Scorecard
+                              </h4>
+                            </div>
+                            <p className="text-lg font-bold text-white">
+                              Key Results
+                            </p>
+
+                            {/* Metrics Grid - Single Column on Mobile */}
+                            <div className="grid grid-cols-1 gap-4">
+                              {metrics.map((m, idx) => (
+                                <MetricCard
+                                  key={idx}
+                                  metric={m}
+                                  icon={m.icon}
+                                  index={idx}
+                                />
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* CTA Button - At Bottom on Mobile */}
+                          <div className="pt-4">
+                            <Button 
+                              size="default"
+                              className="w-full group relative overflow-hidden bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] hover:from-[#6D28D9] hover:to-[#5B21B6] text-white font-bold text-base rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 py-3"
+                              onClick={() => handleViewDetails(study)}
+                            >
+                              <span className="relative z-10 flex items-center justify-center gap-2">
+                                View Full Results
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                              </span>
+                              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Desktop: Two Column Layout */}
+                      <div className="hidden lg:grid lg:grid-cols-[48%_52%] gap-0">
                         {/* Left Section - Story & Context */}
                         <div className="p-6 md:p-8 space-y-5 flex flex-col">
                           {/* Tags */}
