@@ -7,13 +7,13 @@ export function GTMScript() {
   const [gtmContainer, setGtmContainer] = useState<string>("");
 
   useEffect(() => {
-    // Load GTM container ID from settings
+    // Load GTM container ID from public settings
     const loadGTMSettings = async () => {
       try {
-        const res = await fetch("/api/admin/settings");
+        const res = await fetch("/api/public/settings");
         if (res.ok) {
           const data = await res.json();
-          const containerId = data.settings?.gtmContainer;
+          const containerId = data.gtmContainer;
           if (containerId && containerId.trim()) {
             setGtmContainer(containerId.trim());
           }

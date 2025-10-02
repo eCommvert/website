@@ -104,8 +104,39 @@ export const ToolsPage = () => {
           });
         }
         
+        // Filter out draft products based on admin settings
+        let filteredProducts = fetchedProducts;
+        try {
+          const savedSettings = localStorage.getItem('admin-settings');
+          if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            const showInactive = settings.showInactive;
+            
+            if (!showInactive) {
+              // Filter out draft products - only show published products
+              filteredProducts = fetchedProducts.filter(product => {
+                // Check if product is marked as draft in admin extras
+                const productExtras = JSON.parse(localStorage.getItem('lemonsqueezy-product-extras') || '{}');
+                const isDraft = productExtras[product.id]?.draft;
+                
+                // Also check LemonSqueezy status - only show published products
+                const isPublished = product.attributes.status === 'published';
+                
+                return !isDraft && isPublished;
+              });
+            }
+          } else {
+            // Default behavior: only show published products
+            filteredProducts = fetchedProducts.filter(product => product.attributes.status === 'published');
+          }
+        } catch (error) {
+          console.error('Error filtering products:', error);
+          // Fallback: only show published products
+          filteredProducts = fetchedProducts.filter(product => product.attributes.status === 'published');
+        }
+        
         // Sort by updated_at desc
-        const sorted = [...fetchedProducts].sort((a,b) => new Date(b.attributes.updated_at).getTime() - new Date(a.attributes.updated_at).getTime());
+        const sorted = [...filteredProducts].sort((a,b) => new Date(b.attributes.updated_at).getTime() - new Date(a.attributes.updated_at).getTime());
         setProducts(sorted);
         setFilteredProducts(sorted);
       } catch (error) {
